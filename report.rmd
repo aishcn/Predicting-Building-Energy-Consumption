@@ -2,7 +2,7 @@
 title: "STAT 447B Group Report"
 author:
   - Anjali Chauhan (57181489)
-  - Idris Hedayat (28352680)
+  - Idris Hedayat ()
   - Sameer Shankar (47555636)
   - Sumit Meghlani ()
 date: "March 31, 2022"
@@ -102,54 +102,12 @@ The data was collected daily by satellites and an aggregation of the data (annua
 knitr::include_graphics('image/all_climate_var_scatterplots.png')
 ```
 
-In our Exploratory Data Analysis, we aimed to find how individual explanatory individuals relate and behave alongside the response variable Site EUI as well other explanatory variables. Through wrangling of the data aim to suggest potential transformations to the data in hopes of finding behaviors that will improve performances of future models.
-
-
-
-#€Investigating Relationships with the Response
-
-#Spearman Correlation
-
-In a prelimary attempt of gathering information on covariate relationships with Site EUI, we used Spearman rank correlation coefficients to investigate potential linear relationships with the response. In particular we choose Spearman correleation which is invariant to monotone increasing effect of transforms. We find that energy star rating has by far the largest spearman correlation with Site EUI in terms of magnitude with -0.654 [REPLACE WITH VALUE FROM SUBSET ??] , suggesting a relatively strong decreasing relatinship with the response. We also note relatively higher magnitudes for monthly min and average temperatures, in particular a decreasing relationship with colder months temperature measures, namely January and February, while there are increasing relationships with Summer months auch as June and July. In context this can be expected as there is a lesser requirement of energy for uses such as heating and lighting in building in the summer months when days last longer and are warmer.
-
-
-#Plots Investigating relationships with Site EUI
-In order to enable us to explore the data more effectively there are measures that can be taken such as subsetting the data, given the large size of the data set.
-Via the summary tables we also see that site eui is right skewed, so a cube root transformation for the sole purpose of investiagting relationship will be more effective.
-
-#building charactersitics vs site eui
-
-building characteristics are of particular interest in context of the data, and so we investigated relationships between Site EUI and building variables. The most noteworthy relationships was with energy star ratiing, which was as expected from the Spearman correlations, and found a clearer and more linear relationship with the response than almost all other variables. 
-For elevation we used binning for the classes based on the variables quantiles from summary statistics. We see a notable increase in site EUI initially as buildings add a floors requirement more total energy usage, before this plateaus, which is understandable in context as buildings aren't generally built above a certain height and number of floors.
-For state factor we see that the classes are very imbalanced for Stat 10 with only 15 datapoints, while stat 6 has much more than the others with 50840, indicating we could undersample for this specific state factor, while combining stat 10 with anoother state factor level.
-
-
-#Investigating Relationships between explanatory variables
-It is in our interest to explore potential relationships between covariates in the dataset, as these could potentially lead to issues namely multicollinearity.
-The monthly minimum, maximum, and avaerge temperatures for colder months display relatively strong relationships with other climatic variables relating to cooler weather including "days below...", "heating degree days" and "snowfall" covariates. We gather that the strong negative relationship in context shows as temperature increases in these cold months, the amount of snow fall and days below 0F and 20F decrease as expected. Tther noteworthy relationship
-
-
-
-
-
-
-# 
-
-
 \begin{center}
-\textbf{Fig. 1}: Relationship between Climate Variables and Site Eui
+\textbf{Fig. 1}: Relationship between Climate Variables and Streamflow
 \end{center}
 
 
-
-
-
-
-
-#Stuff below from template right?
-
 ```{=latex}
-
 \begin{center}
 \begin{tabular}{>{\centering}p{8cm}|>{\centering}p{8cm}}
 \includegraphics[width=80mm, height=70mm]{image/unscaled_boxplot.png} & \includegraphics[width=80mm, height=70mm]{image/all_climate_var_scaled_boxplots.png} \\
@@ -192,11 +150,18 @@ knitr::include_graphics('image/new_pipeline.png')
 
 ### 4.1 Data Pre-Processing
 
-As part of the data pre-processing pipeline, several different transformations were performed in order to ensure consistency in data and to eliminate skewness and ensuring an approximately normal distribution of the explanatory variables. As this is one of the assumptions of our Linear Model that needs to be satisfied.
+As part of the data pre-processing pipeline, we start by dropping duplicate rows, and columns with a high percentage of missing values (over 50%). With the remaining missing values, we used the median imputation method (filling missing values of the column with the median). Furthermore, we dropped highly correlated features using pairwise correlation analysis, and binned the facility type column (due to unbalanced classes). Lastly, we removed rows with extreme Site EUI values using the IQR method and we used an ordinal encoding to encode all categorical columns.
 
 #### 4.1.1 Feature Transformations
 \
 \
+
+Feature Engineering:
+1. Used Random Forest Regressor to find important variables
+2. Engineered 2 interaction features from floor area and energy star rating and another feature with floor area and elevation
+
+
+
 In addition to Z-Score Standardization, which refers to scaling and centering of the distribution to ensure the data is not on a varying scale and is internally consistent, several feature transformations were performed to deal with both left and right skewed feature distributions. Table 3 shows all the transformations performed in order to achieve the desired results which are highlighted by Fig. 7 and Fig. 8.
 
 \begin{center}
