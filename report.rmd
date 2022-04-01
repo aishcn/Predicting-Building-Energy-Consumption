@@ -42,15 +42,13 @@ Site EUI refers to the amount of energy measured per sq. unit area per annum. Un
 
 The analysis fits models using different statistical techniques, and aims to find the model with the best 50/80% prediction intervals.
 
-
-
-This report summarises all of the primary statistical modelling and analysis results associated with the study. The remainder of this report is organised as follows: Section 3 describes the data collection, provides measurement of the variables and summarises the data. Section 4 presents the data preprocessing and statistical modelling techniques used to answer the client’s research questions. Section 5 summarises and interprets the results of the statistical analysis conducted. Appendices are provided for further exploratory data analysis along with the code used for the statistical modelling. Section 6 describes the outlier detection performed on the predicted stream flow values. Lastly, Section 7 presents the limitations and challenges in conducting this analysis.
+This report summarises all of the primary statistical modelling and analysis results associated with the study. The remainder of this report is organised as follows: Section 3 describes the data collection, provides measurement of the variables and summarises the data. Section 4 presents the data preprocessing and statistical modelling techniques. Section 5 summarises and interprets the results of the statistical analysis conducted. Appendices are provided for further exploratory data analysis along with the code used for the statistical modelling. Section 6 describes the extreme value detection performed on the predicted stream flow values. Lastly, Section 7 presents the limitations and challenges in conducting this analysis.
 
 ## 3. Data
 
 ### 3.1 Description
 
-The data was collected daily by satellites and an aggregation of the data (annual averages) was provided for the purpose of this analysis. Data contains observations from 23 medium-sized water catchment areas located around Canada. The size of these watershed areas ranges from 50 $km^2$ to 10,000 $km^2$. The data of various climate variables was taken from the year 1980 to 2018. There are 774 rows and 12 columns with no missing data. An additional dataset with the watershed shape data (Longitude, Latitude) was also provided by the client for further analysis of the effect of spatial features on the streamflow. 
+The dataset was created in collaboration with Climate Change AI (CCAI) and Lawrence Berkeley National Laboratory (Berkeley Lab). Data contains roughly 100k observations of building energy usage records collected over 7 years and a number of states within the United States. The dataset consists of building characteristics (e.g. floor area, facility type etc), and weather data for the location of the building (e.g. annual average temperature, annual total precipitation etc), as well as the energy usage for the building and the given year (Site EUI). Each row in the data corresponds to the a single building observed in a given year. There are 75757 rows and 64 columns with some missing data.
 
 \begin{center}
 \textbf{Table 1}: Description of Variables Used for Analysis
@@ -95,8 +93,34 @@ The data was collected daily by satellites and an aggregation of the data (annua
 | **75%** | 0.427 | 1509.39 | 217.5 | 0.507 | 0.133 | 166.81 | 163.3 | 1.806 | 0.872 | 1.233 |
 | **Max** | 0.712 | 1999.25 | 290.7 | 1.120 | 0.382 | 332.46 | 333.8 | 7.014 | 1.270 | 2.436 |
 
-
 ### 3.2 Exploratory Data Analysis
+
+In our Exploratory Data Analysis, we aimed to find how individual explanatory individuals relate and behave alongside the response variable Site EUI as well other explanatory variables. Through wrangling of the data aim to suggest potential transformations to the data in hopes of finding behaviors that will improve performances of future models.
+
+#Investigating Relationships with the Response
+
+#Spearman Correlation
+
+In a preliminary attempt of gathering information on covariate relationships with Site EUI, we used Spearman rank correlation coefficients to investigate potential linear relationships with the response. In particular we choose Spearman correlation which is invariant to monotone increasing effect of transforms. We find that energy star rating has by far the largest Spearman correlation with Site EUI in terms of magnitude with -0.654 [REPLACE WITH VALUE FROM SUBSET ??], suggesting a relatively strong decreasing relationship with the response. We also note relatively higher magnitudes for monthly min and average temperatures, in particular a decreasing relationship with colder months temperature measures, namely January and February, while there are increasing relationships with Summer months auch as June and July. In context this can be expected as there is a lesser requirement of energy for uses such as heating and lighting in building in the summer months when days last longer and are warmer.
+
+
+#Plots Investigating relationships with Site EUI
+
+In order to enable us to explore the data more effectively there are measures that can be taken such as subsetting the data, given the large size of the data set.
+Via the summary tables we also see that site EUI is right skewed, so a cube root transformation for the sole purpose of investigating relationship will be more effective.
+
+#building charactersitics vs site eui
+
+building characteristics are of particular interest in context of the data, and so we investigated relationships between Site EUI and building variables. The most noteworthy relationships was with energy star rating, which was as expected from the Spearman correlations, and found a clearer and more linear relationship with the response than almost all other variables.
+
+For elevation we used binning for the classes based on the variables quantiles from summary statistics. We see a notable increase in site EUI initially as buildings add a floors requirement more total energy usage, before this plateaus, which is understandable in context as buildings aren't generally built above a certain height and number of floors.
+
+For state factor we see that the classes are very imbalanced for Stat 10 with only 15 datapoints, while stat 6 has much more than the others with 50840, indicating we could undersample for this specific state factor, while combining stat 10 with another state factor level.
+
+#Investigating Relationships between explanatory variables
+
+It is in our interest to explore potential relationships between covariates in the dataset, as these could potentially lead to issues namely multicollinearity.
+The monthly minimum, maximum, and avaerge temperatures for colder months display relatively strong relationships with other climatic variables relating to cooler weather including "days below...", "heating degree days" and "snowfall" covariates. We gather that the strong negative relationship in context shows as temperature increases in these cold months, the amount of snow fall and days below 0F and 20F decrease as expected. Tther noteworthy relationship
 
 ```{r echo=FALSE, out.width='70%', fig.align="center"}
 knitr::include_graphics('image/all_climate_var_scatterplots.png')
@@ -156,12 +180,6 @@ As part of the data pre-processing pipeline, we start by dropping duplicate rows
 \
 \
 
-Feature Engineering:
-1. Used Random Forest Regressor to find important variables
-2. Engineered 2 interaction features from floor area and energy star rating and another feature with floor area and elevation
-
-
-
 In addition to Z-Score Standardization, which refers to scaling and centering of the distribution to ensure the data is not on a varying scale and is internally consistent, several feature transformations were performed to deal with both left and right skewed feature distributions. Table 3 shows all the transformations performed in order to achieve the desired results which are highlighted by Fig. 7 and Fig. 8.
 
 \begin{center}
@@ -196,77 +214,93 @@ One of the most important step in our pipeline was Feature Selection as it is on
 
 #### 4.2.1. Pairwise Correlation Analysis\
 \
-Before using any of the traditional feature selection techniques mentioned below, we investigated if any of the features were highly correlated. We see from the Correlation Matrix below that the Mean Snow Depth, Mean Snow Depth of Snow Water Equivalent and the Mean Yearly Snow Melt are highly correlated. 
+Before using any of the traditional feature selection techniques mentioned below, we investigated if any of the features were highly correlated. We see from the Correlation Matrix below that there is high correlation for monthly temperature averages particularly those around the sames seasons suggesting future implementation of new features in the place of seperate months. We also see high correlation for other climatic features such as days above and below variable, as well as high correlation for snowfall and precipitation inches, also indicating potential interactions or new replacement covariates in place of these terms
 
-```{r echo=FALSE, out.width='40%', fig.align="center"}
-knitr::include_graphics('image/corr.png')
 ```
+knitr::include_graphics('image/corr.png')
+# plt.figure(figsize=(16, 6))
+# # define the mask to set the values in the upper triangle to True
+# mask = np.triu(np.ones_like(df.corr(), dtype=np.bool))
+# heatmap = sns.heatmap(df.corr(), mask=mask, vmin=-1, vmax=1, annot=False, cmap='BrBG')
+# heatmap.set_title('Triangle Correlation Heatmap', fontdict={'fontsize':10}, pad=16)
 
 \begin{center}
 \textbf{Fig. 9}: Heatmap Presenting Correlation Between Variables
 \end{center}
-
-
-#### 4.2.2 Principal Component Analysis
-\
-\
-For our initial MVP, we have dropped the highly correlated features stated above as there is insufficient information contained in the linear combination of the above features leading to redundancy. To further deal with this issue, we have also performed PCA as part of our exploratory analysis. The interpretation of these principal components is based on finding which variables are most strongly correlated with each component, i.e., which of these features have a large absolute relative importance, the farthest from zero in either direction. The importance of each feature is reflected by the magnitude of the corresponding values in the eigenvectors.
-
-The first principal component is strongly correlated with three of the original variables (SDEP, SWEQ, SMELT). The first principal component increases with increasing eithr one fo these highly correlated features. If one increases, then the remaining ones tend to increase as well. Furthermore, we see that the first principal component correlates most strongly with the Mean Snow Depth (SDEP). It means that gridcodes with high values of stream flow values tend to have a lot of a high Mean Snow Depth. Whereas gridcodes with small values would have very low SDEP.
-
-One caveat here is given the data is not high dimensional and PCA is commonly used for dimensionality reduction which is why these principal components are not being used as model input because we will only be providing the models with two inputs. Thus, we are considered to choose the set of the original parameters that describe a large amount of the variation. 
-
-
-
-```{=latex}
-\begin{center}
-\begin{tabular}{>{\centering}p{8cm}|>{\centering}p{8cm}}
-\includegraphics[width=80mm, height=70mm]{image/PCA.png} & \includegraphics[width=80mm, height=70mm]{image/PCA2.png} \\
-\end{tabular}
-\begin{tabular}{>{\centering}p{8cm}|>{\centering}p{8cm}}
-\textbf{Fig 10}: Percentage of Variance Explained by Principal Components & \textbf{Fig 11}: Feature by Relative Importance in Different Principal Components \\
-\end{tabular}
-\end{center}
 ```
 
 
-
-#### 4.2.2. Variable Importance using `boruta` package\
+#### 4.2.2. Variable Importance using boruta package\
 \
-From Fig. 7, we see that the most important variables selected ranked in the following order: PRECIP, gridcode, PEVA, EVA, TEMP, SFAL, SDEN. 
 
 This method is built on a random forest classifier. It ranks features based on their importance measure i.e. Mean Decrease Accuracy (MDA) where higher means more important. MDA measures how much accuracy the model losses by excluding each variable. The more the accuracy degrades, the more important the variable is. 
+From the variable importance plot we see the 3 most importance variables by far are energy star rating floor area and year built. We proposed the notion of  potential interactions with these terms. [NOT SURE EXACTLY ON REASONING FOR THE INTERACTION LATER ??]. We also note particular importance of Facility Type, Elevation, Days below 20F, Ferbruary average temperature, January average temperature, as well as building class, relative  to the other features in the dataset.
 
-```{r echo=FALSE, out.width='70%', fig.align="center"}
+
 knitr::include_graphics('image/new_borota.png')
-```
+# from sklearn.ensemble import RandomForestRegressor
+# rf = RandomForestRegressor(n_estimators=80, max_features='auto')
+# rf.fit(df.iloc[:,:-1], df['site_eui'])
+# print("Training done using Random Forest")
+# 
+# ranking = np.argsort(-rf.feature_importances_)
+# f, ax = plt.subplots(figsize=(11,9))
+# sns.barplot(x=rf.feature_importances_[ranking], y=df.iloc[:,:-1].columns.values[ranking], orient='h')
+# ax.set_xlabel("Feature Importance")
+# plt.tight_layout()
+# plt.show()
 
 \begin{center}
 \textbf{Fig 12}: Variable Importance (using 'boruta' package)
 \end{center}
 
-#### 4.2.3. Forward Stepwise Regression\
+#### 4.2.3. Interactions and Additional features
+Based on the variable importance and pairwise correlations we decided on adding interaction terms for future models. We decided on including interactions of; 
+- floorarea and year built
+- floor area and energy star rating
+- all 3; floor area, year built, and energy star rating
+- floor area and sum of Cooling Heating degree Days
+
+We also implemented new features containing other features that were otherwise correlated with one another, notably monthyl temperature variabels. Thus we decided to introduce seasonal terms, where Spring took the average of March April May temperatures, Summer took average of Juny July August, Fall took average of September October November, and Winter took December January and February.
+
+We also introduced terms for "days below.." and "days above.." temperature variables;
+- Freezing days: total days below 0 10 F
+- Cold days:  total days below 30 and 20 F
+- Warm days: total days above 80 and 90 F
+- Hot days: days above 100 and 110 F
+
+Along with a feature covering both snowfall and precipiation:
+- Snow Rain inches: sum total inches of snowfall and precipitation
+
+In adding these features we removed the originals contained within these, that in turn would help leave is with more parsimonious models to interpret.
+
+#### 4.2.4 Feature Transformations
 \
-This method was used to find important variables as well but it was exclusively used to find the important interaction *(please refer to A.1.1 for the definition)* terms for the Linear models. The two plots below are comparing the performance metrics of the linear model with different subset sizes of the feature space (with/without interaction terms respectively). We see that after 7 features without any interaction terms, the curve for all metrics plateaus indicating that 7 features is a good subset size to maximize the performance. Similarly, when including the interaction terms, we see the same result after 20 variables. *(The complete list of variables can be found in the Appendix I (A.1.2))*.
-
 \
+In addition to Z-Score Standardization, which refers to scaling and centering of the distribution to ensure the data is not on a varying scale and is internally consistent, several feature transformations were performed to deal with both left and right skewed feature distributions. Table 3 shows all the transformations performed in order to achieve the desired results which are highlighted by Fig. 7 and Fig. 8.
 
-<!---
-Fig 8: Feature Selection without Interaction terms (Forward Stepwise Regression)   |  Fig 9: Feature Selection with Interaction terms (Forward Stepwise Regression) 
-:-------------------------:|:-------------------------:
-![](image/for_selc_no.png)  |  ![](image/for_sele.png)
---->
-
-```{=latex}
 \begin{center}
-\begin{tabular}{>{\centering}p{8cm}|>{\centering}p{8cm}}
-\includegraphics[width=80mm, height=70mm]{image/for_selc_no.png} & \includegraphics[width=80mm, height=70mm]{image/new_forward_select_with_inteeraction_terms.png} \\
-\end{tabular}
-\begin{tabular}{>{\centering}p{8cm}|>{\centering}p{8cm}}
-\textbf{Fig 13}: Feature Selection Without Interaction Terms (Forward Stepwise Regression) & \textbf{Fig 14}: Feature Selection With Interaction Terms (Forward Stepwise Regression) \\
-\end{tabular}
+\textbf{Table 3}: Feature Transformations
 \end{center}
-```
+| *Variable* | *Description* | *Transformation* | *Skewness* |
+|--|----|----|--|
+| floor_area | Floor Area | Fifth Root Transform | Right Skewed |
+| year_buily | Year Built | Shifted (1200 - year built) & Squared Transform | Left Skewed |
+| energy_star_Rating | Energy Star Rating  | Squared Transform | Left Skewed |
+| ELEVATION | Building Elevation | Sixth Root Transform | Right Skewed |
+| avg_temp | Average Temperature | None | None Obvious |
+| SpringTemp | Average Temperatures of March April May | None | None Obvious |
+| SummerTemp | Average Temperatures of Juny July August | None | None Obvious |
+| FallTemp | Average Temperatures of September October November | None | None Obvious |
+| WinterTemp | Average Temperatures of December January February | None | None Obvious |
+| floorxBuilt | Interaction Term Floor Area and Year Built  | Sixth Root Transform | Left Skewed |
+| floorxEnergy | Interaction Term Floor Area and Energy Star Rating  | Sixth Root Transform | Left Skewed |
+| floorxBuilt | Interaction Term Floor Area and Year Built  | Sixth Root Transform | Right Skewed |
+| floorxHeatCool | Interaction Term Floor Area and Sum of Heating and Cooling Degree Days  | Sixth Root Transform | Right Skewed |
+| freezing_days | Total days below 0 and 10 F | Fifth Root Transform | Slight Right Skewed |
+| cold_days | Total days below 20 and 30 F | square Root Transform | Slight Right Skewed |
+| warm_days | Total days above 80 90 F | Square Root Transform | Left Skewed |
+| hot_days | Total days above 100 110 F | Dropped | Too Few Data |
 
 ### 4.3. Model Training and Validation
 
