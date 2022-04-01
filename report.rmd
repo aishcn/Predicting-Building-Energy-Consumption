@@ -176,36 +176,6 @@ knitr::include_graphics('image/new_pipeline.png')
 
 As part of the data pre-processing pipeline, we start by dropping duplicate rows, and columns with a high percentage of missing values (over 50%). With the remaining missing values, we used the median imputation method (filling missing values of the column with the median). Furthermore, we dropped highly correlated features using pairwise correlation analysis, and binned the facility type column (due to unbalanced classes). Lastly, we removed rows with extreme Site EUI values using the IQR method and we used an ordinal encoding to encode all categorical columns.
 
-#### 4.1.1 Feature Transformations
-\
-\
-
-In addition to Z-Score Standardization, which refers to scaling and centering of the distribution to ensure the data is not on a varying scale and is internally consistent, several feature transformations were performed to deal with both left and right skewed feature distributions. Table 3 shows all the transformations performed in order to achieve the desired results which are highlighted by Fig. 7 and Fig. 8.
-
-\begin{center}
-\textbf{Table 3}: Feature Transformations
-\end{center}
-| **Variable** | **Description** | **Transformation** | **Skewness** |
-|--|----|----|--|
-| `EVA` | Mean Yearly Evaporation | Cube Root Transform | Right Skewed |
-| `SDEN` | Mean Snow Density | Square Root Transform | Right Skewed |
-| `SDEP` | Mean Snow Depth | Log Transform | Right Skewed |
-| `SWEQ` | Mean Snow Depth of Snow Water Equivalent | Log Transform | Right Skewed |
-| `SFAL` | Mean Yearly Snowfall | Square Root Transform | Right Skewed |
-| `SMELT` | Mean Yearly Snowmelt | Square Root Transform | Right Skewed |
-| `PEVA` | Mean Yearly Potential Evaporation | Shifted Square Root Transform | Left Skewed |
-
-
-```{=latex}
-\begin{center}
-\begin{tabular}{>{\centering}p{8cm}|>{\centering}p{8cm}}
-\includegraphics[width=80mm, height=70mm]{image/density_plot.png} & \includegraphics[width=80mm, height=70mm]{image/afterTransformation.png} \\
-\end{tabular}
-\begin{tabular}{>{\centering}p{8cm}|>{\centering}p{8cm}}
-\textbf{Fig 7}: Before Transformation & \textbf{Fig 8}: After Transformation \\
-\end{tabular}
-\end{center}
-```
 
 
 ### 4.2 Feature Selection
@@ -269,10 +239,10 @@ We also introduced terms for "days below.." and "days above.." temperature varia
 - Warm days: total days above 80 and 90 F
 - Hot days: days above 100 and 110 F
 
-Along with a feature covering both snowfall and precipiation:
+Along with a feature covering both snowfall and precipitation:
 - Snow Rain inches: sum total inches of snowfall and precipitation
 
-In adding these features we removed the originals contained within these, that in turn would help leave is with more parsimonious models to interpret.
+In adding these features we removed the originals contained within these, in turn this would help leave us with more parsimonious models to interpret.
 
 #### 4.2.4 Feature Transformations
 \
