@@ -1,10 +1,7 @@
 ---
 title: "STAT 447B Group Report"
 author:
-  - Anjali Chauhan (57181489)
-  - Idris Hedayat ()
-  - Sameer Shankar (47555636)
-  - Sumit Meghlani ()
+  - By Anjali Chauhan, Sumit Meghlani, Idris Hedayat, Sameer Shankar
 date: "March 31, 2022"
 output:
   pdf_document: 
@@ -12,7 +9,7 @@ output:
   toc_depth: 2
   toc: yes
   extra_dependencies: ["array"]
-subtitle: Predicting Building Energy Consumption Using Climate Variables and Building Characteristics
+subtitle: Predicting Site Energy Consumption Using Climate Variables and Building Characteristics
 
 ---
 
@@ -24,76 +21,104 @@ library(gridExtra)
 
 ## 1. Summary
 
-Climate change is an urgent, and multi-faceted issue heavily impacted by infrastructure. Addressing climate change involves mitigation of Greenhouse Gas (GHG) emissions via changes to electricity systems, transportation, buildings, industry, and land use.
-
-According to a report issued by the International Energy Agency, the life cycle of buildings from construction to demolition were responsible for 37% of global energy-related $CO_2$ emissions in 2020. Yet it is possible to drastically reduce the energy consumption of buildings. For example, retrofitted buildings can reduce heating and cooling energy requirements by 50-90 percent.
-
-Accurate predictions of energy consumption can help policymakers target retrofitting efforts; it will determine which buildings have a high site Energy Usage Intensity (EUI), and therefore, which buildings are most suitable for retrofitting (e.g. buildings with high or low temperatures, those that are commercial or residential, and older or newer buildings). Note that Energy Use Intensity is measured in energy per sq. unit area per annum.
-
-The main objective of this study is to analyze differences in building energy efficiency across a variety of buildings and the characteristics around them, from which we build the optimal model(s) to predict the site EUI based on climatic variables and building characteristics. This can help policymakers target retrofitting efforts to maximize emission reductions and thereby cut down on GHG emissions.
-
-By training an ensemble of prediction models including XGBoost, Gradient Boosting Machine, Neural Network, Support Vector Machine and Ensemble Model, we achieved a high prediction performance with an interval score for an ...% prediction interval of ...
-
-(ANJALI/SUMIT/IDRIS) CAN ADD FURTHER DETAILS ABOUT THE METHODS AND THEIR RESULTS OVER HERE.
+In this analysis, we sought to develop a model that predicts a site's energy consumption by studying the effects of climate variables and building characteristics on the Site EUI (Energy Usage Intensit)y to provide crucial information for potential optimized energy retrofitting. This helps in improving a building's asset performance (utilities). Retrofitting offers a potential upside in the overall performance of the building through improved energy efficiency, increased staff productivity, reduced maintenance costs, and better thermal comfort. By training an ensemble of prediction models like XGBoost, Gradient Boosting Machine, Light GBM, and Support Vector Machine with important variables selected through variable importance method using Random Forest Regressor and Correlation Analysis and predicting the Site EUI, we achieved a high prediction performance with the lowest Root Mean Square Error (RMSE) of 0.1878 along with Interval Score of -, Average Interval Length of __ and a covergae of __ for the ____ Model. 
 
 ## 2. Introduction
 
-Site EUI refers to the amount of energy measured per sq. unit area per annum. Understanding site EUI is important for reducing GHG emissions. Hence the study aims to investigate and understand the effect of climate variables and building characteristics on site EUI.
+Climate change is an urgent, and multi-faceted issue heavily impacted by infrastructure. Addressing climate change involves mitigation of Greenhouse Gas (GHG) emissions via changes to electricity systems, transportation, buildings, industry, and land use. According to a report issued by the International Energy Agency, the life cycle of buildings from construction to demolition were responsible for 37% of global energy-related $CO_2$ emissions in 2020. Yet it is possible to drastically reduce the energy consumption of buildings. For example, retrofitted buildings can reduce heating and cooling energy requirements by 50-90 percent. Therefore, it is important to optimize energy retrofitting by accurately predicting Site EUI of these buildings. The study aims to investigate and understand the effect of climate variables and building characteristics on the building’s EUI (Energy Usage Intensity).					
 
-The analysis fits models using different statistical techniques, and aims to find the model with the best 50/80% prediction intervals.
+The analysis aims to address the following questions:	
 
-This report summarises all of the primary statistical modelling and analysis results associated with the study. The remainder of this report is organised as follows: Section 3 describes the data collection, provides measurement of the variables and summarises the data. Section 4 presents the data preprocessing and statistical modelling techniques. Section 5 summarises and interprets the results of the statistical analysis conducted. Appendices are provided for further exploratory data analysis along with the code used for the statistical modelling. Section 6 describes the extreme value detection performed on the predicted stream flow values. Lastly, Section 7 presents the limitations and challenges in conducting this analysis.
+- Does the effect of building characteristics outweighs the effect of climate variables on Site EUI and vice-versa?
+ 						
+- Is there a need to build separate models for different Facility types or Building classes?
+
+More specifically, the analysis has the following objectives to answer the above questions:
+
+- To find important climate variable(s) and/or building characteristics variable(s) and determine the effect of said variable(s) on the site EUI
+
+- To translate the relationship between the response and multiple predictors into insightful visualizations
+ 						
+- To model and predict the site EUI values
+
+This report summarizes all of the primary statistical modelling and analysis results associated with the study. The remainder of this report is organised as follows: Section 3 describes the data collection, provides measurement of the variables and summarizes the data. Section 4 presents the data preprocessing and statistical modelling techniques used to answer the aforementioned research questions. Section 5 summarizes and interprets the results of the statistical analysis conducted. Appendices are provided for further exploratory data analysis along with the code used for the statistical modelling. Lastly, Section 7 presents the limitations and challenges in conducting this analysis.
 
 ## 3. Data
 
 ### 3.1 Description
 
-The dataset was created in collaboration with Climate Change AI (CCAI) and Lawrence Berkeley National Laboratory (Berkeley Lab). Data contains roughly 100k observations of building energy usage records collected over 7 years and a number of states within the United States. The dataset consists of building characteristics (e.g. floor area, facility type etc), and weather data for the location of the building (e.g. annual average temperature, annual total precipitation etc), as well as the energy usage for the building and the given year (Site EUI). Each row in the data corresponds to the a single building observed in a given year. There are 75757 rows and 64 columns with some missing data.
+The data was collected in collaboration with Climate Change AI (CCAI) and Lawrence Berkeley National Laboratory (Berkeley Lab). Data contains roughly 100,000 observations of building energy usage records collected over 7 years and from a number of states within the United States. The dataset consists of building characteristics (e.g. floor area, facility type, etc), and weather data for the building location (e.g. annual average temperature, annual total precipitation, etc), as well as the energy usage for the building (Site EUI). Each row in the data corresponds to the a single building observed in a given year. There are 75757 rows and 64 columns with 64448 rows containing null values.
 
 \begin{center}
-\textbf{Table 1}: Description of Variables Used for Analysis
+\textbf{Table 1}: Description of Building Characteristics Variables Used for Analysis
 \end{center}
 
 |  | **Variable** |**Unit** | **Description** |
-|-|-----|------|:-:|-----------|
-| 1. | ***(Response)*** Site EUI | $kBtu$ $ft^{-2}$ | Site Energy Usage Intensity is the amount of heat and electricity consumed by a building as reflected in utility bills |
-| 2. | id | Count | Building ID |
-| 3. | Year_Factor | Categorical Variable | Anonymized year in which the weather and energy usage factors were observed |
-| 4. | State_Factor | Categorical Variable | Anonymized state in which the building is located |
-| 5. | Building_Class | Categorical Variable | Building classification |
-| 6. | Facility_Type | Categorical Variable | Building usage type |
-| 7. | Floor_Area | $ft^2$ | Floor area of the building |
-| 8. | Year_Built | Count | Year in which the building was constructed |
-| 9. | Energy_Star_Rating | Count | The energy star rating of the building (Score between 1-100 where a higher energy rating means that the building performs better) |
-| 10. | Elevation | year | Elevation of the building location |
-| 11. | January_Min_Temp  | $°F$ | Minimum temperature in January (in Fahrenheit) at the location of the building |
-| 12. | January_Avg_Temp | $°F$ | Average temperature in January (in Fahrenheit) at the location of the building |
-| 13. | January_Max_Temp | $°F$ | Maximum temperature in January (in Fahrenheit) at the location of the building |
-| 14. | Cooling_Degree_Days | Count | Cooling degree day for a given day is the number of degrees where the daily average temperature exceeds 65 degrees Fahrenheit. Each month is summed to produce an annual total at the location of the building. |
-| 15. | Heating_Degree_Days | Count | Heating degree day for a given day is the number of degrees where the daily average temperature falls under 65 degrees Fahrenheit. Each month is summed to produce an annual total at the location of the building. |
-| 16. | Precipitation_Inches | $in$ | Annual precipitation in inches at the location of the building |
-| 17. | Snowfall_Inches | $in$ | Annual snowfall in inches at the location of the building |
-| 18. | Avg_Temp | $°F$ | Average temperature over a year at the location of the building |
-| 19. | Days_Below_30F | $°F$ | Total number of days below 30 degrees Fahrenheit at the location of the building |
-| 20. | Days_Above_80F | $°F$ | Total number of days above 80 degrees Fahrenheit at the location of the building |
-| 21. | Direction_Max_Wind_Speed | $°$ | Wind direction for maximum wind speed at the location of the building. Give in 360-degree compass point directions (e.g. 360 = North, 180 = South, etc.) |
-| 22. | Direction_Peak_Wind_Speed | $°$ | Wind direction for peak wind gust speed at the location of the building. Give in 360-degree compass point directions (e.g. 360 = North, 180 = South, etc.) |
-| 23. | Max_Wind_Speed | $ms^{-1}$ | Maximum wind speed at the location of the building |
-| 24. | Days_With_Fog | Count | Number of days with fog at the location of the building |
+|-|-----|---|-------------|
+| 1. | ***(Response)*** Site EUI | $kBtu$ $ft^{-2}$ | The amount of heat and electricity consumed by a building as reflected in utility bills |
+| 2. | Energy Star Rating  | - | It is a measure with a score between 1-100 where a higher energy rating means that the building performs better |
+| 3. | Floor Area | $ft^2$ | Floor area of the building |
+| 4. | Year Built | - | Anonymized year in which the weather and energy usage factors were observed |
+| 5. | Elevation | $ft$ | Elevation of the building location |
+| 6. | Facility Type | - | Building usage type |
+| 7. | Building Class | - | Building classification (residential/commercial) |
+| 8. | State Factor  | - | Anonymized state in which the building is located |
+| 9. | Year Factor  | - | Anonymized year in which the weather and energy usage factors were observed |
 
 \begin{center}
-\textbf{Table 2}: Summary Statistics of All Climate Variables
+\textbf{Table 2}: Description of Climate Variables Used for Analysis
 \end{center}
-| **Var** | **EVA** | **PEVA** | **SDEN** | **SDEP** | **SWEQ** | **SFAL** | **SMELT** | **TEMP** | **PREC** | **Q** |
+
+|  | **Variable** |**Unit** | **Description** |
+|-|-----|---|-------------|
+| 1. | [month]'s Minimum Temperature| $°F$ | Minimum temperature in [month] at the building location where month from January to December **(12 variables)**|
+| 2. | [month]'s Average Temperature | $°F$ | Average temperature in [month] at the building location where month from January to December **(12 variables)**|
+| 3. | [month]'s Maximum Temperature| $°F$ | Maximum temperature in [month] at the building location where month from January to December **(12 variables)**|
+| 4. | Cooling Days | - | The number of degrees where the daily average temperature exceeds 65 $°F$ |
+| 5. | Heating Days | - | The number of degrees where the daily average temperature falls under 65 $°F$ |
+| 6. | Precipitation | $inches$ | Annual precipitation at the building location |
+| 7. | Snowfall | $inches$ | Annual snowfall at the building location  |
+| 8. | Average Temperature | $°F$ | Average temperature over a year at the building location  |
+| 9. | Days Below 30F | - | Total number of days below 30 $°F$ at the building location  |
+| 10. | Days Above 80F | - | Total number of days above 80 $°F$ at the building location |
+| 11. | Direction of Max Wind Speed | $°$ | Wind direction for maximum wind speed at the building location |
+| 12. | Direction of Peak Wind Speed | $°$ | Wind direction for peak wind gust speed at the building location |
+| 13. | Max Wind Speed | $ms^{-1}$ | Maximum wind speed at the building location |
+| 14. | Days With Fog | - | Number of days with fog at the building location|
+
+\begin{center}
+\textbf{Table 3}: Summary Statistics of All Climate Variables
+\end{center}
+| **Var** | **site_eui** | **energy_star_rating** | **floor_area** | **year_built** | **ELEVATION** | **Year_Factor** |
 |:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|:-:|
-| **Min** | 0.123 | 71.46 | 131.1 | 0.048 | 0.008 | 35.61 | 17.78 | -7.153 | 0.364 | 0.045 |
-| **25%** | 0.293 | 1140.49 | 166.9 | 0.213 | 0.044 | 96.80 | 83.57 | -1.417 | 0.684 | 0.599 |
-| **50%** | 0.352 | 1352.98 | 194.5 | 0.319 | 0.077 | 128.13 | 117.0 | 0.190 | 0.768 | 0.899 |
-| **Mean** | 0.364 | 1238.07 | 195.0 | 0.376 | 0.097 | 136.60 | 127.2 | 0.135 | 0.779 | 0.949 |
-| **75%** | 0.427 | 1509.39 | 217.5 | 0.507 | 0.133 | 166.81 | 163.3 | 1.806 | 0.872 | 1.233 |
-| **Max** | 0.712 | 1999.25 | 290.7 | 1.120 | 0.382 | 332.46 | 333.8 | 7.014 | 1.270 | 2.436 |
+| **Count** | 75757 | 49048 | 75757 | 73920 | 75757 | 75757 |
+|**Std**	|58.26|	28.66	|246875.8	|37.05	|60.66|	1.47|
+| **Min** | 1.00 | 0.00 | 943 | 0.00 | -6.40 | 1.00 |
+| **25%** | 54.53	| 40.00| 	62379| 	1927.00|	11.90	|3.00|
+| **50%** | 75.29	| 67.00| 	91367 |	1951.00	| 25.00|	5.00|
+| **Mean** | 82.58|	61.05	|165984	|1952.31|	39.51	|4.37 |
+| **75%** | 97.28	|85.00|	166000|	1977.00	|42.70|	6.00|
+| **Max** | 997.87|	100.00|	6385382|	2015.00	|1924.50|	6.00|
+
+*Due to a large number climate variables, summary statistics hasn't been provided in the report. Please refer to the code.*
 
 ### 3.2 Exploratory Data Analysis
+
+```{r echo=FALSE, out.width='70%', fig.align="center"}
+#knitr::include_graphics('image/all_climate_var_scatterplots.png')
+```
+
+\begin{center}
+\textbf{Fig. 1}: Relationship between Climate Variables and Site_EUI
+\end{center}
+
+```{r echo=FALSE, out.width='70%', fig.align="center"}
+#knitr::include_graphics('image/all_climate_var_scatterplots.png')
+```
+
+\begin{center}
+\textbf{Fig. 1}: Relationship between Building Variables and Site_EUI
+\end{center}
 
 In our Exploratory Data Analysis, we aimed to find how individual explanatory individuals relate and behave alongside the response variable Site EUI as well other explanatory variables. Through wrangling of the data aim to suggest potential transformations to the data in hopes of finding behaviors that will improve performances of future models.
 
@@ -123,7 +148,7 @@ It is in our interest to explore potential relationships between covariates in t
 The monthly minimum, maximum, and avaerge temperatures for colder months display relatively strong relationships with other climatic variables relating to cooler weather including "days below...", "heating degree days" and "snowfall" covariates. We gather that the strong negative relationship in context shows as temperature increases in these cold months, the amount of snow fall and days below 0F and 20F decrease as expected. Tther noteworthy relationship
 
 ```{r echo=FALSE, out.width='70%', fig.align="center"}
-knitr::include_graphics('image/all_climate_var_scatterplots.png')
+#knitr::include_graphics('image/all_climate_var_scatterplots.png')
 ```
 
 \begin{center}
@@ -132,26 +157,12 @@ knitr::include_graphics('image/all_climate_var_scatterplots.png')
 
 
 ```{=latex}
-\begin{center}
-\begin{tabular}{>{\centering}p{8cm}|>{\centering}p{8cm}}
-\includegraphics[width=80mm, height=70mm]{image/unscaled_boxplot.png} & \includegraphics[width=80mm, height=70mm]{image/all_climate_var_scaled_boxplots.png} \\
-\end{tabular}
-\begin{tabular}{>{\centering}p{8cm}|>{\centering}p{8cm}}
-\textbf{Fig. 2}: Before Scaling & \textbf{Fig. 3}: After Scaling \\
-\end{tabular}
-\end{center}
+
 ```
 
 
 ```{=latex}
-\begin{center}
-\begin{tabular}{>{\centering}p{8cm}|>{\centering}p{8cm}}
-\includegraphics[width=80mm, height=70mm]{image/barchart_gridcode.png} & \includegraphics[width=80mm, height=70mm]{image/peva_gridcode.png} \\
-\end{tabular}
-\begin{tabular}{>{\centering}p{8cm}|>{\centering}p{8cm}}
-\textbf{Fig. 4}: Numbers of Observation by Gridcode & \textbf{Fig. 5}: Stream Flow vs Mean Potential Evaporation for Selected Gridcodes \\
-\end{tabular}
-\end{center}
+
 ```
 
 Looking more closely at various variables broken out by `gridcode` (*see Fig. 5 as an example*), some interesting results were seen. For many `gridcode`'s, there appears to be a much stronger linear relationship between climate variables and the stream flow and these relationships appear to have different intercept and slope values. This suggests that there may not be a one-size-fits-all approach to fitting a regression model based on annual climate variables alone and different slopes for different `gridcode`'s may need to be considered for further analysis in the future.
@@ -164,7 +175,7 @@ Below in Fig. 6, we have a Proof-of-Concept pipeline that addresses all of the c
 
 
 ```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('image/new_pipeline.png')
+# knitr::include_graphics('image/new_pipeline.png')
 ```
 
 \begin{center}
@@ -182,43 +193,44 @@ As part of the data pre-processing pipeline, we start by dropping duplicate rows
 
 One of the most important step in our pipeline was Feature Selection as it is one of the main objectives. We have used several different methods in order to achieve this objective:
 
-#### 4.2.1. Pairwise Correlation Analysis\
-\
+#### 4.2.1. Pairwise Correlation Analysis
+
 Before using any of the traditional feature selection techniques mentioned below, we investigated if any of the features were highly correlated. We see from the Correlation Matrix below that there is high correlation for monthly temperature averages particularly those around the sames seasons suggesting future implementation of new features in the place of seperate months. We also see high correlation for other climatic features such as days above and below variable, as well as high correlation for snowfall and precipitation inches, also indicating potential interactions or new replacement covariates in place of these terms
 
 ```
-knitr::include_graphics('image/corr.png')
-# plt.figure(figsize=(16, 6))
-# # define the mask to set the values in the upper triangle to True
-# mask = np.triu(np.ones_like(df.corr(), dtype=np.bool))
-# heatmap = sns.heatmap(df.corr(), mask=mask, vmin=-1, vmax=1, annot=False, cmap='BrBG')
-# heatmap.set_title('Triangle Correlation Heatmap', fontdict={'fontsize':10}, pad=16)
+<!--  -->
+<!-- knitr::include_graphics('image/corr.png') -->
+<!-- # plt.figure(figsize=(16, 6)) -->
+<!-- # # define the mask to set the values in the upper triangle to True -->
+<!-- # mask = np.triu(np.ones_like(df.corr(), dtype=np.bool)) -->
+<!-- # heatmap = sns.heatmap(df.corr(), mask=mask, vmin=-1, vmax=1, annot=False, cmap='BrBG') -->
+<!-- # heatmap.set_title('Triangle Correlation Heatmap', fontdict={'fontsize':10}, pad=16) -->
 
-\begin{center}
-\textbf{Fig. 9}: Heatmap Presenting Correlation Between Variables
-\end{center}
+<!-- \begin{center} -->
+<!-- \textbf{Fig. 9}: Heatmap Presenting Correlation Between Variables -->
+<!-- \end{center} -->
 ```
 
 
-#### 4.2.2. Variable Importance using boruta package\
-\
+#### 4.2.2. Variable Importance using boruta package
+
 
 This method is built on a random forest classifier. It ranks features based on their importance measure i.e. Mean Decrease Accuracy (MDA) where higher means more important. MDA measures how much accuracy the model losses by excluding each variable. The more the accuracy degrades, the more important the variable is. 
 From the variable importance plot we see the 3 most importance variables by far are energy star rating floor area and year built. We proposed the notion of  potential interactions with these terms. [NOT SURE EXACTLY ON REASONING FOR THE INTERACTION LATER ??]. We also note particular importance of Facility Type, Elevation, Days below 20F, Ferbruary average temperature, January average temperature, as well as building class, relative  to the other features in the dataset.
 
 
-knitr::include_graphics('image/new_borota.png')
-# from sklearn.ensemble import RandomForestRegressor
-# rf = RandomForestRegressor(n_estimators=80, max_features='auto')
-# rf.fit(df.iloc[:,:-1], df['site_eui'])
-# print("Training done using Random Forest")
-# 
-# ranking = np.argsort(-rf.feature_importances_)
-# f, ax = plt.subplots(figsize=(11,9))
-# sns.barplot(x=rf.feature_importances_[ranking], y=df.iloc[:,:-1].columns.values[ranking], orient='h')
-# ax.set_xlabel("Feature Importance")
-# plt.tight_layout()
-# plt.show()
+<!-- knitr::include_graphics('image/new_borota.png') -->
+<!-- # from sklearn.ensemble import RandomForestRegressor -->
+<!-- # rf = RandomForestRegressor(n_estimators=80, max_features='auto') -->
+<!-- # rf.fit(df.iloc[:,:-1], df['site_eui']) -->
+<!-- # print("Training done using Random Forest") -->
+<!-- #  -->
+<!-- # ranking = np.argsort(-rf.feature_importances_) -->
+<!-- # f, ax = plt.subplots(figsize=(11,9)) -->
+<!-- # sns.barplot(x=rf.feature_importances_[ranking], y=df.iloc[:,:-1].columns.values[ranking], orient='h') -->
+<!-- # ax.set_xlabel("Feature Importance") -->
+<!-- # plt.tight_layout() -->
+<!-- # plt.show() -->
 
 \begin{center}
 \textbf{Fig 12}: Variable Importance (using 'boruta' package)
@@ -302,18 +314,11 @@ Fig. 10: Comparing In-sample Prediction Performance for Different Models without
 --->
 
 ```{=latex}
-\begin{center}
-\begin{tabular}{>{\centering}p{8cm}|>{\centering}p{8cm}}
-\includegraphics[width=80mm, height=70mm]{image/Evaluation_Metrics_without_Interaction_terms.png} & \includegraphics[width=80mm, height=70mm]{image/Evaluation_Metrics_with_Interaction_terms.png} \\ 
-\end{tabular}
-\begin{tabular}{>{\centering}p{8cm}|>{\centering}p{8cm}}
-\textbf{Fig. 15}: Comparing In-sample Prediction Performance for Different Models Without Interaction Terms & \textbf{Fig. 16}: Comparing In-sample Prediction Performance for Different Models With Interaction Terms \\
-\end{tabular}
-\end{center}
+
 ```
 
 ```{r echo=FALSE, out.width='60%', fig.align="center"}
-knitr::include_graphics('image/new_train_result.png')
+# knitr::include_graphics('image/new_train_result.png')
 ```
 
 \begin{center}
@@ -385,14 +390,7 @@ The two plots below show how much the prediction from our best 2 models deviated
 
 
 ```{=latex}
-\begin{center}
-\begin{tabular}{>{\centering}p{8cm}|>{\centering}p{8cm}}
-\includegraphics[width=8cm, height=40mm]{image/with int residual plot.png} & \includegraphics[width=8cm, height=40mm]{image/without int residual plot.png}\\ 
-\end{tabular}
-\begin{tabular}{>{\centering}p{8cm}|>{\centering}p{8cm}}
-\textbf{Fig. 18}: Predicted vs Actual Values (Ensemble Model with interaction terms) & \textbf{Fig. 19}: Predicted vs Actual Values (Ensemble Model without interaction terms)  \\
-\end{tabular}
-\end{center}
+
 ```
 
 Comparing the predictive performance of the best models from both Table 3 and Table 4, we see that the latter (Ensemble Model, RMSE: 0.1795) has a better performance. Therefore, the best model we chose for making predictions was the Ensemble Model with the interaction terms. 
@@ -404,7 +402,7 @@ We examined the stream flow values in our dataset by using the interquartile ran
 
 
 ```{r echo=FALSE, out.width='50%', fig.align="center"}
-knitr::include_graphics('image/outliers_by_gridcode.png')
+# knitr::include_graphics('image/outliers_by_gridcode.png')
 ```
 
 \begin{center}
@@ -454,455 +452,4 @@ There are two areas of further research that would help address the limitations 
 
 
 
-## 11. Appendix I (For Client)
-
-
-
-## 12. Appendix II (For Mentor)
-
-## 12.1. Installing Packages
-
-```{r lib, message=FALSE, warning=FALSE}
-#Sys.setenv(LANG = "en")
-# library(tidyverse)
-# library(ggplot2)
-# library(GGally)
-# library(DataExplorer)
-# library(olsrr)
-# library(gridExtra)
-# library(cluster)
-# library(factoextra)
-# library(caretEnsemble)
-# library(caret)
-# library(mlbench)
-# library(Metrics)
-# library(Boruta)
-# library(tidymodels)   # packages for modeling and statistical analysis
-# library(tune)         # For hyperparemeter tuning
-# library(workflows)    # streamline process
-# library(tictoc)
-# library(quantregForest)
-# library(e1071)
-# library(solitude) 
-# library(RColorBrewer)
-```
-
-## 12.2. Loading the Data
-
-```{r 1.1, echo=TRUE, message=FALSE, warning=FALSE}
-
-# Loading the data
-# dt = read_csv('data_stat450.csv')
-# 
-# dt2 = dt
-
-# # Removing 'year' column
-# dt = dt[-c(2)]
-# 
-# # Renaming column names for simplicity
-# colnames(dt) = c('gridcode','EVA','PEVA', 'SDEN','SDEP','SWEQ','SFAL','SMELT','TEMP',
-#                  'PREC','Q')
-# colnames(dt2) = c('gridcode','year','EVA','PEVA', 'SDEN','SDEP','SWEQ','SFAL','SMELT'
-#                       ,'TEMP', 'PREC','Q') # for anomaly detection
-# 
-# # Converting gridcode to a factor 
-# dt$gridcode = as.factor(dt$gridcode)
-# 
-# head(dt)
-# length(unique(dt$gridcode)) # 23
-```
-
-## 12.3. Explanatory Data Analysis
-
-```{r 1.2}
-# Generating summary statistics for dt
-# summary(dt)
-# 
-# # EDA
-# plot_intro(dt)
-# plot_missing(dt)
-# plot_bar(dt)
-# plot_histogram(dt)
-# plot_density(dt)
-# plot_qq(dt)
-# plot_qq(dt, by = "gridcode")
-# plot_correlation(dt)
-# plot_boxplot(dt, by = "gridcode")
-# plot_scatterplot(split_columns(dt)$continuous, by = "Q")
-# plot_prcomp(na.omit(dt), maxcat = 4L)
-# 
-# # Checking dimensions of dt
-# nrow(dt) # 774
-# ncol(dt) # 11
-
-```
-
-## 12.3.1. Examining Variables by Gridcode
-```{r vars_by_gridcode, eval=FALSE}
-# look at Stream Flow vs Mean Potential Evaporation
-# set.seed(123)
-# dt.valid <- na.omit(dt)
-# gridcode_sample <- dt.valid |> select(gridcode) |> distinct()
-# gridcode_sample <- sample(gridcode_sample$gridcode, 9)
-# dt.valid |> 
-#     filter(gridcode %in% gridcode_sample) |>
-#     ggplot(aes_string(x="PEVA", y="Q")) +
-#     geom_point() +
-#     facet_wrap(~gridcode) +
-#     geom_smooth(method="lm", se=FALSE, formula=y~x) +
-#     labs(title="Stream Flow vs Mean Potential Evaporation") +
-#   ylab('Stream Flow') +
-#   xlab('Mean Potential Evaporation') + 
-#   theme(plot.caption = element_text(hjust = 0))
-```
-### 12.4. Data Preprocessing
-```{r 2.1.1, eval=FALSE, warning=FALSE}
-# labels <- paste(colnames(dt[,2:11]))
-# boxplot(dt[,2:11],  xaxt = "n",xlab = "",
-#         main = 'Comparing different explanatory variables (before scaling)')
-# axis(1, labels = FALSE)
-# text(x =  seq_along(labels), y = par("usr")[3] - 1, srt = 60, adj = 1,
-#      labels = labels, xpd = TRUE)
-```
-#### 12.4.1. Transformations
-```{r}
-# Transformations
-
-## right-skewed
-#dt$Q = sqrt(dt$Q)
-# dt$EVA = (dt$EVA)^(1/3) 
-# dt$SDEN = sqrt(dt$SDEN)
-# dt$SDEP = log(dt$SDEP)
-# dt$SWEQ = log(dt$SWEQ)
-# dt$SFAL = sqrt(dt$SFAL)
-# dt$SMELT = sqrt(dt$SMELT)
-# 
-# # left-skewed
-# dt$PEVA = sqrt(2000-dt$PEVA) 
-# 
-# plot_density(dt|> select(EVA,SDEN,SDEP, SWEQ, SFAL, SMELT,PEVA))
-```
-#### 12.4.2. Preprocessing Pipeline
-
-```{r 2.1.2, warning=FALSE}
-# set.seed(2020)
-# rec <- recipe(Q ~., 
-#               data = dt[,2:11]) %>%  
-#   step_corr(all_predictors()) %>%                  # removing highly correlated features
-#   # Z-Score Standardization
-#   step_center(all_numeric(), -all_outcomes())%>%   # centering data at mean = 0
-#   step_scale(all_numeric(), -all_outcomes())       # scaling data with variance  = 1
-# 
-# trained_rec =  prep(rec, training = dt, retain = TRUE)
-# dt_prep = cbind(gridcode = dt$gridcode, as.data.frame(juice(trained_rec)))
-# 
-# # Separating the actual test set w/o labels
-# main_dt <- na.omit(dt_prep)
-# test_nolabel_df <- dt_prep[is.na(dt$Q),]
-# 
-# main_dt
-# 
-# labels <- paste(colnames(main_dt[,2:8]))
-# boxplot(main_dt[,2:8],  xaxt = "n",xlab = "")
-# axis(1, labels = FALSE)
-# text(x =  seq_along(labels), y = par("usr")[3] - 1, srt = 60, adj = 1,
-#      labels = labels, xpd = TRUE)
-```
-
-#### 12.4.3. Relationship b/w explanatory variables & the response
-```{r}
-# plot_scatterplot(split_columns(main_dt)$continuous, by = "Q")
-# 
-# ggpairs(main_dt[,2:8],lower = list(continuous = wrap("smooth", alpha = 0.3, 
-#                                                   size=0.05)),
-#       upper = list(continuous = wrap("cor", size=2)))
-```
-
-#### 12.4.4. Feature Selection Using `boruta`
-
-```{r}
-# boruta_output <- Boruta(Q ~ ., data=na.omit(main_dt), doTrace=0)
-# roughFixMod <- TentativeRoughFix(boruta_output)
-# boruta_signif <- getSelectedAttributes(roughFixMod)
-# 
-# # Variable Importance Scores
-# imps <- attStats(roughFixMod)
-# imps2 = imps[imps$decision != 'Rejected', c('meanImp', 'decision')]
-# head(imps2[order(-imps2$meanImp), ])  # descending sort
-# 
-# # Plot variable importance
-# plot(boruta_output, cex.axis=.7, las=2, xlab="", ylab = "Variable Importance")
-# 
-# selected_features <- c('PREC','gridcode','EVA','TEMP','PEVA','SFAL','SDEN')
-# 
-# main_fs <- main_dt[,(colnames(main_dt) %in% append(selected_features, "Q"))]
-# main_fs
-```
-
-
-#### 12.4.5. Feature Selection Using Forward Stepwise Regression
-
-```{r}
-# dt_interaction <- main_dt
-# FS.lm <- lm(Q ~ (.)^2, data = dt_interaction)
-# 
-# OLS <- ols_step_forward_p(FS.lm)
-# OLS
-# plot(OLS)
-```
-### 12.5. Model Training
-
-#### 12.5.1. Splitting Data into Train/Test sets
-
-```{r 5.1}
-# set.seed(123)
-# split <- createDataPartition(y=main_fs$Q, p=.8,list=F)
-# train <- main_fs[split,]
-# nrow(train)
-# test <- main_fs[-split,]
-# nrow(test)
-```
-
-#### 12.5.2. Cross-Validation (w/o Interaction terms)
-```{r}
-# set.seed(123)
-# my_control = trainControl(method = 'repeatedcv', # for “cross-validation”,
-#                            repeats = 3,
-#                            number = 10, # number of k-folds
-#                            savePredictions = 'final',
-#                            search = 'random')
-# 
-# model_list1 = caretList(Q~.,
-#                         data = train,
-#                         methodList = c('lm', 'rf', 'qrf', 'xgbLinear','svmRadial', 
-#                                        'gbm'),
-#                         tuneList = NULL)
-# 
-# ensemble1 = caretEnsemble(model_list1, 
-#                           metric = 'RMSE', 
-#                           trControl = my_control)
-
-```
-
-#### 12.5.3 Cross-Validation (w/ Interaction terms)
-```{r}
-# model_list2 = caretList(Q ~ gridcode+PREC+SDEN+EVA+gridcode:SFAL+TEMP+PEVA+SFAL+
-#                          TEMP:PREC+SDEN:SFAL+
-#                          SFAL:TEMP+SDEN:PREC+EVA:TEMP+gridcode:PEVA+
-#                          PEVA:TEMP+gridcode:PREC+gridcode:EVA+
-#                          EVA:SDEN+gridcode:SDEN+SDEN:TEMP,
-#                 data = train,
-#                         trControl = my_control,
-#                         methodList = c('lm', 'rf', 'qrf', 'xgbLinear', 
-#                         'svmRadial', 'gbm'),
-#                         tuneList = NULL)
-# 
-# ensemble2 = caretEnsemble(model_list2, 
-#                           metric = 'RMSE', 
-#                           trControl = my_control)
-```
-
-#### 12.5.4 Evaluation Metrics (w/o Interaction terms)
-```{r}
-# options(digits = 3)
-# model_results1 = data.frame(
-#   LM = mean(model_list1$lm$results$RMSE),
-#   QRF = mean(model_list1$qrf$results$RMSE),
-#   RF = mean(model_list1$rf$results$RMSE),
-#   XGBL = mean(model_list1$xgbLinear$results$RMSE),
-#   SVMR = mean(model_list1$svmRadial$results$RMSE),
-#   GBM = mean(model_list1$gbm$results$RMSE)
-# )
-# 
-# best_model_train1 = apply(model_results1, 1, FUN = mean)
-# print(model_results1)
-# 
-# resamples1 <- resamples(model_list1)
-# resamples1
-# summary(resamples1)
-# dotplot(resamples1, metric = 'RMSE')
-# modelCor(resamples1)
-# 
-# # Ensemble Model Results
-# summary(ensemble1)
-# plot(ensemble1)
-# 
-# scales1 = list(x=list(relation='free'), y=list(relation='free'))
-# bwplot(resamples1,scales = scales1,layout = c(2,2))
-```
-
-#### 12.5.5 Evaluation Metrics (w/ Interaction terms)
-
-```{r}
-# options(digits = 3)
-# model_results2 = data.frame(
-#   LM = mean(model_list2$lm$results$RMSE),
-#   QRF = mean(model_list2$qrf$results$RMSE),
-#   RF = mean(model_list2$rf$results$RMSE),
-#   XGBL = mean(model_list2$xgbLinear$results$RMSE),
-#   SVMR = mean(model_list2$svmRadial$results$RMSE),
-#   GBM = mean(model_list2$gbm$results$RMSE)
-# )
-# 
-# best_model_train2 = apply(model_results2, 1, FUN = mean)
-# print(model_results2)
-# 
-# resamples2 <- resamples(model_list2)
-# resamples2
-# summary(resamples2)
-# dotplot(resamples2, metric = 'RMSE')
-# modelCor(resamples2)
-# 
-# # Ensemble Model Results
-# summary(ensemble2)
-# plot(ensemble2)
-# 
-# scales2 = list(x=list(relation='free'), y=list(relation='free'))
-# bwplot(resamples2,scales = scales2,layout = c(2,2))
-```
-
-### 12.6 Predictions 
-
-#### 12.6.1. Predictions (w/o Interaction terms)
-```{r}
-
-# # PREDICTIONS
-# pred_lm1 <- predict.train(model_list1$lm, newdata = test)
-# pred_qrf1 <- predict.train(model_list1$qrf, newdata = test)
-# pred_rf1 <- predict.train(model_list1$rf, newdata = test)
-# pred_xgbL1 <- predict.train(model_list1$xgbLinear, newdata = test)
-# pred_svmr1 <- predict.train(model_list1$svmRadial, newdata = test)
-# pred_gbm1 <- predict.train(model_list1$gbm, newdata = test)
-# predict_ens1 <- predict(ensemble1, newdata = test)
-# 
-# # RMSE
-# y_test = test[,8]
-# pred_RMSE1 <- data.frame(ENS = RMSE(predict_ens1, y_test),
-#                         LM = RMSE(pred_lm1, y_test),
-#                         QRF = RMSE(pred_qrf1, y_test),
-#                         RF = RMSE(pred_rf1, y_test),
-#                         XGBL = RMSE(pred_xgbL1, y_test),
-#                         SVMR = RMSE(pred_svmr1, y_test),
-#                         GBM = RMSE(pred_svmr1, y_test))
-#                         
-# print(pred_RMSE1)
-# 
-# best_model_test1 = apply(pred_RMSE1, 1, FUN = mean)
-# 
-# pred_cor1 <- data.frame(ENS = cor(predict_ens1, y_test),
-#                        LM = cor(pred_lm1, y_test),
-#                        QRF = cor(pred_qrf1, y_test),
-#                        RF = cor(pred_rf1, y_test),
-#                        XGBL = cor(pred_xgbL1, y_test),
-#                        SVMR = cor(pred_svmr1, y_test),
-#                        GBM = cor(pred_gbm1, y_test),
-#                        ENS = cor(predict_ens1, y_test))
-# 
-# print(pred_cor1)
-# ```
-# ```{r}
-# # par(mfrow = c(3,3))
-# # plot(pred_lm1, y_test) + abline(0,1, col = 'red')
-# # plot(pred_qrf1, y_test) + abline(0,1, col = 'red')
-# # plot(pred_rf1, y_test) + abline(0,1, col = 'red')
-# # plot(pred_xgbL1, y_test) + abline(0,1, col = 'red')
-# # plot(pred_svmr1, y_test) + abline(0,1, col = 'red')
-# # plot(pred_gbm1, y_test) + abline(0,1, col = 'red')
-# plot(predict_ens1, y_test, xlab="Prediction",ylab="Actual") +
-#     abline(0,1, col = 'red')
-```
-
-#### 12.6.2. Predictions (w/ Interaction terms)
-
-```{r}
-
-# # PREDICTIONS
-# pred_lm2 <- predict.train(model_list2$lm, newdata = test)
-# pred_qrf2 <- predict.train(model_list2$qrf, newdata = test)
-# pred_rf2 <- predict.train(model_list2$rf, newdata = test)
-# pred_xgbL2 <- predict.train(model_list2$xgbLinear, newdata = test)
-# pred_svmr2 <- predict.train(model_list2$svmRadial, newdata = test)
-# pred_gbm2 <- predict.train(model_list2$gbm, newdata = test)
-# predict_ens2 <- predict(ensemble2, newdata = test)
-# 
-# # RMSE
-# y_test = test[,8]
-# pred_RMSE2 <- data.frame(ENS = RMSE(predict_ens2, y_test),
-#                         LM = RMSE(pred_lm2, y_test),
-#                         QRF = RMSE(pred_qrf2, y_test),
-#                         RF = RMSE(pred_rf2, y_test),
-#                         XGBL = RMSE(pred_xgbL2, y_test),
-#                         SVMR = RMSE(pred_svmr2, y_test),
-#                         GBM = RMSE(pred_gbm2, y_test))
-#                         
-# print(pred_RMSE2)
-# 
-# best_model_test2 = apply(pred_RMSE2, 1, FUN = mean)
-# 
-# pred_cor2 <- data.frame(ENS = cor(predict_ens2, y_test),
-#                        LM = cor(pred_lm2, y_test),
-#                        QRF = cor(pred_qrf2, y_test),
-#                        RF = cor(pred_rf2, y_test),
-#                        XGBL = cor(pred_xgbL2, y_test),
-#                        SVMR = cor(pred_svmr2, y_test),
-#                        GBM = cor(pred_gbm2, y_test),
-#                        ENS = cor(predict_ens2, y_test))
-# 
-# print(pred_cor2)
-# ```
-# ```{r}
-# # par(mfrow = c(3,3))
-# # plot(pred_lm2, y_test) + abline(0,1, col = 'red')
-# # plot(pred_qrf2, y_test) + abline(0,1, col = 'red')
-# # plot(pred_rf2, y_test) + abline(0,1, col = 'red')
-# # plot(pred_xgbL2, y_test) + abline(0,1, col = 'red')
-# # plot(pred_svmr2, y_test) + abline(0,1, col = 'red')
-# # plot(pred_gbm2, y_test) + abline(0,1, col = 'red')
-# plot(predict_ens2, y_test, xlab="Prediction",ylab="Actual") 
-#   + abline(0,1, col = 'red')
-```
-
-### 12.7. Anomaly Detection
-
-```{r}
-# train_2 = filter(train, gridcode == 14 | 768) 
-# q = train_2 |> select(Q) |> data.frame()
-# train_2 = select(train_2, -Q)
-# 
-# iforest = isolationForest$new()
-# train_2 = na.omit(train_2)
-# train_2$gridcode = as.factor(train_2$gridcode)
-# train_2[,2:7] = data.frame(scale(train_2[,2:7], TRUE, TRUE))
-# 
-# iforest$fit(train_2)
-# train_2$pred = iforest$predict(train_2)
-# train_2$label = as.factor(ifelse(train_2$pred$anomaly_score >=0.64, 
-#                                    "anomaly", "normal"))
-# 
-# barplot(table(train_2$label),
-# xlab = "Class",
-# col = c("red","blue")
-# )
-# 
-# qplot(train_2$pred$anomaly_score, q$Q, color = train_2$label)
-# 
-# filter(train_2, label=="anomaly")
-```
-### 12.8. Outlier Detection
-```{r}
-# getPalette = colorRampPalette(brewer.pal(9, "Set1"))
-# 
-# dt.valid <- na.omit(dt2) 
-# qt <- quantile(dt.valid$Q, na.rm = TRUE)
-# iqr <- qt[4]-qt[2]
-# upper.bd <- qt[4]+iqr*1.5
-# lower.bd <- qt[2]-iqr*1.5
-# 
-# ggplot(dt.valid, aes(y=Q, group=year,x=year)) + 
-#   geom_boxplot() + 
-#   geom_hline(yintercept = upper.bd) + 
-#   geom_hline(yintercept = lower.bd) + 
-#   ylab("Streamflow") + 
-#   ggtitle("Streamflow Outliers (Grouped by Year)") 
-```
-
+## 11. Appendix
