@@ -395,27 +395,8 @@ The two plots below show how much the prediction from our best 2 models deviated
 
 Comparing the predictive performance of the best models from both Table 3 and Table 4, we see that the latter (Ensemble Model, RMSE: 0.1795) has a better performance. Therefore, the best model we chose for making predictions was the Ensemble Model with the interaction terms. 
 
-## 6. Outlier Detection
 
-
-We examined the stream flow values in our dataset by using the interquartile range (IQR) method, classifying any stream flow values more than 1.5 times the IQR below the first quartile or above the third quartile as an outlier. Looking at Fig. 14, there are 16 extreme high points that are outliers but no extreme low points. Grouping stream flow values by gridcodes is looking at each watershed separately. The average stream flow values vary from watershed to watershed. The average stream flow values for watershed at grid code 14 is higher than the rest of the watersheds. On the other hand, the average stream flow values for watershed at grid code 1264 is lower than the rest of the locations. Gridcodes 1212 and 1391 have the most outliers and it is worth looking into and learning more about those areas. 
-
-
-```{r echo=FALSE, out.width='50%', fig.align="center"}
-# knitr::include_graphics('image/outliers_by_gridcode.png')
-```
-
-\begin{center}
-\textbf{Fig. 20}: Streamflow Outliers vs Gridcode
-\end{center}
-
-\
-\
-\
-\
-
-
-## 7. Limitations
+## 6. Limitations
 
 
 - After feature selection, there is some potential that the best features for each model type were not selected. When selecting the features that would be included in the hyper-parameter tuning for the models we used the results of both Boruta (random forest based selection method) and Forward Stepwise Regression (regression based selection method). The selected features from each both agreed with each other so they seemed reliable, however we did not do an exhaustive search over all variables for each of the models and it is possible there were better combinations. 
@@ -425,7 +406,7 @@ We examined the stream flow values in our dataset by using the interquartile ran
 - Each observation in the dataset is an aggregation of climate data collected over the year (i.e. they are the average values collected over the year). This limits the forecasting power of the predictive models that we have fit as we would need to use the forecasted explanatory variables to predict the stream flow, which will most likely lower the performance of the model.
 
 
-## 8. Conclusion
+## 7. Conclusion
 
 After all the model iterations and improvements, we were able to achieve fairly good results with the Ensemble Model taking into account the interaction effect between variables. These results have large implications when it comes to water resource management economically. We have conducted our primary analysis taking into account the spatial data (e.g. gridcodes) which serves as a good MVP to predict the streamflow. 
 
@@ -434,16 +415,17 @@ As a side interest and to expand upon the idea of predicting the streamflow sole
 To address the second research question of whether or not we can detect the unusual streamflow activity accurately, we built a proof of concept pipeline for the outlier detection system. It will take the features from our prediction model as input and label the observations as either anomalous or regular depending on the anomaly scores which are the measures of deviation from normal behavior. We will face the same challenge here - lack of training data. This will lead to an increase in false positives and false negatives in the outlier detection system which can have detrimental consequences. For example, not being able to detect a subtle increase in the streamflow (false negatives) which could lead to irrigation problems and in severe cases even floods. Or getting a huge pool of outlier values (false positives) that will raise false alarms of anomalous behavior more often than desired. 
 
 
-## 9. Future Research
+## 8. Future Research
 
-There are two areas of further research that would help address the limitations in this study; first is further investigating outliers and anomaly detection and second is training a model on a more granular time frame. 
+There are two areas of further research that would help address the limitations in this study; first is further investigating the missing data and second is using scientific relationships between variables to engineer features. Another approach would be to create lag features to further explore the time related features provided like year_factor, year_built and investigating their effect on site EUI
 
+**[TO DO]**
 - The outlier detection that we have done is appropriate for identifying outliers in the current dataset but does not have a real-world application.  Training a classification model to predict extreme values in streamflow and/or training an anomaly detection model to find unusual patterns in streamflow and the climate variables. Both models could have more real-world application in flood/drought prevention which is useful in fields such as agriculture. 
 
-- Additionally, requiring input data for the whole year for the model makes it impractical to accurately predict streamflow values in the future as we would need to use forecasted values for the input variables. Having the data be on a more granular time frame would greatly benefit the analysis and real-world predictive power of the model as we could train the predictive streamflow model only using past variables. The resulting model would not rely on using forecasted input variables, which addresses a critical limitation of this study. 
+- Additionally, requiring input data for the whole year for the model makes it impractical to accurately predict streamflow values in the future as we would need to use forecasted values for the input variables. Having the data be on a more granular time frame would greatly benefit the analysis and real-world predictive power of the model as we could train the predictive streamflow model only using past variables. The resulting model would not rely on using forecasted input variables, which addresses a critical limitation of this study.  
 
 
-## 10. References
+## 9. References **[TO DO]**
 
 - Government of Canada / Gouvernement du Canada. (2021, November 25). Government of Canada / gouvernement du Canada. Climate. Retrieved February 5, 2022, from https://climate.weather.gc.ca/glossary_e.html 
 - US Department of Commerce, N. O. A. A. (2012, March 8). Snow measurement guidelines. Snow Measurement Guidelines. Retrieved February 5, 2022, from https://www.weather.gov/gsp/snow 
@@ -452,4 +434,4 @@ There are two areas of further research that would help address the limitations 
 
 
 
-## 11. Appendix
+## 10. Appendix
