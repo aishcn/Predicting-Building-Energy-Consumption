@@ -7,245 +7,185 @@ output: html_document
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(reticulate)
 library(tibble)
 library(dplyr)
 library(stargazer)
 library(tidyverse)
 library(fixest)
 library(etable)
+library(modelsummary)
+library(kableExtra)
+library(FactoMineR)
+```
+
+```{r functions}
+#' @param df dataframe (decide if rows have been randomized)
+#'    randomized outside of function if mix R/python methods
+#' @param K number of folds for cross-validation
+#' @param nperfmeas number of performance measures used to compare methods
+#' @param seed random number of seed for reproducibility
+#' @return matrix of performance measures by fold, vector of averages
+crossValidationCont = function(df,K,nperfmeas=6,seed)
+{ set.seed(seed)
+  # apply transformations
+  df <- transform(df)
+  
+  n = nrow(df)
+  nhold = round(n/K) # size of holdout set 
+  iperm = sample(n)
+  comperf50meas = matrix(0,K,nperfmeas)
+  comperf80meas = matrix(0,K,nperfmeas)
+  resperf50meas = matrix(0,K,nperfmeas)
+  resperf80meas = matrix(0,K,nperfmeas)
+  
+  for(k in 1:K)
+  { indices = (((k-1)*nhold+1):(k*nhold))
+    if( k==K ) indices = (((k-1)*nhold+1):n)
+    indices = iperm[indices]
+    # split between commercial and residential 
+    commdf <- ClassSplit(df)[[1]]%>% medianImp()
+    resdf <- ClassSplit(df)[[2]]%>% medianImp()
+    
+    # commercial
+    commtrain = commdf[-indices,]
+    commholdout = commdf[indices,]
+    
+    PredfestcomModel <- feols(site_eui~minavg+maxavg+energy_star_rating+floor_area+facility_type+Year_Factor+State_Factor+cooling_degree_days+heating_degree_days+precipitation_inches+days_above_110F+days_below_30F,commtrain)
+    
+    restrain = resdf[-indices,] 
+    resholdout = resdf[indices,] 
+    PredfestresModel <- feols(site_eui~minavg+maxavg+energy_star_rating+facility_type+Year_Factor+State_Factor+cooling_degree_days+heating_degree_days+precipitation_inches+days_above_110F+days_below_30F,restrain)
+    #pred = myPredict(obj, newdata=holdout)  # could include 50% and 80% intervals
+    
+    comperf50meas[k,] = probCheck(PredfestcomModel,commholdout,0.51)$summary
+    comperf80meas[k,] = probCheck(PredfestcomModel,commholdout,0.80)$summary
+    resperf50meas[k,] = probCheck(PredfestresModel,resholdout,0.51)$summary
+    resperf80meas[k,] = probCheck(PredfestresModel,resholdout,0.80)$summary
+      #perfMeas(pred, holdout$y)
+  }
+  # 50
+  comavgperf50meas = apply(comperf50meas,2,mean)
+  resavgperf50meas = apply(resperf50meas,2,mean)
+  # 80 
+  comavgperf80meas = apply(comperf80meas,2,mean)
+  resavgperf80meas = apply(resperf80meas,2,mean)
+  
+  list(comperfmeas50byfold=comperf50meas,resperfmeas50byfold = resperf50meas, comavgperf50meas=comavgperf50meas,resavgperf50meas = resavgperf50meas,comperfmeas80byfold=comperf80meas,resperfmeas80byfold = resperf80meas, comavgperf80meas=comavgperf80meas,resavgperf80meas = resavgperf80meas)
+}
+
+
+# prob matrix
+probCheck <- function(model,df,level){
+  problist <- predict(model,df,interval='predi',level=level)[,-2] %>% na.omit()
+  return(intervalScore(problist,na.omit(df$site_eui),level))
+}
+```
+
+
+```{r functions}
+statebins <- function(df,ntrain){
+  weather= rep("M",ntrain)
+  weather[df$State_Factor == 'State_4']='C';weather[df$State_Factor == 'State_6']='C';weather[df$State_Factor == 'State_1']='H';weather[df$State_Factor == 'State_11']='H';
+  weather = as.factor(weather); df$State_Factor = weather
+  return(df)
+}
+
+transform <- function(df,subset = TRUE){
+  if (subset==TRUE){
+    df <- df
+    ntrain <- nrow(df)/2
+    df <- df[sample(nrow(df),ntrain),]
+    df <-  statebins(df,ntrain)
+    }
+    # transformations
+    df$floor_area <- log(df$floor_area)
+    df$site_eui <- log(df$site_eui)
+    
+    # days_data
+    daysDatNames <- df %>% select(contains('days')) %>% names()
+    
+    # creating auxillarydf
+    #auxDf <- df %>% select(c(daysDatNames,'avg_temp',"cooling_degree_days","heating_degree_days","precipitation_inches","snowfall_inches","snowdepth_inches","building_class"))
+    
+    # removing missing values
+    
+    #df <- df %>% select(-c('id','direction_peak_wind_speed' ,'max_wind_speed' ,'days_with_fog',"cooling_degree_days","heating_degree_days")) 
+    # removed percip,snow,days
+    
+    #df <- df %>% select(-names(df)[45:57])
+    # min and max names
+    minNames <- df %>% select(contains("min")) %>% names()
+    maxNames <- df%>% select(contains("max")) %>% names()
+    avgNames <- df%>% select(contains("_avg_")) %>% names()
+    
+    # create a minimum and maximum averagese.
+    df <- df %>% mutate(minavg = (january_min_temp+february_min_temp+march_min_temp+october_min_temp+november_min_temp+december_min_temp)/4)
+    df <- df %>% mutate(maxavg = (april_max_temp+may_max_temp+june_max_temp+july_max_temp+august_max_temp+september_max_temp)/4)
+    
+    #return(list(df,auxDf))
+    return(df)
+  
+}
+
+medianImp <- function(df){
+  df$year_built[is.na(df$year_built)]= summary(df$year_built)[[3]]
+  df$energy_star_rating[is.na(df$energy_star_rating)] = summary(df$energy_star_rating)[[3]]
+  return(df)
+}
+
+ClassSplit <- function(df){
+  commdf <- df %>% filter(building_class=='Commercial')%>% select(-'building_class')
+  resDf <- df %>% filter(building_class=="Residential") %>% select(-'building_class')
+  return(list(commdf,resDf))
+}
+
+plot_results <- function(df,model){
+  preds <- predict(model,df)
+  plot(density(preds));
+  lines(density(df$site_eui),col=2,type='h',main='predictions vs actual');
+}
+
+intervalScore = function(predObj,actual,level)
+{ n = nrow(predObj)
+  alpha = 1-level
+  ilow = (actual<predObj[,2])  # underestimation
+  ihigh = (actual>predObj[,3]) # overestimation
+  sumlength = sum(predObj[,3]-predObj[,2]) # sum of lengths of prediction intervals
+  sumlow = sum(predObj[ilow,2]-actual[ilow])*2/alpha
+  sumhigh = sum(actual[ihigh]-predObj[ihigh,3])*2/alpha
+  avglength = sumlength/n
+  IS = (sumlength+sumlow+sumhigh)/n # average length + average under/over penalties
+  browser()
+  cover = mean(actual>= predObj[,2] & actual<=predObj[,3])
+  summ = c(level,avglength,IS,cover) 
+  # summary with level, average length, interval score, coverage rate
+  imiss = which(ilow | ihigh)
+  list(summary=summ, imiss=imiss)
+}
 ```
 
 ## loading in the dataset
 ```{r}
-normalize <- function(x){
-  x = (x -mean(x))/sd(x)
-}
 # load the data
 bigdf <- read.csv('train.csv')
-#bigdf <- bigdf%>% select(-'days_with_fog')
+
 # use this to omit na values
 # bigdf <- na.omit(bigdf)
 ntrain = nrow(bigdf)
 df = bigdf[sample(nrow(bigdf),ntrain),]
 # to use the full dataset
-#df <- bigdf
 
 # log transformation for floor_area
-df$floor_area <- log(df$floor_area)
-# days_data
-daysDatNames <- df %>% select(contains('days')) %>% names()
 # going to use max of summer months [Apr - Sep], min of winter months [Oct - Mar]
 ```
 
 
 ```{r}
-# create df for auxillary regression
-auxDf <- df %>% select(c(daysDatNames,'avg_temp',"cooling_degree_days","heating_degree_days","precipitation_inches","snowfall_inches","snowdepth_inches","building_class"))
-
-# removed missing value variables
-df <- df %>% select(-c('id','direction_peak_wind_speed' ,'max_wind_speed' ,'days_with_fog',"cooling_degree_days","heating_degree_days")) 
-# removed avg temp, pericp, snow and days data
-df <- df %>% select(-names(df)[45:57])
-
-minNames <- df %>% select(contains("min")) %>% names()
-maxNames <- df%>% select(contains("max")) %>% names()
-avgNames <- df%>% select(contains("_avg_")) %>% names()
-
-df <- df %>% select(-c(minNames[4:9],avgNames,maxNames[-(4:9)]))
-
-# create a minimum and maximum averagese.
-df <- df %>% mutate(minavg = (january_min_temp+february_min_temp+march_min_temp+october_min_temp+november_min_temp+december_min_temp)/4)
-df <- df %>% mutate(maxavg = (april_max_temp+may_max_temp+june_max_temp+july_max_temp+august_max_temp+september_max_temp)/4)
-
+df <- transform(df=bigdf)
+# ClassSplit the main df
+commDf <- ClassSplit(df)[[1]] %>% medianImp()
+resDf <- ClassSplit(df)[[2]] %>% medianImp()
 ```
-# creating state subsets 
-
-State bins that comprise of Hot, Mild and Cold states, binned according to snow depth.
-```{r}
-
-weather = rep("M",ntrain)
-weather[df$State_Factor == 'State_4']='C';weather[df$State_Factor == 'State_6']='C';weather[df$State_Factor == 'State_1']='H';weather[df$State_Factor == 'State_11']='H';
-weather = as.factor(weather); df$State_Factor = weather
-```
-
-## median imputations
-
-The median values achieved using summary functions, as the median() was providing NA values.
-
-```{r}
-# this worsens the performance
-df$year_built[is.na(df$year_built)] = 1951
-df$energy_star_rating[is.na(df$energy_star_rating)] = 67
-# try removing na values
-```
-
-# splitting the datasets between commercial and residential
-
-There is a split between commercial and residential. 57 % of the dataset is Residential.
-```{r}
-commDf <- df %>% filter(building_class=='Commercial')%>% select(-'building_class')
-# grouping facility types
-#select("")
-#ncommtrain = nrow(commDf)
-#facilityTyp = rep("Edu",ncommtrain)
-#facilityTyp[commDf$facility_type=Education_Other_classroom]
-resDf <- df %>% filter(building_class=='Residential') %>% select(-'building_class')
-```
-
-# creating auxillary models
-
-Auxiliary regression to create an estimator for average temperature using climate variables.
-
-```{r}
-# # remove NA values
-# auxDf <-  auxDf %>% select(-'days_with_fog') # days with fog has several na values hence remove the feature.
-# 
-# #sum(is.na(auxDf)) # check for na values.
-# 
-# ## -- auxillary regression for Commercial and Residential
-# auxcomDf <- auxDf %>% filter(building_class=='Commercial')%>% select(-'building_class')
-# auxresDf <- auxDf %>% filter(building_class=='Residential')%>% select(-'building_class')
-# 
-# ## -- attempt using lm to test out versions of the model
-# #auxillaryreg <- function(dataframe){
-#   firstModel <- lm(avg_temp~cooling_degree_days+heating_degree_days,data=dataframe)
-#   secondModel <- lm(avg_temp~I(days_below_30F)*cooling_degree_days+I(days_above_110F)*heating_degree_days+precipitation_inches,data=dataframe)
-#   thirdModel <- lm(avg_temp~.,data=dataframe)
-#   return(list(firstModel,secondModel,thirdModel))
-# }
-# 
-# # tested all variables to see the difference in R2, due to multicollinearity not many explanatory variables are required.
-# #auxcommodel2 <- lm(avg_temp~.,data=auxcomDf) 
-# # Auxillary models.
-# auxresmodel <- lm(avg_temp~days_below_30F+cooling_degree_days+heating_degree_days+precipitation_inches,data=auxresDf)
-# auxcommodel <- lm(avg_temp~days_below_30F+cooling_degree_days+heating_degree_days+precipitation_inches,data=auxcomDf)
-```
-
-# running a regression model
-attempted runnning regression model using lm function learnt in class.
-
-```{r}
-# using the most efficent aux reg model
-# AverageTemp <- auxresmodel$fitted.values
-# resregVar <- names(resDf)[1:19]
-# 
-# # function that tests out 5 model variations.
-# regressionModel <- function(dataframe,auxdataf){
-#   tempVar <- auxdataf$fitted.values
-#   
-#   model1 <- lm(log(site_eui)~I(State_Factor)*(I(facility_type)+energy_star_rating+year_built),data=dataframe)
-#   model2 <- lm(log(site_eui)~I(State_Factor)*(I(facility_type)+I(Year_Factor)+minavg+maxavg+energy_star_rating+year_built),data=dataframe)
-#   model3 <- lm(log(site_eui)~I(State_Factor)*(I(facility_type)+I(Year_Factor)+minavg+maxavg+energy_star_rating+year_built+tempVar),data=dataframe)
-#   model4 <- lm(log(site_eui)~. - minavg - maxavg,data=dataframe)
-#   model5 <- lm(log(site_eui)~. +tempVar- minavg - maxavg,data=dataframe)
-#   
-#   return(list(model1,model2,model3,model4,model5))
-# }
-#resModel <- lm(log(site_eui)~(.),data=resDf)
-```
-
-## lm models
-
-i tested an interaction between StateFactor and facility type dummy with an addition of Year factor dummy to kook at differnece accordingly.
-
-```{r}
-# resModel <- lm(log(site_eui)~I(State_Factor)*(I(facility_type)+I(Year_Factor)+minavg+maxavg+energy_star_rating+year_built+AverageTemp),data=resDf)
-# AverageTemp <- auxcommodel$fitted.values
-# #comModel <- lm(log(site_eui)~.+AverageTemp,data=commDf)
-# comModel <- lm(log(site_eui)~I(State_Factor)*(I(facility_type)+I(Year_Factor)+AverageTemp+energy_star_rating+year_built+minavg+maxavg),data=commDf)
-```
-
-## print out {stargazer} models
-
-for both Residential and Commercial.
-
-
-```{r stargazer resmodel, echo=FALSE}
-# reslabels <- c("(Intercept)",
-# "Hot",
-# "Medium",
-# "5plus Unit Building",
-# "Mixed Use Commercial and Residential",
-# "Mixed Use Predominantly Commercial",
-# "Mixed Use Predominantly Residential",
-# "Multifamily Uncategorized",
-# "Year",
-# "minavg",
-# "maxavg",
-# "energy star rating",
-# "year built",
-# "AverageTemp",
-# "Hot:5plus Unit Building",
-# "Medium:5plus Unit Building",
-# "Hot:Mixed Use Commercial and Residential",
-# "Medium:Mixed Use Commercial and Residential",
-# "Hot:Mixed Use Predominantly Commercial",
-# "Medium:Mixed Use Predominantly Commercial",
-# "Hot:Mixed Use Predominantly Residential",
-# "Medium:Mixed Use Predominantly Residential",
-# "Hot:Multifamily Uncategorized",
-# "Medium:Multifamily Uncategorized",
-# "Hot:Year",
-# "Medium:Year",
-# "Hot:minavg",
-# "Medium:minavg",
-# "Hot:maxavg",
-# "Medium:maxavg",
-# "Hot:energy star rating",
-# "Medium:energy star rating",
-# "Hot:year built",
-# "Medium:year built",
-# "Hot:AverageTemp",
-# "Medium:AverageTemp")
-# 
-# stargazer(regressionModel(resDf,),title="Regression Results",type='latex',dep.var.labels.include = TRUE,dep.var.labels = c("Residential"),dep.var.caption = "Building Class",single.row = TRUE,rownames = FALSE,notes="State Factor are binned as Hot( State 1 and 11), Cold (State 4 and 6) and Mid (State 2,8 and 10)",column.sep.width = "-15pt",tab.width="0.7\\textwidth",out="ouput.tex",no.space = TRUE,covariate.labels = reslabels)
-```
-```{r stargazer commodel, echo=FALSE}
-# labels = c("(Intercept)", "Hot:","Medium:","Commercial Unknown","Data Center","Education College or university","Education Other classroom","Education Uncategorized","Food Sales","Grocery store or food market","Health Care Inpatient","Health Care Outpatient Clinic","Health Care Outpatient Uncategorized","Industrial","Laboratory","Lodging Dormitory or fraternity sorority","Lodging Hotel","Nursing Home","Office Bank or other financial","Office Medical non diagnostic","Office Mixed use","Office Uncategorized","Parking Garage","Public Assembly Other","Public Safety Courthouse","Religious worship","Retail Enclosed mall","Retail Strip shopping mall","Retail Uncategorized","Service Uncategorized","Service Vehicle service repair shop","Warehouse Distribution or Shipping center","Warehouse Nonrefrigerated","Warehouse Refrigerated","Warehouse Selfstorage","Warehouse Uncategorized","","AverageTemp","energy star rating","year built","minavg","maxavg"," Hot: Commercial Unknown","Medium: Commercial Unknown"," Hot: Data Center","Medium: Data Center"," Hot: Education College or university","Medium: Education College or university"," Hot: Education Other classroom","Medium: Education Other classroom"," Hot: Education Uncategorized","Medium: Education Uncategorized"," Hot: Food Sales","Medium: Food Sales"," Hot: Grocery store or food market","Medium: Grocery store or food market"," Hot: Health Care Inpatient","Medium: Health Care Inpatient"," Hot: Health Care Outpatient Clinic","Medium: Health Care Outpatient Clinic"," Hot: Health Care Outpatient Uncategorized","Medium: Health Care Outpatient Uncategorized"," Hot: Industrial","Medium: Industrial"," Hot: Laboratory","Medium: Laboratory"," Hot: Lodging Dormitory or fraternity sorority","Medium: Lodging Dormitory or fraternity sorority"," Hot: Lodging Hotel","Medium: Lodging Hotel"," Hot: Nursing Home","Medium: Nursing Home"," Hot: Office Bank or other financial","Medium: Office Bank or other financial"," Hot: Office Medical non diagnostic","Medium: Office Medical non diagnostic"," Hot: Office Mixed use","Medium: Office Mixed use"," Hot: Office Uncategorized","Medium: Office Uncategorized"," Hot: Parking Garage","Medium: Parking Garage"," Hot: Public Assembly Other","Medium: Public Assembly Other"," Hot: Public Safety Courthouse","Medium: Public Safety Courthouse"," Hot: Religious worship","Medium: Religious worship"," Hot: Retail Enclosed mall","Medium: Retail Enclosed mall"," Hot: Retail Strip shopping mall","Medium: Retail Strip shopping mall"," Hot: Retail Uncategorized","Medium: Retail Uncategorized"," Hot: Service Uncategorized","Medium: Service Uncategorized"," Hot: Service Vehicle service repair shop","Medium: Service Vehicle service repair shop"," Hot: Warehouse Distribution or Shipping center","Medium: Warehouse Distribution or Shipping center"," Hot: Warehouse Nonrefrigerated","Medium: Warehouse Nonrefrigerated"," Hot: Warehouse Refrigerated","Medium: Warehouse Refrigerated"," Hot: Warehouse Selfstorage","Medium: Warehouse Selfstorage"," Hot: Warehouse Uncategorized","Medium: Warehouse Uncategorized"," Hot: ","Medium: "," Hot: AverageTemp","Medium: AverageTemp"," Hot: energy star rating","Medium: energy star rating"," Hot: year built","Medium: year built"," Hot: minavg","Medium: minavg"," Hot: maxavg","Medium: maxavg")
-# 
-# stargazer(comModel,title="Regression Results",dep.var.labels.include = TRUE,dep.var.labels = c("Commercial"),dep.var.caption = "Building Class",single.row = TRUE,notes="State Factor are binned as Hot( State 1 and 11), Cold (State 4 and 6) and Mid (State 2,8 and 10)",
-#           column.sep.width = "-15pt",
-#           out="ouput.tex",
-#           no.space = TRUE,
-#           covariate.labels = labels)
-```
-
-Coef map for presentation purposes
-```{r}
-
-# coefs to include
-#cm = c('(Intercept)'= 'Constant','Year_Factor'='Year','State_FactorH'="Hot States",'State_FactorM'="Med States", "facility_Type5plus_Unit_Building"="5plus Unit Building",'facility_typeMixed_Use_Commercial_and_Residential'="Mixed Use Commercial and Residential",'facility_typeMixed_Use_Predominantly_Commercial'="Mixed Use Predominantly Commercial","facility_typeMixed_Use_Predominantly_Residential"="Mixed Use Predominantly Residential","facility_typeMultifamily_Uncategorized"="Multifamily Uncategorized","year_built"="Year of Build","AverageTemp"="Average Temperature (F)")
-#(resModel,coef_map = cm,fmt=3,output = 'markdown')
-```
-
-## testing out modelsummary
-
-Another package for summarizing models in R.
-```{r}
-library(modelsummary)
-#modelplot(auxcommodel)
-```
-
-## Stargazer for auxillary models
-
-Stargazer do the same, for auxiliary regression tables.
-
-```{r}
-# stargazer(auxcommodel,auxresmodel,title="Auxillary Regression Tables",type='text',single.row = TRUE)
-# stargazer(auxcommodel,auxcommodel2,title="Auxillary Regression Tables",type='text',single.row = TRUE)
-```
-
-
-
-## modelsummary using kableExtra
-```{r}
-library(kableExtra)
-# options(kableExtra.output="latex")
-# modelsummary(list(resModel,comModel),output = "kableExtra",fmt="%.3f",title="Regression Models") %>% kable_styling(latex_options = "striped")
-```
-
-Comments: okay this is much better
 
 ### Main Model regression equation
 
@@ -254,45 +194,48 @@ Comments: okay this is much better
 # running fest
 Fest is a package in R used for fixed effects estimation.
 
-```{r auxreg fixest echo=FALSE}
-ComfestauxModel <- feols(avg_temp~cooling_degree_days+heating_degree_days+precipitation_inches+days_above_110F+days_below_30F,data=auxcomDf)
-commDf$avg_temp = ComfestauxModel$fitted.values
-ResfestauxModel <- feols(avg_temp~+cooling_degree_days+heating_degree_days+precipitation_inches+days_above_110F+days_below_30F,data=auxresDf)
-resDf$avg_temp = ResfestauxModel$fitted.values
-#plot(fixef(festauxModel))
-etable(ComfestauxModel,ResfestauxModel,title='Auxillary Regression Tables',tex=T)
+```{r}
+#running fixest
+#-- cant be used for predictions as standard errors harder to compute with fixed effects
+festcomModel <- feols(site_eui~minavg+maxavg+energy_star_rating+facility_type|Year_Factor+State_Factor|avg_temp~cooling_degree_days+heating_degree_days+precipitation_inches+days_above_110F+days_below_30F,commDf)
 
-#####
-
-#testAux <- feols(avg_temp~cooling_degree_days + heating_degree_days + precipitation_inches+days_below_30F+days_above_110F,data=auxcomDf)
-
-## predictions
-#predDF <- predict(testAux,interval = 'confidence',newdata = auxcomDf)
-#plot(auxcomDf$avg_temp,predDF$fit,ylab='avgtemp_hat (F) ',xlab='avgtemp (F)',main='Auxillary Regression')
-#lines(auxcomDf$avg_temp,predDF$ci_low,col=2)
-#lines(auxcomDf$avg_temp,predDF$ci_high,col=2)
-
+festresModel <- feols(site_eui~+minavg+maxavg+energy_star_rating+facility_type|Year_Factor+State_Factor|avg_temp~cooling_degree_days+heating_degree_days+precipitation_inches+days_above_110F+days_below_30F,resDf)
 ```
 
 ```{r}
-
-festModel <- feols(log(site_eui)~+minavg+maxavg+energy_star_rating+i(facility_type)+avg_temp|Year_Factor+State_Factor,commDf)
-resfestModel <- feols(log(site_eui)~+minavg+maxavg+energy_star_rating+i(facility_type)+avg_temp|Year_Factor+State_Factor,resDf)
-
-#print(festModel)
-# INTERACTION PLOT
-iplot(festModel,lab.max.mar=1)
-# trying to plot
-fixPlot = fixef(festModel,lab.max.mar=1)
-# FIX EFFECTS PLOT
-plot(fixPlot)
+# - plotting density predictions
+plot_results(commDf,festcomModel)
+plot_results(resDf,festresModel)
 ```
 
-## fest
+# interval score implementation
+```{r}
+# running models to predict
+PredfestcomModel <- feols(site_eui~minavg+maxavg+energy_star_rating+facility_type+Year_Factor+State_Factor|avg_temp~cooling_degree_days+heating_degree_days+precipitation_inches+days_above_110F+days_below_30F,commDf)
 
-running a for loop to see changes with step wise addition of fixeffects.
+PredfestresModel <- feols(site_eui~+minavg+maxavg+energy_star_rating+facility_type+Year_Factor+State_Factor+cooling_degree_days+heating_degree_days+precipitation_inches+days_above_110F+days_below_30F,resDf)
 
-and 
+```
+
+
+```{r}
+# 0.5 predictions
+comModel50 <- probCheck(PredfestcomModel,commDf,0.51) 
+resModel50 <- probCheck(PredfestresModel,resDf,0.51) 
+#0.8 predictions
+comModel80 <- probCheck(PredfestcomModel,commDf,0.95)
+resModel80 <- probCheck(PredfestresModel,resDf,0.95)
+
+REcomreg <- rbind(comModel50$summary,comModel80$summary)
+colnames(REcomreg)=c("level","avgleng","IS","cover")
+print(REcomreg)
+REresreg <- rbind(resModel50$summary,resModel80$summary)
+colnames(REresreg)=c("level","avgleng","IS","cover")
+print(REresreg)
+```
+
+
+
 
 
 ```{r residential feeffects echo=FALSE}
@@ -308,6 +251,20 @@ cm <- c('(Intercept)'='Intercept','minavg'='Minimum Average (F)','maxavg'='Maxim
 tb <- modelsummary::modelsummary(feList,output="kableExtra",stars=TRUE,title = 'Regression Table',coef_map = cm,gof_omit = "BIC|Log.Lik.|R2 Adj.|R2 Within| R2 Pseudo|AIC")
 
 ```
+
+#crossValidation
+```{r}
+crossValidationCont(bigdf,5,nperfmeas = 4,seed=123)
+```
+
+#Principal Component Analysis
+Cannot do PRincipal Componenet Analysis for the life of me, if someone figures this out. Thanks in advance.
+```{r}
+#test <- tibble(commDf$facility_type)
+#princomp(na.omit(commDf[,3]),na.action=na.exclude, cor = TRUE)
+#testmfa = MFA(base=test,group=c(54),type = c("n"),ncp=5,name.group = c("facility_type"))
+```
+
 # see below the residential coefs plot
 
 ```{r residential coefficient estimate plots}
