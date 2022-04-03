@@ -348,7 +348,7 @@ Fig. 10: Comparing In-sample Prediction Performance for Different Models without
 ## 5. Model Results
 
 \begin{center}
-\textbf{Table 3}: 50% Prediction Intervals
+\textbf{Table 3}: 50$%$ Prediction Intervals
 \end{center}
 
 
@@ -363,7 +363,7 @@ Fig. 10: Comparing In-sample Prediction Performance for Different Models without
 
 
 \begin{center}
-\textbf{Table 3}: 80% Prediction Intervals
+\textbf{Table 3}: 80$%$ Prediction Intervals
 \end{center}
 
 | Model | Level | Avg Length | Interval Score | Coverage |
@@ -414,3 +414,82 @@ There are two areas of further research that would help address the limitations 
 
 
 ## 10. Appendix
+``` {r }
+knitr::include_graphics('~/images/fill_msno.png')
+knitr::include_graphics('~/images/nofill_msno.png')
+```
+
+``` {r feature selection p1}
+knitr::include_graphics('~/images/response_corr.png')
+knitr::include_graphics('~/images/triangular_mat.png')
+
+
+knitr::include_graphics('~/images/cat_dist.png')
+
+knitr::include_graphics('~/images/feature_imp.png')
+```
+
+
+
+```{r transformations}
+
+knitr::include_graphics('~/images/site_eui_dist.png')
+
+
+knitr::include_graphics('~/images/cold_days_after.png')
+knitr::include_graphics('~/images/cold_days_before.png')
+knitr::include_graphics('~/images/elevation_after.png')
+knitr::include_graphics('~/images/elevation_before.png')
+knitr::include_graphics('~/images/esrating_after.png')
+knitr::include_graphics('~/images/esrating_before.png')
+knitr::include_graphics('~/images/floor_area_after.png')
+knitr::include_graphics('~/images/floor_areaxenergy_star_rating_after.png')
+knitr::include_graphics('~/images/floor_areaxenergy_star_rating_before.png')
+knitr::include_graphics('~/images/floorareaxELEVATION_after.png')
+knitr::include_graphics('~/images/floorareaxELEVATION_before.png')
+knitr::include_graphics('~/images/floorxbuilt_after.png')
+knitr::include_graphics('~/images/floorxbuilt_before.png')
+knitr::include_graphics('~/images/floorxBuiltxEnergy_after.png')
+knitr::include_graphics('~/images/floorxBuiltxEnergy_before.png')
+knitr::include_graphics('~/images/floorxenergy_after.png')
+knitr::include_graphics('~/images/floorxenergy_before.png')
+knitr::include_graphics('~/images/floorxHeatCool_after.png')
+knitr::include_graphics('~/images/floorxHeatCool_before.png')
+knitr::include_graphics('~/images/freezing_days_before.png')
+knitr::include_graphics('~/images/hot_days_dist.png')
+knitr::include_graphics('~/images/warm_days_after.png')
+knitr::include_graphics('~/images/warm_days_before.png')
+knitr::include_graphics('~/images/year_built_after.png')
+knitr::include_graphics('~/images/year_built_before.png')
+```
+
+```{r pca img}
+knitr::include_graphics('~/images/pca_threshold.png')
+knitr::include_graphics('~/images/pca_1st.png')
+knitr::include_graphics('~/images/pca_curve.png')
+knitr::include_graphics('~/images/pca_4d.png')
+
+```
+
+```{r after feature selection img}
+
+knitr::include_graphics('~/images/site_eui_outliers_after.png')
+knitr::include_graphics('~/images/second_tri_mat.png')
+knitr::include_graphics('~/images/boruta.png')
+
+```
+
+```{r }
+knitr::include_graphics('~/images/fit_time_boxplot.png')
+
+
+knitr::include_graphics('~/images/rmse_boxplot.png')
+
+knitr::include_graphics('~/images/rsq_boxplot.png')
+
+
+knitr::include_graphics('~/images/pred_vs_act.png')
+
+```
+
+
