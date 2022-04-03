@@ -347,65 +347,33 @@ Fig. 10: Comparing In-sample Prediction Performance for Different Models without
 
 ## 5. Model Results
 
-From Table 3, we see that the ensemble model have the lowest RMSE , meaning it has the best predictive performance out of all the models with no interaction terms. 
-
 \begin{center}
-\textbf{Table 4}: Comparing Prediction Performance of Different Models Without the Interaction Terms
+\textbf{Table 3}: 50% Prediction Intervals
 \end{center}
 
-| **Models** | **RMSE** |
-|---|:---:|
-| Linear Model | 0.203 | 
-| Quantile Regression Forest | 0.256 | 
-| Random Forest | 0.255 |
-| XGBoost Linear | 0.255 |
-| Radial Support Vector Machine | 0.218 | 
-| Gradient Boosting Machine | 0.262 | 
-| **Ensemble Model** | **0.1986** |
 
-From Table 4, we see that once again that the ensemble of all the 6 models listed has the lowest RMSE, meaning it has the best predictive performance out of all the individual models with interaction terms. 
-
-\begin{center}
-\textbf{Table 5}: Comparing Prediction Performance of Different Models With the Interaction Terms
-\end{center}
-
-| **Models** | **RMSE** |
-|---|:---:|
-| Linear Model | 0.196 | 
-| Quantile Regression Forest | 0.227 | 
-| Random Forest | 0.234 |
-| XGBoost Linear | 0.242 |
-| Radial Support Vector Machine | 0.267 | 
-| Gradient Boosting Machine | 0.274 | 
-| **Ensemble Model** | **0.1878** |
-
-From Table 5, we use our best performed models on test dataset to evaluate whether our models are still valid when applying on test dataset, we can see that the RMSE from both models are quqite consistent with their result in Training dataset in Table 3 and 4. 
+| Model | Level | Avg Length | Interval Score | Coverage |
+|-------|-------|------------|----------------|----------|
+| LGBM  | 0.5   | 23.675     | 58.053         | 0.494    |
+| SVR   | 0.5   | 23.266     | 57.622         | 0.502    |
+| GBR   | 0.5   | 24.705     | 58.114         | 0.506    |
+| Elnet | 0.5   | 29.156     | 65.155         | 0.501    |
+| XGB   | 0.5   | 23.856     | 57.693         | 0.505    |
+| Stack | 0.5   | 24.338     | 57.656         | 0.505    |
 
 
 \begin{center}
-\textbf{Table 6}: Prediction Performance of Best Models on Testing Dataset
+\textbf{Table 3}: 80% Prediction Intervals
 \end{center}
 
-| **Models** | **RMSE** |
-|---|:---:|
-| Ensemble Model Without Interaction Terms | 0.192664 |
-| Ensemble Model With Interaction Terms | 0.2042341 |
-
-<!---
-Fig. 12: Predicted vs Actual Values (Ensemble Model)   |  Fig. 13: Predicted vs Actual Values (GLM) | Fig 11: Predicted vs Actual Values (Linear Regression)
-:-------------------------:|:-------------------------:|:-------------------------:
-![](image/best.png)  |  ![](image/glm.png) | ![](image/lm.png) |
---->
-
-The two plots below show how much the prediction from our best 2 models deviated from actual value therefore giving us a rough estimation of whether a model is a good fit or not. We clearly see that both models'prediction are quite near the actual values, most points were near to the fitted line indicating a good fit.
-
-
-```{=latex}
-
-```
-
-Comparing the predictive performance of the best models from both Table 3 and Table 4, we see that the latter (Ensemble Model, RMSE: 0.1795) has a better performance. Therefore, the best model we chose for making predictions was the Ensemble Model with the interaction terms. 
-
+| Model | Level | Avg Length | Interval Score | Coverage |
+|-------|-------|------------|----------------|----------|
+| LGBM  | 0.8   | 54.604     | 89.740         | 0.798    |
+| SVR   | 0.8   | 53.120     | 90.000         | 0.793    |
+| GBR   | 0.8   | 54.755     | 89.175         | 0.795    |
+| Elnet | 0.8   | 64.465     | 96.675         | 0.799    |
+| XGB   | 0.8   | 54.165     | 89.306         | 0.799    |
+| Stack | 0.8   | 54.448     | 88.648         | 0.797    |
 
 ## 6. Limitations
 
