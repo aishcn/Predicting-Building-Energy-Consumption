@@ -333,6 +333,7 @@ Fig. 10: Comparing In-sample Prediction Performance for Different Models without
 ```
 
 \begin{center}
+
 \textbf{Fig. 17}: Comparing Prediction Performance for Different Models Without and With Interaction Terms
 \end{center}
 
@@ -348,7 +349,7 @@ Fig. 10: Comparing In-sample Prediction Performance for Different Models without
 ## 5. Model Results
 
 \begin{center}
-\textbf{Table 3}: 50$%$ Prediction Intervals
+\textbf{Table 3}: 50 % Prediction Intervals
 \end{center}
 
 
@@ -363,7 +364,7 @@ Fig. 10: Comparing In-sample Prediction Performance for Different Models without
 
 
 \begin{center}
-\textbf{Table 3}: 80$%$ Prediction Intervals
+\textbf{Table 3}: 80 % Prediction Intervals
 \end{center}
 
 | Model | Level | Avg Length | Interval Score | Coverage |
