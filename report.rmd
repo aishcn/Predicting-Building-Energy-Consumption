@@ -219,18 +219,6 @@ This method is built on a random forest classifier. It ranks features based on t
 From the variable importance plot we see the 3 most importance variables by far are energy star rating floor area and year built. We proposed the notion of  potential interactions with these terms. [NOT SURE EXACTLY ON REASONING FOR THE INTERACTION LATER ??]. We also note particular importance of Facility Type, Elevation, Days below 20F, Ferbruary average temperature, January average temperature, as well as building class, relative  to the other features in the dataset.
 
 
-<!-- from sklearn.ensemble import RandomForestRegressor -->
-<!-- rf = RandomForestRegressor(n_estimators=80, max_features='auto') -->
-<!-- rf.fit(df.iloc[:,:-1], df['site_eui']) -->
-<!-- print("Training done using Random Forest") -->
-
-<!-- ranking = np.argsort(-rf.feature_importances_) -->
-<!-- f, ax = plt.subplots(figsize=(11,9)) -->
-<!-- sns.barplot(x=rf.feature_importances_[ranking], y=df.iloc[:,:-1].columns.values[ranking], orient='h') -->
-<!-- ax.set_xlabel("Feature Importance") -->
-<!-- plt.tight_layout() -->
-<!-- plt.show() -->
-
 \begin{center}
 \textbf{Fig 12}: Variable Importance (using 'boruta' package)
 \end{center}
