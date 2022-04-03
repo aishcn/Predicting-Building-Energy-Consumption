@@ -134,9 +134,9 @@ In a preliminary attempt of gathering information on covariate relationships wit
 In order to enable us to explore the data more effectively there are measures that can be taken such as subsetting the data, given the large size of the data set.
 Via the summary tables we also see that site EUI is right skewed, so a cube root transformation for the sole purpose of investigating relationship will be more effective.
 
-#building charactersitics vs site eui
+#Building charactersitics vs site eui
 
-building characteristics are of particular interest in context of the data, and so we investigated relationships between Site EUI and building variables. The most noteworthy relationships was with energy star rating, which was as expected from the Spearman correlations, and found a clearer and more linear relationship with the response than almost all other variables.
+Building characteristics are of particular interest in context of the data, and so we investigated relationships between Site EUI and building variables. The most noteworthy relationships was with energy star rating, which was as expected from the Spearman correlations, and found a clearer and more linear relationship with the response than almost all other variables.
 
 For elevation we used binning for the classes based on the variables quantiles from summary statistics. We see a notable increase in site EUI initially as buildings add a floors requirement more total energy usage, before this plateaus, which is understandable in context as buildings aren't generally built above a certain height and number of floors.
 
@@ -212,25 +212,24 @@ Before using any of the traditional feature selection techniques mentioned below
 ```
 
 
-#### 4.2.2. Variable Importance using boruta package
+#### 4.2.2. Variable Importance using Random Forest
 
 
 This method is built on a random forest classifier. It ranks features based on their importance measure i.e. Mean Decrease Accuracy (MDA) where higher means more important. MDA measures how much accuracy the model losses by excluding each variable. The more the accuracy degrades, the more important the variable is. 
 From the variable importance plot we see the 3 most importance variables by far are energy star rating floor area and year built. We proposed the notion of  potential interactions with these terms. [NOT SURE EXACTLY ON REASONING FOR THE INTERACTION LATER ??]. We also note particular importance of Facility Type, Elevation, Days below 20F, Ferbruary average temperature, January average temperature, as well as building class, relative  to the other features in the dataset.
 
 
-<!-- knitr::include_graphics('image/new_borota.png') -->
-<!-- # from sklearn.ensemble import RandomForestRegressor -->
-<!-- # rf = RandomForestRegressor(n_estimators=80, max_features='auto') -->
-<!-- # rf.fit(df.iloc[:,:-1], df['site_eui']) -->
-<!-- # print("Training done using Random Forest") -->
-<!-- #  -->
-<!-- # ranking = np.argsort(-rf.feature_importances_) -->
-<!-- # f, ax = plt.subplots(figsize=(11,9)) -->
-<!-- # sns.barplot(x=rf.feature_importances_[ranking], y=df.iloc[:,:-1].columns.values[ranking], orient='h') -->
-<!-- # ax.set_xlabel("Feature Importance") -->
-<!-- # plt.tight_layout() -->
-<!-- # plt.show() -->
+<!-- from sklearn.ensemble import RandomForestRegressor -->
+<!-- rf = RandomForestRegressor(n_estimators=80, max_features='auto') -->
+<!-- rf.fit(df.iloc[:,:-1], df['site_eui']) -->
+<!-- print("Training done using Random Forest") -->
+
+<!-- ranking = np.argsort(-rf.feature_importances_) -->
+<!-- f, ax = plt.subplots(figsize=(11,9)) -->
+<!-- sns.barplot(x=rf.feature_importances_[ranking], y=df.iloc[:,:-1].columns.values[ranking], orient='h') -->
+<!-- ax.set_xlabel("Feature Importance") -->
+<!-- plt.tight_layout() -->
+<!-- plt.show() -->
 
 \begin{center}
 \textbf{Fig 12}: Variable Importance (using 'boruta' package)
@@ -266,8 +265,8 @@ In addition to Z-Score Standardization, which refers to scaling and centering of
 \end{center}
 | *Variable* | *Description* | *Transformation* | *Skewness* |
 |--|----|----|--|
-| floor_area | Floor Area | Fifth Root Transform | Right Skewed |
-| year_buily | Year Built | Shifted (1200 - year built) & Squared Transform | Left Skewed |
+| floor_area | Floor Area | Sixth Root Transform | Right Skewed |
+| year_buily | Year Built | Shifted (2020 - year built) & Log Transform | Left Skewed |
 | energy_star_Rating | Energy Star Rating  | Squared Transform | Left Skewed |
 | ELEVATION | Building Elevation | Sixth Root Transform | Right Skewed |
 | avg_temp | Average Temperature | None | None Obvious |
@@ -275,14 +274,26 @@ In addition to Z-Score Standardization, which refers to scaling and centering of
 | SummerTemp | Average Temperatures of Juny July August | None | None Obvious |
 | FallTemp | Average Temperatures of September October November | None | None Obvious |
 | WinterTemp | Average Temperatures of December January February | None | None Obvious |
-| floorxBuilt | Interaction Term Floor Area and Year Built  | Sixth Root Transform | Left Skewed |
-| floorxEnergy | Interaction Term Floor Area and Energy Star Rating  | Sixth Root Transform | Left Skewed |
+| floorxBuilt | Interaction Term Floor Area and Year Built  | Sixth Root Transform | Right Skewed |
+| floorxEnergy | Interaction Term Floor Area and Energy Star Rating  | Sixth Root Transform | Right Skewed |
 | floorxBuilt | Interaction Term Floor Area and Year Built  | Sixth Root Transform | Right Skewed |
 | floorxHeatCool | Interaction Term Floor Area and Sum of Heating and Cooling Degree Days  | Sixth Root Transform | Right Skewed |
 | freezing_days | Total days below 0 and 10 F | Fifth Root Transform | Slight Right Skewed |
-| cold_days | Total days below 20 and 30 F | square Root Transform | Slight Right Skewed |
+| cold_days | Total days below 20 and 30 F | Square Root Transform | Slight Right Skewed |
 | warm_days | Total days above 80 90 F | Square Root Transform | Left Skewed |
 | hot_days | Total days above 100 110 F | Dropped | Too Few Data |
+
+### 4.2.5 Principal Component Analysis
+
+To continue combatting issues caused  correlated features, we also performed principal compoment analysis. The interpretation of these principal components is based on finding which variables are most strongly correlated with each component; which of these have a large absolute relative importance that is furthest from zero in either direction. The importance of each features is reflected by the maginuted of the corresponding values in the eigen vectors.
+
+We see from the number of components needed to explain variance, the 95% cut off threshold is reached at 6 principal components.
+
+We
+
+### 4,2,6 Hyperparameter Tunig
+
+
 
 ### 4.3. Model Training and Validation
 
