@@ -381,6 +381,8 @@ There are two areas of further research that would help address the limitations 
 - Statistical interaction: More than the sum of its parts. Statistics Solutions. (2021, June 22). Retrieved February 21, 2022, from https://www.statisticssolutions.com/statistical-interaction-more-than- the-sum-of-its-parts/
 
 
+Kovan, I. (2021, September 10). Comprehensive guide for principal component analysis. Medium. Retrieved April 3, 2022, from https://towardsdatascience.com/comprehensive-guide-for-principal-component-analysis-7bf2b4a048ae
+
 
 ## 10. Appendix
 ``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Before and After Median Imputation",fig.show='hold',fig.align='center'}
