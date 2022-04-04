@@ -1,0 +1,246 @@
+---
+title: "Estimation strategy"
+author: "Sumit Meghlani 64801343"
+date: "3/25/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tibble)
+library(dplyr)
+library(FactoMineR)
+library(caret)
+library(plm)
+source('functions.R')
+```
+
+
+
+
+
+
+
+## loading in the dataset
+```{r}
+# load the data
+bigdf <- read.csv('train.csv')
+
+gtest <- noout(bigdf)
+summary(is.na(gtest$site_eui))
+summary(is.na(bigdf$site_eui))
+# use this to omit na values
+# bigdf <- na.omit(bigdf)
+ntrain = nrow(bigdf)
+df = bigdf[sample(nrow(bigdf),ntrain),]
+# to use the full dataset
+boxplot(gtest$site_eui)
+
+# log transformation for floor_area
+# going to use max of summer months [Apr - Sep], min of winter months [Oct - Mar]
+```
+
+
+```{r}
+df <- transform(df=bigdf)
+# ClassSplit the main df
+commDf <- ClassSplit(df)[[1]] %>% medianImp()
+resDf <- ClassSplit(df)[[2]] %>% medianImp()
+```
+
+### Main Model regression equation
+
+**$e_{t,J} = \alpha_{t,J} + \beta_1 minavg_{t,J} + \beta_2 maxavg_{t,J} + \beta_3 ESA_{t,J} +\beta_4 yb_{t,J} +\beta_5 elev_{t,J}+\beta_6 floar_{t,J}+\beta_7 factyp_{t,J}+ \epsilon_{t,J}$**
+
+# running fest
+Fest is a package in R used for fixed effects estimation.
+
+```{r}
+#running fixest
+#-- cant be used for predictions as standard errors harder to compute with fixed effects
+festcomModel <- feols(site_eui~minavg+maxavg+energy_star_rating+facility_type|Year_Factor+State_Factor|avg_temp~cooling_degree_days+heating_degree_days+precipitation_inches+days_above_110F+days_below_30F,commDf)
+
+festresModel <- feols(site_eui~+minavg+maxavg+energy_star_rating+facility_type|Year_Factor+State_Factor|avg_temp~cooling_degree_days+heating_degree_days+precipitation_inches+days_above_110F+days_below_30F,resDf)
+
+summary(festcomModel)
+summary(festresModel)
+```
+
+```{r}
+# - plotting density predictions
+plot_results(commDf,festcomModel)
+plot_results(resDf,festresModel)
+```
+
+# interval score implementation
+```{r}
+# running models to predict
+PredfestcomModel <- feols(site_eui~minavg+maxavg+energy_star_rating+facility_type+Year_Factor+State_Factor|avg_temp~cooling_degree_days+heating_degree_days+precipitation_inches+days_above_110F+days_below_30F,commDf)
+
+PredfestresModel <- feols(site_eui~+minavg+maxavg+energy_star_rating+facility_type+Year_Factor+State_Factor+cooling_degree_days+heating_degree_days+precipitation_inches+days_above_110F+days_below_30F,resDf)
+
+```
+
+```{r}
+
+predMod <- plm(site_eui~minavg+maxavg+energy_star_rating+facility_type+floor_area,index=c('State_Factor'),data=commDf,model="within")
+
+predict.out.plm(predMod,commDf)
+```
+
+
+```{r}
+# 0.5 predictions
+comModel50 <- probCheck(PredfestcomModel,commDf,0.51) 
+resModel50 <- probCheck(PredfestresModel,resDf,0.51) 
+#0.8 predictions
+comModel80 <- probCheck(PredfestcomModel,commDf,0.95)
+resModel80 <- probCheck(PredfestresModel,resDf,0.95)
+
+REcomreg <- rbind(comModel50$summary,comModel80$summary)
+colnames(REcomreg)=c("level","avgleng","IS","cover")
+print(REcomreg)
+REresreg <- rbind(resModel50$summary,resModel80$summary)
+colnames(REresreg)=c("level","avgleng","IS","cover")
+print(REresreg)
+```
+
+
+
+
+
+```{r residential feeffects echo=FALSE}
+# running fixed effects one by one
+feList = list()
+all_FEs = c("State_Factor","Year_Factor")
+for (i in 0:2){
+  feList[[i+1]] <- feols(log(site_eui)~+minavg+maxavg+energy_star_rating+year_built+ELEVATION+floor_area+i(facility_type)+avg_temp,resDf,fixef = all_FEs[0:i])
+}
+etable(feList,title='Residential Regression Table')
+
+cm <- c('(Intercept)'='Intercept','minavg'='Minimum Average (F)','maxavg'='Maximum Average(F)','energy_star_rating'='Energy Star Rating','year_built'='Year Built','floor_area'='Floor Area','avg_temp'='Average Temp (aux)')
+tb <- modelsummary::modelsummary(feList,output="kableExtra",stars=TRUE,title = 'Regression Table',coef_map = cm,gof_omit = "BIC|Log.Lik.|R2 Adj.|R2 Within| R2 Pseudo|AIC")
+
+```
+
+#crossValidation
+```{r}
+crossValidationCont(bigdf,5,nperfmeas = 4,seed=12)
+```
+
+#Principal Component Analysis
+Cannot do PRincipal Componenet Analysis for the life of me, if someone figures this out. Thanks in advance.
+```{r}
+library(factoextra)
+
+encode_ordinal <- function(x, order = unique(x)) {
+  x <- as.numeric(factor(x, levels = order, exclude = NULL))
+  x
+}
+testDf <- bigdf %>% select(-c('site_eui','id','State_Factor','facility_type'))
+testDf <- data.frame(lapply(testDf, function(x) scale(x, center = FALSE, scale = max(x, na.rm = TRUE)/100)))
+testDf$facility_type <- encode_ordinal(bigdf$facility_type)
+testDf$building_class <- encode_ordinal(testDf$building_class)
+
+
+testDf$State_Factor <- encode_ordinal(bigdf$State_Factor)
+
+ted.pca <- prcomp(na.omit(testDf))
+fviz_eig(ted.pca)
+groups <- as.factor(bigdf$State_Factor[1:11309])
+fviz_pca_ind(ted.pca,
+             col.ind = groups, # Color by the quality of representation
+             palette = "Blues",
+             addEllipses = TRUE, # Concentration ellipses
+             ellipse.type = "confidence",
+             legend.title = "Groups",
+             repel = TRUE
+             )
+fviz_pca_var(ted.pca,
+             col.var = "contrib", # Color by contributions to the PC
+             gradient.cols = c("#00AFBB", "#FFC300", "#581845"),
+             repel = TRUE     # Avoid text overlapping
+             )
+#test <- tibble(commDf$facility_type)
+#princomp(na.omit(commDf[,3]),na.action=na.exclude, cor = TRUE)
+#testmfa = MFA(base=test,group=c(54),type = c("n"),ncp=5,name.group = c("facility_type"))
+eigs <- ted.pca$sdev^2
+varTest <- rbind(
+  SD = sqrt(eigs),
+  Proportion = eigs/sum(eigs),
+  Cumulative = cumsum(eigs)/sum(eigs))
+varTest
+```
+
+```{r}
+fviz_pca_biplot(ted.pca, repel = TRUE,
+                col.var = "#2E9FDF", # Variables color
+                col.ind = "#696969"  # Individuals color
+                )
+```
+
+
+```{r}
+causalmodel <- function(df){
+    X <- df %>% select(-c('id','Year_Factor','State_Factor','facility_type'))%>% mutate_if(is.character,as.numeric) %>% mutate_all(~. -mean(.,na.rm=TRUE))
+  X$State_Factor = df$State_Factor
+  X$Year_Factor = df$Year_Factor
+  X$facility_type = df$facility_type
+
+# auxillary
+  Xaux <- lm(avg_temp~cooling_degree_days*days_above_110F+heating_degree_days*days_below_30F+precipitation_inches,X)
+  X$avg_temp <- predict(Xaux,X)
+  X <- X %>% select(-c("cooling_degree_days","days_above_110F","heating_degree_days","days_below_30F","precipitation_inches"))
+
+  Xmod <- lm(site_eui~minavg+maxavg+energy_star_rating+facility_type+floor_area+State_Factor+Year_Factor+avg_temp,X)
+  return(Xmod)
+}
+
+```
+
+
+```{r}
+X <- commDf %>% select(-c('id','Year_Factor','State_Factor','facility_type'))#%>% #mutate_if(is.character,as.numeric) %>% mutate_all(~. -mean(.,na.rm=TRUE))
+X$State_Factor = commDf$State_Factor
+X$Year_Factor = commDf$Year_Factor
+X$facility_type = commDf$facility_type
+
+# auxillary
+Xaux <- lm(avg_temp~cooling_degree_days*days_above_110F+heating_degree_days*days_below_30F+precipitation_inches,X)
+X$avg_temp <- predict(Xaux,X)
+X <- X %>% select(-c("cooling_degree_days","days_above_110F","heating_degree_days","days_below_30F","precipitation_inches"))
+
+Xmod <- lm(site_eui~minavg+maxavg+energy_star_rating+facility_type+floor_area+State_Factor+Year_Factor+avg_temp,X)
+xprob <- predict(Xmod,X,interval='prediction',level=0.5)
+
+```
+
+# see below the residential coefs plot
+
+
+
+```{r residential coefficient estimate plots}
+plotDf <- sort(resfestModel$coefficients)
+qplot(x=plotDf,y = names(plotDf))+geom_bar(stat="identity", position="dodge")+labs(title='Residential Regression Coefficients',x = '%',y='Features')
+```
+
+```{r commercial fest for loop echo=FALSE}
+feList = list()
+all_FEs = c("State_Factor","Year_Factor")
+for (i in 0:2){
+  feList[[i+1]] <- feols(log(site_eui)~+minavg+maxavg+energy_star_rating+year_built+ELEVATION+floor_area+i(facility_type)+avg_temp,commDf,fixef = all_FEs[0:i])
+}
+etable(feList,drop='=',tex=TRUE,title='Commercial Regression Table')
+```
+Models to run interval score on
+- festModel
+- resfestModel
+```{r}
+
+plot(density(predict(festModel,commDf)))
+lines(density(log(commDf$site_eui)),col=2,type='h')
+```
+
+
+
+
