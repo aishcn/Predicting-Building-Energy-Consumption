@@ -190,21 +190,22 @@ From the variable importance plot we see the 3 most importance variables by far 
 
 #### 4.2.2. Feature Engineering: Interactions and Additional features
 Based on the variable importance and pairwise correlations we decided on adding interaction terms for future models. We decided on including interactions of; 
-- floorarea and year built
-- floor area and energy star rating
-- all 3; floor area, year built, and energy star rating
-- floor area and sum of Cooling Heating degree Days
+
++ floorarea and year built
++ floor area and energy star rating
++ all 3; floor area, year built, and energy star rating
++ floor area and sum of Cooling Heating degree Days
 
 We also implemented new features containing other features that were otherwise correlated with one another, notably monthyl temperature variabels. Thus we decided to introduce seasonal terms, where Spring took the average of March April May temperatures, Summer took average of Juny July August, Fall took average of September October November, and Winter took December January and February.
 
 We also introduced terms for "days below.." and "days above.." temperature variables;
-- Freezing days: total days below 0 10 F
-- Cold days:  total days below 30 and 20 F
-- Warm days: total days above 80 and 90 F
-- Hot days: days above 100 and 110 F
++ Freezing days: total days below 0 10 F
++ Cold days:  total days below 30 and 20 F
++ Warm days: total days above 80 and 90 F
++ Hot days: days above 100 and 110 F
 
 Along with a feature covering both snowfall and precipitation:
-- Snow Rain inches: sum total inches of snowfall and precipitation
++ Snow Rain inches: sum total inches of snowfall and precipitation
 
 In adding these features we dropped the originals contained within these, in turn this would help leave us with more parsimonious models to interpret.
 
@@ -229,7 +230,7 @@ Table 4 shows all the transformations performed in order to achieve the desired 
 | WinterTemp | Average Temperatures of December January February | None | None Obvious |
 | floorxBuilt | Interaction Term Floor Area and Year Built  | Sixth Root Transform | Right Skewed |
 | floorxEnergy | Interaction Term Floor Area and Energy Star Rating  | Sixth Root Transform | Right Skewed |
-| floorxBuilt | Interaction Term Floor Area and Year Built  | Sixth Root Transform | Right Skewed |
+| floorxBuiltxEnergy | Interaction Term Floor Area and Year Built and Energy Star Rating | Sixth Root Transform | Non-Normal |
 | floorxHeatCool | Interaction Term Floor Area and Sum of Heating and Cooling Degree Days  | Sixth Root Transform | Right Skewed |
 | freezing_days | Total days below 0 and 10 F | Fifth Root Transform | Slight Right Skewed |
 | cold_days | Total days below 20 and 30 F | Square Root Transform | Slight Right Skewed |
@@ -245,20 +246,20 @@ Having added new features, dropped others, and transformed many, we then checked
 
 Furthermore, we proceded with further feature selection using the 'Boruta' package after feature engineering [https://pypi.org/project/Boruta/]. The method uses a "relevant feature selection wrapper algorithm" to find the most "relevant" features using random forest, ranking on imporatnce based on mean absolute standard deviation, allowing us to find and select these.
 From this final step of feature selection, the most important variabeles we were left with were:
-'building_class',
-'facility_type',
-'floor_area' ,
-'year_built',
-'energy_star_rating',
-'WinterTemp',
-'cold_days',
-'warm_days',
-'floor_areaxenergy_star_rating',
-'floor_areaxELEVATION',
-'snow_rain_inches'.
++'building_class'
++'facility_type'
++'floor_area'
++'year_built'
++'energy_star_rating'
++'WinterTemp'
++'cold_days'
++'warm_days'
++'floor_areaxenergy_star_rating'
++'floor_areaxELEVATION'
++'snow_rain_inches'
 
 
-### 4.2.5 Principal Component Analysis
+### 4.2.6 Principal Component Analysis
 
 
 Principal Component Analysis is a very useful method based on mathematics and statistics, which reduces the dimensionality of the inputs in the dataset and solves the issue of collinearity (and by extension, multicollinearity).
@@ -404,7 +405,7 @@ Kovan, I. (2021, September 10). Comprehensive guide for principal component anal
 
 
 ### 3.3.1 Spearman Correlation with Response
-``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Spearman Correlation with Response",fig.show='hold',fig.align='center'}
+``` {r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Spearman Correlation with Response",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('~/images/response_corr.png')
 
@@ -424,72 +425,185 @@ knitr::include_graphics('~/images/cat_dist.png')
 
 
 ### 3.3.4 Pairwise Correlation Analysis of Features
-``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Pairwise Correlation Analysis of Features",fig.show='hold',fig.align='center'}
+``` {r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Pairwise Correlation Analysis of Features",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('~/images/triangular_mat.png')
 
-Pipeline.png
 
 ```
 
 ### 4.0.1 Pipeline
-``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Pipeline of Workflow",fig.show='hold',fig.align='center'}
+
+``` {r, echo=FALSE ,out.width="100%", out.height="75%",fig.cap="Pipeline of Workflow",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('~/images/Pipeline.png')
 
 ```
+## 4.1 Data Pre processing
 
+### 4.1 Data Pre processing: Imputation plots
 
-### 4.1 Data Pre processing (Imputation plots)
 ``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Before and After Median Imputation",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('~/images/fill_msno.png')
 
 knitr::include_graphics('~/images/nofill_msno.png')
+
+
+
 ```
 
+### 4.1 Data Pre processing: Outlier Removal
+``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="After Extreme Value Removal with IQR Method",fig.show='hold',fig.align='center'}
 
-### 4.1.1 Variaple Importance Plots using Random Forest
+knitr::include_graphics('~/images/site_eui_outliers_after.png')
+```
 
-```{r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+## 4.1.1 Variaple Importance Plots using Random Forest
+
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
 knitr::include_graphics('~/images/feature_imp.png')
 ```
 
 
 
-```{r transformations}
 
+## 4.2.3 Feautre Transformations
+
+### 4.2.3 Feautre Transformations: Site EUI (no transform needed)
+
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
 knitr::include_graphics('~/images/site_eui_dist.png')
 
-
-knitr::include_graphics('~/images/cold_days_after.png')
-knitr::include_graphics('~/images/cold_days_before.png')
-knitr::include_graphics('~/images/elevation_after.png')
-knitr::include_graphics('~/images/elevation_before.png')
-knitr::include_graphics('~/images/esrating_after.png')
-knitr::include_graphics('~/images/esrating_before.png')
-knitr::include_graphics('~/images/floor_area_after.png')
-knitr::include_graphics('~/images/floor_areaxenergy_star_rating_after.png')
-knitr::include_graphics('~/images/floor_areaxenergy_star_rating_before.png')
-knitr::include_graphics('~/images/floorareaxELEVATION_after.png')
-knitr::include_graphics('~/images/floorareaxELEVATION_before.png')
-knitr::include_graphics('~/images/floorxbuilt_after.png')
-knitr::include_graphics('~/images/floorxbuilt_before.png')
-knitr::include_graphics('~/images/floorxBuiltxEnergy_after.png')
-knitr::include_graphics('~/images/floorxBuiltxEnergy_before.png')
-knitr::include_graphics('~/images/floorxenergy_after.png')
-knitr::include_graphics('~/images/floorxenergy_before.png')
-knitr::include_graphics('~/images/floorxHeatCool_after.png')
-knitr::include_graphics('~/images/floorxHeatCool_before.png')
-knitr::include_graphics('~/images/freezing_days_before.png')
-knitr::include_graphics('~/images/hot_days_dist.png')
-knitr::include_graphics('~/images/warm_days_after.png')
-knitr::include_graphics('~/images/warm_days_before.png')
-knitr::include_graphics('~/images/year_built_after.png')
-knitr::include_graphics('~/images/year_built_before.png')
 ```
 
-```{r pca img}
+### 4.2.3 Feautre Transformations:  Floor Area Before and After
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+knitr::include_graphics('~/images/floor_area_after.png')
+
+```
+
+### 4.2.3 Feautre Transformations:  Year Built Before and After
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+knitr::include_graphics('~/images/year_built_after.png')
+knitr::include_graphics('~/images/year_built_before.png')
+
+```
+
+###4.2.3 Feautre Transformations:   Energy Star Rating Before and After
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+knitr::include_graphics('~/images/esrating_after.png')
+knitr::include_graphics('~/images/esrating_before.png')
+
+```
+
+### 4.2.3 Feautre Transformations:  Elevation Before and After
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Elevation transform Before and After",fig.show='hold',fig.align='center'}
+
+knitr::include_graphics('~/images/elevation_after.png')
+knitr::include_graphics('~/images/elevation_before.png')
+
+```
+
+### 4.2.3 Feautre Transformations:  Floor_areaxElevation Before and After
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+knitr::include_graphics('~/images/floorareaxELEVATION_after.png')
+knitr::include_graphics('~/images/floorareaxELEVATION_before.png')
+
+```
+
+### 4.2.3 Feautre Transformations:  FloorxBuilt Before and After
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+knitr::include_graphics('~/images/floorxbuilt_after.png')
+knitr::include_graphics('~/images/floorxbuilt_before.png')
+
+```
+
+
+### 4.2.3 Feautre Transformations:  FloorxEnergy Before and After
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+knitr::include_graphics('~/images/floorxenergy_after.png')
+knitr::include_graphics('~/images/floorxenergy_before.png')
+
+```
+
+
+### 4.2.3 Feautre Transformations:  FloorxBuiltXEnergy Before and After
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Transforming Interaction of Floor area Year built and Energy star rating, Before and After",fig.show='hold',fig.align='center'}
+knitr::include_graphics('~/images/floorxBuiltxEnergy_after.png')
+knitr::include_graphics('~/images/floorxBuiltxEnergy_before.png')
+
+```
+
+### 4.2.3 Feautre Transformations:  FloorxHeatCool Before and After
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+knitr::include_graphics('~/images/floorxHeatCool_after.png')
+knitr::include_graphics('~/images/floorxHeatCool_before.png')
+
+```
+
+
+### 4.2.3 Feautre Transformations:  Freezing_days Before (no transform needed)
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+knitr::include_graphics('~/images/freezing_days_before.png')
+
+```
+
+### 4.2.3 Feautre Transformations:  Cold_days Before and After
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+knitr::include_graphics('~/images/cold_days_after.png')
+knitr::include_graphics('~/images/cold_days_before.png')
+
+
+
+```
+
+### 4.2.3 Feautre Transformations:  Warm_days Before and After
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+
+knitr::include_graphics('~/images/warm_days_after.png')
+knitr::include_graphics('~/images/warm_days_before.png')
+
+```
+
+
+### 4.2.3 Feautre Transformations: Hot_days Before (no transform needed)
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+knitr::include_graphics('~/images/hot_days_dist.png')
+
+```
+
+
+### 4.2.3 Feautre Transformations: Floor_areaxElevation Before and After
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+knitr::include_graphics('~/images/floorareaxELEVATION_after.png')
+knitr::include_graphics('~/images/floorareaxELEVATION_before.png')
+
+```
+
+
+
+## 4.2.4: Pairwise Correlation Analysis After intial Feature Engineering
+
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Pairwise Correlation Analysis After intial Feature Engineering",fig.show='hold',fig.align='center'}
+
+knitr::include_graphics('~/images/second_tri_mat.png')
+
+
+```
+
+## 4.2.5: Feature Selectoin After Feature Engineering using Boruta Package
+
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Feature Selectoin After Feature Engineering using Boruta Package Output",fig.show='hold',fig.align='center'}
+
+
+knitr::include_graphics('~/images/boruta.png')
+
+```
+## 4.2.6 Principal Component Analysis
+
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Principal Component Analysis",fig.show='hold',fig.align='center'}
+
 knitr::include_graphics('~/images/pca_threshold.png')
 knitr::include_graphics('~/images/pca_1st.png')
 knitr::include_graphics('~/images/pca_curve.png')
@@ -497,15 +611,9 @@ knitr::include_graphics('~/images/pca_4d.png')
 
 ```
 
-```{r after feature selection img}
+## 5 Model Results
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Model Results",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/site_eui_outliers_after.png')
-knitr::include_graphics('~/images/second_tri_mat.png')
-knitr::include_graphics('~/images/boruta.png')
-
-```
-
-```{r }
 knitr::include_graphics('~/images/fit_time_boxplot.png')
 
 
