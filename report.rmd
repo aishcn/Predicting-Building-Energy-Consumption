@@ -199,10 +199,10 @@ Based on the variable importance and pairwise correlations we decided on adding 
 We also implemented new features containing other features that were otherwise correlated with one another, notably monthyl temperature variabels. Thus we decided to introduce seasonal terms, where Spring took the average of March April May temperatures, Summer took average of Juny July August, Fall took average of September October November, and Winter took December January and February.
 
 We also introduced terms for "days below.." and "days above.." temperature variables;
-+ Freezing days: total days below 0 10 F
-+ Cold days:  total days below 30 and 20 F
-+ Warm days: total days above 80 and 90 F
-+ Hot days: days above 100 and 110 F
++ Freezing days; total days below 0 10 F
++ Cold days;  total days below 30 and 20 F
++ Warm days; total days above 80 and 90 F
++ Hot days; days above 100 and 110 F
 
 Along with a feature covering both snowfall and precipitation:
 + Snow Rain inches: sum total inches of snowfall and precipitation
@@ -246,17 +246,17 @@ Having added new features, dropped others, and transformed many, we then checked
 
 Furthermore, we proceded with further feature selection using the 'Boruta' package after feature engineering [https://pypi.org/project/Boruta/]. The method uses a "relevant feature selection wrapper algorithm" to find the most "relevant" features using random forest, ranking on imporatnce based on mean absolute standard deviation, allowing us to find and select these.
 From this final step of feature selection, the most important variabeles we were left with were:
-+'building_class'
-+'facility_type'
-+'floor_area'
-+'year_built'
-+'energy_star_rating'
-+'WinterTemp'
-+'cold_days'
-+'warm_days'
-+'floor_areaxenergy_star_rating'
-+'floor_areaxELEVATION'
-+'snow_rain_inches'
++ 'building_class'
++ 'facility_type'
++ 'floor_area'
++ 'year_built'
++ 'energy_star_rating'
++ 'WinterTemp'
++ 'cold_days'
++ 'warm_days'
++ 'floor_areaxenergy_star_rating'
++ 'floor_areaxELEVATION'
++ 'snow_rain_inches'
 
 
 ### 4.2.6 Principal Component Analysis
@@ -278,26 +278,30 @@ For hyperparameter tuning, the reduced and transformed datasets were used. The h
 
 ### 4.3. Model Training and Validation
 
-A good variety of models were implemented as a part of our analysis for extensive results. Two sets of models where trained to capture both the effect of individual co-variate terms and the interaction terms on the predictive performance of the model. These models were cross-validated (10-fold, Repeated CV) and their hyper parameters were fine tuned using Random Search. Please refer to Table 3 and Table 4 for results that denote the predictive performance of the models. 
+A good variety of models were implemented as a part of our analysis for extensive results. A set of models were trained to capture the effect of interaction terms on the predictive performance of the model. These models were cross-validated (5-fold CV, Repeated 3 times) and their hyperparameters were fine tuned using Random Search. Please refer to Table 3 and Table 4 for results that denote the predictive performance of the models. 
 
 #### 4.3.1. Linear Models\
 \
-After feature selection, we trained a Linear Regression model with a 10-fold cross validation to test the model performance on the training data. We train a similar set of models with interaction terms as features and we see slightly better results than the former method.
+After feature selection, we trained a Linear Regression model with a 5-fold cross validation to test the model performance on the interaction terms as features.
 
 #### 4.3.2. Support Vector Machines\
 \
-To add further complexities to the previous models, we trained Support Vector Machines that expanded our feature space using different kernels. We have a radial kernel to compare performance of models without the complexities relating to Linearity respectively. In the radial  kernel, only the neighboring behaviour of data is taken into account which means only those data points influence the modelling compared to the Linear SVM whose performance is similar to a Linear model. From Table 3 and Table 4, we see that the Radial SVM without interaction terms performs slightly better than Radial SVM with the interaction terms.	
+To add further complexities to the previous models, we trained Support Vector Machines that expanded our feature space using different kernels. We have a radial kernel to compare performance of models without the complexities relating to Linearity respectively. In the radial  kernel, only the neighboring behaviour of data is taken into account which means only those data points influence the modelling compared to the Linear SVM whose performance is similar to a Linear model.
 
-#### 4.3.3. Tree Models\
+#### 4.3.3. ElasticNet\
 \
-We used three tree-based models such as Random Forest, XGBoost, Quantile Regression Forest (QRF) and Gradient Boosting Machine to improve the performance compared to the above models. From Table 3 and Table 4, we see that the Random Forest, QRF and XGBoost with interaction terms has better results compared to without interaction terms. However, the GBM without interaction terms gives slightly better results than the GBM with interaction terms. The best tree model is the Quantile Regression Forest Model with the lowest RMSE of 0.227 (with interaction terms).
+The Elastic Net is a regularized regression method that linearly combines the penalties of the Lasso and Ridge regression methods. Tables 3 and 4 show the results for this method.
+
+#### 4.3.4. Tree Models\
+\
+We used three tree-based models, XGBoost, Gradient Boosting and Light Gradient Boosting to improve the performance of our model. From Table 3 and Table 4, we see that out of all tree-based models, XGBoost performs the best, with the lowest RMSE of 23.8852 and and better indicators (Interval Score, Average Length and Coverage of Prediction Intervals).
 
 \
 \
 
-#### 4.3.4. Ensemble Models\
+#### 4.3.5. Ensemble Models\
 \
-We trained two Ensemble models with/without the interaction terms that combine the above listed 6 models to produce improved results. These models generally produce more accurate predictions than a single model. From Table 3 and Table 4, we see that that the Ensemble Model with interaction terms has significantly better results compared to the Ensemble Model without interaction terms. Therefore, based on the validation evaluation metrics from Table 3 and 4, we chose the Ensemble Model with the interaction terms as our best model.
+We trained an Ensemble model with interaction terms which combines all the models above to produce improved results. Combining these models will generally tend to produce more accurate predictions than a single model.
 
 <!---
 Fig. 10: Comparing In-sample Prediction Performance for Different Models without Interaction Terms   |  Fig. 11: Comparing In-sample Prediction Performance for Different Models with Interaction Terms 
@@ -401,11 +405,14 @@ There are two areas of further research that would help address the limitations 
 Kovan, I. (2021, September 10). Comprehensive guide for principal component analysis. Medium. Retrieved April 3, 2022, from https://towardsdatascience.com/comprehensive-guide-for-principal-component-analysis-7bf2b4a048ae
 
 
+\pagebreak
+
+
 # 10. Appendix
 
 
 ## 3.3.1 Spearman Correlation with Response
-``` {r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Spearman Correlation with Response",fig.show='hold',fig.align='center'}
+``` {r, echo=FALSE,fig.cap="Spearman Correlation with Response",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('~/images/response_corr.png')
 
@@ -416,7 +423,7 @@ knitr::include_graphics('~/images/response_corr.png')
 
 
 ## 3.3.2 Plots Investigating Relationships with Site EUI
-``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap=" Plots Investigating Relationships with Site EUI",fig.show='hold',fig.align='center'}
+``` {r, echo=FALSE,out.width="100%",fig.cap=" Plots Investigating Relationships with Site EUI",fig.show='hold',fig.align='center'}
 
 ```
 
@@ -425,15 +432,15 @@ knitr::include_graphics('~/images/response_corr.png')
 
 
 ## 3.3.3 Building Characteristics Histograms
-``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Before and After Median Imputation",fig.show='hold',fig.align='center'}
+``` {r, echo=FALSE ,out.width="100%", out.height="100%",fig.cap="Before and After Median Imputation",fig.show='hold',fig.align='center'}
 knitr::include_graphics('~/images/cat_dist.png')
 ```
 
-\pagebreak
+
 
 
 ## 3.3.4 Pairwise Correlation Analysis of Features
-``` {r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Pairwise Correlation Analysis of Features",fig.show='hold',fig.align='center'}
+``` {r, echo=FALSE ,out.width="100%", out.height="100%",fig.cap="Pairwise Correlation Analysis of Features",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('~/images/triangular_mat.png')
 
@@ -450,7 +457,7 @@ knitr::include_graphics('~/images/Pipeline.png')
 
 ```
 
-\pagebreak
+
 
 
 ## 4.1 Data Pre processing
@@ -466,7 +473,7 @@ knitr::include_graphics('~/images/nofill_msno.png')
 
 
 ```
-\pagebreak
+
 
 
 ### 4.1 Data Pre processing: Outlier Removal
@@ -480,7 +487,7 @@ knitr::include_graphics('~/images/site_eui_outliers_after.png')
 
 ## 4.1.1 Variaple Importance Plots using Random Forest
 
-```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+```{r, echo=FALSE ,out.width="100%", out.height="100%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
 knitr::include_graphics('~/images/feature_imp.png')
 ```
 \pagebreak
@@ -501,7 +508,8 @@ knitr::include_graphics('~/images/site_eui_dist.png')
 
 
 ### 4.2.3 Feautre Transformations:  Floor Area Before and After
-```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+```{r, echo=FALSE ,out.width="75%", out.height="70%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+knitr::include_graphics('~/images/floor_area_before_scaling.png')
 knitr::include_graphics('~/images/floor_area_after.png')
 
 ```
@@ -539,7 +547,7 @@ knitr::include_graphics('~/images/elevation_after.png')
 
 
 ### 4.2.3 Feautre Transformations:  Floor_areaxElevation Before and After
-```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+```{r, echo=FALSE ,out.width="70%", out.height="70%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('~/images/floorareaxELEVATION_before.png')
 knitr::include_graphics('~/images/floorareaxELEVATION_after.png')
@@ -559,7 +567,7 @@ knitr::include_graphics('~/images/floorxbuilt_after.png')
 
 
 ### 4.2.3 Feautre Transformations:  FloorxEnergy Before and After
-```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+```{r, echo=FALSE ,out.width="70%", out.height="70%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('~/images/floorxenergy_before.png')
 knitr::include_graphics('~/images/floorxenergy_after.png')
@@ -598,7 +606,7 @@ knitr::include_graphics('~/images/freezing_days_before.png')
 
 
 ### 4.2.3 Feautre Transformations:  Cold_days Before and After
-```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+```{r, echo=FALSE ,out.width="70%", out.height="70%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('~/images/cold_days_before.png')
 knitr::include_graphics('~/images/cold_days_after.png')
@@ -629,7 +637,7 @@ knitr::include_graphics('~/images/hot_days_dist.png')
 
 
 ### 4.2.3 Feautre Transformations: Floor_areaxElevation Before and After
-```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
+```{r, echo=FALSE ,out.width="75%", out.height="70%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('~/images/floorareaxELEVATION_before.png')
 knitr::include_graphics('~/images/floorareaxELEVATION_after.png')
@@ -641,18 +649,18 @@ knitr::include_graphics('~/images/floorareaxELEVATION_after.png')
 
 ## 4.2.4: Pairwise Correlation Analysis After intial Feature Engineering
 
-```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Pairwise Correlation Analysis After intial Feature Engineering",fig.show='hold',fig.align='center'}
+```{r, echo=FALSE ,out.width="75%", out.height="70%",fig.cap="Pairwise Correlation Analysis After intial Feature Engineering",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('~/images/second_tri_mat.png')
 
 
 ```
-\pagebreak
+
 
 
 ## 4.2.5: Feature Selectoin After Feature Engineering using Boruta Package
 
-```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Feature Selectoin After Feature Engineering using Boruta Package Output",fig.show='hold',fig.align='center'}
+```{r, echo=FALSE ,out.width="75%", out.height="70%",fig.cap="Feature Selectoin After Feature Engineering using Boruta Package Output",fig.show='hold',fig.align='center'}
 
 
 knitr::include_graphics('~/images/boruta.png')
@@ -661,19 +669,28 @@ knitr::include_graphics('~/images/boruta.png')
 
 \pagebreak
 
-## 4.2.6 Principal Component Analysis
+## 4.2.6 Principal Component Analysis 1/2
 
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Principal Component Analysis",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('~/images/pca_threshold.png')
 knitr::include_graphics('~/images/pca_1st.png')
+
+
+```
+\pagebreak
+
+## 4.2.6 Principal Component Analysis 2/2
+
+```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Principal Component Analysis",fig.show='hold',fig.align='center'}
+
 knitr::include_graphics('~/images/pca_curve.png')
 knitr::include_graphics('~/images/pca_4d.png')
 
 ```
 \pagebreak
 
-bhead
+
 ## 5 Model Results
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Model Results",fig.show='hold',fig.align='center'}
 
