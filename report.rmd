@@ -170,10 +170,10 @@ Below in Fig. 6, we have a Proof-of-Concept pipeline that addresses all of the c
 ### 4.1 Data Pre-Processing
 
 As part of the data pre-processing pipeline, we start by dropping duplicate rows, and columns with a high percentage of missing values (over 50%). With the remaining missing values, we used the median imputation method (filling missing values of the column with the median). Furthermore, we dropped highly correlated features using pairwise correlation analysis as observed in the EDA.
-We also dealt with imbalanced categories, generating plots to study the relative frequency distribution of the categorical features. As observed in the EDA we saw imbalanced state factors, particularly with state 6, with the desparity suggesting we drop this altogether. We also note disparity between facility types, so we dealt with this by binning facility types into "Multifamily (uncategorized)" and "other" categories
+We also dealt with imbalanced categories, generating plots to study the relative frequency distribution of the categorical features. As observed in the EDA we saw imbalanced state factors, particularly with state 6, with the disparity suggesting we drop this altogether. We also note disparity between facility types, so we dealt with this by binning facility types into "Multifamily (un-categorized)" and "other" categories
 Finally,w e removed rows with extreme Site EUI values using the IQR method and we used an ordinal encoding to encode all categorical columns.
 
-As part of the preprocessing we encoded categorical features using ordinal encoding, where each unique category was assigned an integer value, resulting in a column of integers; 0 to n_categories -1 (per features)
+As part of the pre-processing we encoded categorical features using ordinal encoding, where each unique category was assigned an integer value, resulting in a column of integers; 0 to n_categories -1 (per features)
 
 ### 4.2 Feature Selection
 
@@ -183,21 +183,11 @@ One of the most important step in our pipeline was Feature Selection as it is on
 
 
 This method is built on a random forest classifier. It ranks features based on their importance measure i.e. Mean Decrease Accuracy (MDA) where higher means more important. MDA measures how much accuracy the model losses by excluding each variable. The more the accuracy degrades, the more important the variable is. 
-From the variable importance plot we see the 3 most importance variables by far are energy star rating floor area and year built. We proposed the notion of  potential interactions with these terms. [NOT SURE EXACTLY ON REASONING FOR THE INTERACTION LATER ??]. We also note particular importance of Facility Type, Elevation, Days below 20F, Ferbruary average temperature, January average temperature, as well as building class, relative  to the other features in the dataset.
-
-#### 4.2.2. Pairwise Correlation Analysis
+From the variable importance plot we see the 3 most importance variables by far are energy star rating floor area and year built. We proposed the notion of  potential interactions with these terms later in feature engineering as these were all building characteristic features that could interact in describing the specific buildings. We also note particular importance of Facility Type, Elevation, Days below 20F, February average temperature, January average temperature, as well as building class, relative  to the remainder features in the dataset.
 
 
 
-
-
-
-
-\begin{center}
-\textbf{Fig 12}: Variable Importance (using 'boruta' package)
-\end{center}
-
-#### 4.2.3. Interactions and Additional features
+#### 4.2.2. Feature Engineering: Interactions and Additional features
 Based on the variable importance and pairwise correlations we decided on adding interaction terms for future models. We decided on including interactions of; 
 - floorarea and year built
 - floor area and energy star rating
@@ -215,15 +205,15 @@ We also introduced terms for "days below.." and "days above.." temperature varia
 Along with a feature covering both snowfall and precipitation:
 - Snow Rain inches: sum total inches of snowfall and precipitation
 
-In adding these features we removed the originals contained within these, in turn this would help leave us with more parsimonious models to interpret.
+In adding these features we dropped the originals contained within these, in turn this would help leave us with more parsimonious models to interpret.
 
-#### 4.2.4 Feature Transformations
+#### 4.2.3 Feature Transformations
 \
 \
-Table 3 shows all the transformations performed in order to achieve the desired results which are highlighted by Fig. 7 and Fig. 8.
+Table 4 shows all the transformations performed in order to achieve the desired results in reducing impacts of skewness of features.
 
 \begin{center}
-\textbf{Table 3}: Feature Transformations
+\textbf{Table 4}: Feature Transformations
 \end{center}
 | *Variable* | *Description* | *Transformation* | *Skewness* |
 |--|----|----|--|
@@ -244,17 +234,42 @@ Table 3 shows all the transformations performed in order to achieve the desired 
 | cold_days | Total days below 20 and 30 F | Square Root Transform | Slight Right Skewed |
 | warm_days | Total days above 80 90 F | Square Root Transform | Left Skewed |
 | hot_days | Total days above 100 110 F | Dropped | Too Few Data |
+| floor_areaxELEVATION | Interaction term of building floor area and elevation | Eigth Root Transform | Right Skewed|
+
+### 4.2.4 Correlation Analysis after initial Feature engineering
+
+Having added new features, dropped others, and transformed many, we then checked the correlations for a second time to see if we could deal with any remaining issues. We saw from the triangular correlation heat map that there were still highly correlated features, and dropped these. The dropped features were; 'floorxBuilt', 'floorxBuiltxEnergy', 'floorxHeatCool', 'floorxEnergy', and 'ELEVATION'.
+
+### 4.2.5 Feature Selection after Feature Engineering; Boruta package
+
+Furthermore, we proceded with further feature selection using the 'Boruta' package after feature engineering [https://pypi.org/project/Boruta/]. The method uses a "relevant feature selection wrapper algorithm" to find the most "relevant" features using random forest, ranking on imporatnce based on mean absolute standard deviation, allowing us to find and select these.
+From this final step of feature selection, the most important variabeles we were left with were:
+'building_class',
+'facility_type',
+'floor_area' ,
+'year_built',
+'energy_star_rating',
+'WinterTemp',
+'cold_days',
+'warm_days',
+'floor_areaxenergy_star_rating',
+'floor_areaxELEVATION',
+'snow_rain_inches'.
+
 
 ### 4.2.5 Principal Component Analysis
 
+
 Principal Component Analysis is a very useful method based on mathematics and statistics, which reduces the dimensionality of the inputs in the dataset and solves the issue of collinearity (and by extension, multicollinearity).
 
-For a simplified understanding (there is extensive theory on this method), we have have a dataset with multiple explanatory variables, where the x and y-axes, for example, can be thought of as two "components" (or dimensions) either of which the variables can be strongly correlated with. PCA is designed for continuous variables, and it tries to minimize the variance for each component. Instead of only two components, we can have many more.
+Before conducting PCA we performed Min Max scaling because PCA is solved via SVD, and SVD approximates in the sum of squares sense, so if one variable is on a different scale than another it will dominate the PCA.
+
+For a simplified understanding (Kovan, 2021) of how and why we implemented this, we have have a dataset with multiple explanatory variables where the x and y-axes can be thought of as two "components" (or dimensions) either of which the variables can be strongly correlated with. PCA is designed for continuous variables, and it tries to minimize the variance for each component. Instead of only two components, we can have many more.
 
 The variance of each component is taken into account and the aim is to find the number of components that explain 95% of the variance in the dataset (which in our case was 6). There is more complex theory regarding the correlation matrix, eigenvalues and eigenvectors which forms the basis of PCA, however for the purpose of this analysis, a brief explanation felt appropriate.
 
 
-### 4,2,6 Hyperparameter Tuning
+### 4.2.5 Hyperparameter Tuning
 
 For hyperparameter tuning, the reduced and transformed datasets were used. The hyperparameters were initialized and tuned as shown by the code, using randomized search and 5 fold cross-validation.
 
