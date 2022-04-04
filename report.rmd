@@ -282,8 +282,7 @@ The variance of each component is taken into account and the aim is to find the 
 
 ### 4,2,6 Hyperparameter Tuning
 
-For hyperparameter tuning, the reduced and transformed datasets were used. The hyperparameters were initialized and tuned as shown by the code, where Elastic Net, XGBoost, SVR, Gradient Boost and LGMB regressor were the methods used.
-
+For hyperparameter tuning, the reduced and transformed datasets were used. The hyperparameters were initialized and tuned as shown by the code, using randomized search and 5 fold cross-validation.
 
 ### 4.3. Model Training and Validation
 
