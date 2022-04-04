@@ -122,19 +122,19 @@ The data was collected in collaboration with Climate Change AI (CCAI) and Lawren
 
 In our Exploratory Data Analysis, we aimed to find how individual explanatory individuals relate and behave alongside the response variable Site EUI as well other explanatory variables. Through wrangling of the data aim to suggest potential transformations to the data in hopes of finding behaviors that will improve performances of future models.
 
-#Investigating Relationships with the Response
+### 3.3 Investigating Relationships with the Response
 
-#Spearman Correlation
+### 3.3.1 Spearman Correlation
 
 In a preliminary attempt of gathering information on covariate relationships with Site EUI, we used Spearman rank correlation coefficients to investigate potential linear relationships with the response. In particular we choose Spearman correlation which is invariant to monotone increasing effect of transforms. We find that energy star rating has by far the largest Spearman correlation with Site EUI in terms of magnitude with -0.654 [REPLACE WITH VALUE FROM SUBSET ??], suggesting a relatively strong decreasing relationship with the response. We also note relatively higher magnitudes for monthly min and average temperatures, in particular a decreasing relationship with colder months temperature measures, namely January and February, while there are increasing relationships with Summer months auch as June and July. In context this can be expected as there is a lesser requirement of energy for uses such as heating and lighting in building in the summer months when days last longer and are warmer.
 
 
-#Plots Investigating relationships with Site EUI
+### 3.3.2 Plots Investigating relationships with Site EUI
 
 In order to enable us to explore the data more effectively there are measures that can be taken such as subsetting the data, given the large size of the data set.
 Via the summary tables we also see that site EUI is right skewed, so a cube root transformation for the sole purpose of investigating relationship will be more effective.
 
-#Building charactersitics vs site eui
+### 3.3.3 Building charactersitics vs site eui
 
 Building characteristics are of particular interest in context of the data, and so we investigated relationships between Site EUI and building variables. The most noteworthy relationships was with energy star rating, which was as expected from the Spearman correlations, and found a clearer and more linear relationship with the response than almost all other variables.
 
@@ -142,30 +142,14 @@ For elevation we used binning for the classes based on the variables quantiles f
 
 For state factor we see that the classes are very imbalanced for Stat 10 with only 15 datapoints, while stat 6 has much more than the others with 50840, indicating we could undersample for this specific state factor, while combining stat 10 with another state factor level.
 
-#Investigating Relationships between explanatory variables
+# 3.3.4 Investigating Relationships between explanatory variables (Pairwise Correlation)
 
-It is in our interest to explore potential relationships between covariates in the dataset, as these could potentially lead to issues namely multicollinearity.
-The monthly minimum, maximum, and avaerge temperatures for colder months display relatively strong relationships with other climatic variables relating to cooler weather including "days below...", "heating degree days" and "snowfall" covariates. We gather that the strong negative relationship in context shows as temperature increases in these cold months, the amount of snow fall and days below 0F and 20F decrease as expected. Tther noteworthy relationship
+It is in our interest to explore potential relationships between covariates in the dataset, as these could potentially lead to issues namely multicollinearity. We did this before any transformations and again used spearman coefficient for the same reasons as before.
+The monthly minimum, maximum, and avaerge temperatures for colder months display relatively strong relationships with climatic variables relating to cooler weather including "days below...", "heating degree days" and "snowfall" covariates. We gather that the strong negative relationship in context shows as temperature increases in these cold months, the amount of snow fall and days below 0F and 20F decrease as expected. The relationship is the same for warmer months, where cooling degrees days increases with for example "august_average_temperature",
 
-```{r echo=FALSE, out.width='70%', fig.align="center"}
-#knitr::include_graphics('image/all_climate_var_scatterplots.png')
-```
-
-\begin{center}
-\textbf{Fig. 1}: Relationship between Climate Variables and Streamflow
-\end{center}
+The high correlation between months of the same seasons sucggest implementation of additional features for the 4 seasons in the place of seperate monthsm for example. the relationships observed between climatic features indicate  potential interactions or new replacement covariates in place of these terms
 
 
-```{=latex}
-
-```
-
-
-```{=latex}
-
-```
-
-Looking more closely at various variables broken out by `gridcode` (*see Fig. 5 as an example*), some interesting results were seen. For many `gridcode`'s, there appears to be a much stronger linear relationship between climate variables and the stream flow and these relationships appear to have different intercept and slope values. This suggests that there may not be a one-size-fits-all approach to fitting a regression model based on annual climate variables alone and different slopes for different `gridcode`'s may need to be considered for further analysis in the future.
 
 ## 4. Methods
 
@@ -185,38 +169,28 @@ Below in Fig. 6, we have a Proof-of-Concept pipeline that addresses all of the c
 
 ### 4.1 Data Pre-Processing
 
-As part of the data pre-processing pipeline, we start by dropping duplicate rows, and columns with a high percentage of missing values (over 50%). With the remaining missing values, we used the median imputation method (filling missing values of the column with the median). Furthermore, we dropped highly correlated features using pairwise correlation analysis, and binned the facility type column (due to unbalanced classes). Lastly, we removed rows with extreme Site EUI values using the IQR method and we used an ordinal encoding to encode all categorical columns.
+As part of the data pre-processing pipeline, we start by dropping duplicate rows, and columns with a high percentage of missing values (over 50%). With the remaining missing values, we used the median imputation method (filling missing values of the column with the median). Furthermore, we dropped highly correlated features using pairwise correlation analysis as observed in the EDA.
+We also dealt with imbalanced categories, generating plots to study the relative frequency distribution of the categorical features. As observed in the EDA we saw imbalanced state factors, particularly with state 6, with the desparity suggesting we drop this altogether. We also note disparity between facility types, so we dealt with this by binning facility types into "Multifamily (uncategorized)" and "other" categories
+Finally,w e removed rows with extreme Site EUI values using the IQR method and we used an ordinal encoding to encode all categorical columns.
 
-
+As part of the preprocessing we encoded categorical features using ordinal encoding, where each unique category was assigned an integer value, resulting in a column of integers; 0 to n_categories -1 (per features)
 
 ### 4.2 Feature Selection
 
 One of the most important step in our pipeline was Feature Selection as it is one of the main objectives. We have used several different methods in order to achieve this objective:
 
-#### 4.2.1. Pairwise Correlation Analysis
-
-Before using any of the traditional feature selection techniques mentioned below, we investigated if any of the features were highly correlated. We see from the Correlation Matrix below that there is high correlation for monthly temperature averages particularly those around the sames seasons suggesting future implementation of new features in the place of seperate months. We also see high correlation for other climatic features such as days above and below variable, as well as high correlation for snowfall and precipitation inches, also indicating potential interactions or new replacement covariates in place of these terms
-
-```
-<!--  -->
-<!-- knitr::include_graphics('image/corr.png') -->
-<!-- # plt.figure(figsize=(16, 6)) -->
-<!-- # # define the mask to set the values in the upper triangle to True -->
-<!-- # mask = np.triu(np.ones_like(df.corr(), dtype=np.bool)) -->
-<!-- # heatmap = sns.heatmap(df.corr(), mask=mask, vmin=-1, vmax=1, annot=False, cmap='BrBG') -->
-<!-- # heatmap.set_title('Triangle Correlation Heatmap', fontdict={'fontsize':10}, pad=16) -->
-
-<!-- \begin{center} -->
-<!-- \textbf{Fig. 9}: Heatmap Presenting Correlation Between Variables -->
-<!-- \end{center} -->
-```
-
-
-#### 4.2.2. Variable Importance using Random Forest
+#### 4.2.1. Variable Importance using Random Forest
 
 
 This method is built on a random forest classifier. It ranks features based on their importance measure i.e. Mean Decrease Accuracy (MDA) where higher means more important. MDA measures how much accuracy the model losses by excluding each variable. The more the accuracy degrades, the more important the variable is. 
 From the variable importance plot we see the 3 most importance variables by far are energy star rating floor area and year built. We proposed the notion of  potential interactions with these terms. [NOT SURE EXACTLY ON REASONING FOR THE INTERACTION LATER ??]. We also note particular importance of Facility Type, Elevation, Days below 20F, Ferbruary average temperature, January average temperature, as well as building class, relative  to the other features in the dataset.
+
+#### 4.2.2. Pairwise Correlation Analysis
+
+
+
+
+
 
 
 \begin{center}
@@ -405,13 +379,16 @@ There are two areas of further research that would help address the limitations 
 
 
 ## 10. Appendix
-``` {r }
+``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Before and After Median Imputation",fig.show='hold',fig.align='center'}
+
 knitr::include_graphics('~/images/fill_msno.png')
+
 knitr::include_graphics('~/images/nofill_msno.png')
 ```
 
-``` {r feature selection p1}
+``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Before and After Median Imputation",fig.show='hold',fig.align='center'}
 knitr::include_graphics('~/images/response_corr.png')
+
 knitr::include_graphics('~/images/triangular_mat.png')
 
 
