@@ -273,14 +273,16 @@ Table 3 shows all the transformations performed in order to achieve the desired 
 
 ### 4.2.5 Principal Component Analysis
 
-To continue combatting issues caused  correlated features, we also performed principal compoment analysis. The interpretation of these principal components is based on finding which variables are most strongly correlated with each component; which of these have a large absolute relative importance that is furthest from zero in either direction. The importance of each features is reflected by the maginuted of the corresponding values in the eigen vectors.
+Principal Component Analysis is a very useful method based on mathematics and statistics, which reduces the dimensionality of the inputs in the dataset and solves the issue of collinearity (and by extension, multicollinearity).
 
-We see from the number of components needed to explain variance, the 95% cut off threshold is reached at 6 principal components.
+For a simplified understanding (there is extensive theory on this method), we have have a dataset with multiple explanatory variables, where the x and y-axes, for example, can be thought of as two "components" (or dimensions) either of which the variables can be strongly correlated with. PCA is designed for continuous variables, and it tries to minimize the variance for each component. Instead of only two components, we can have many more.
 
-We
+The variance of each component is taken into account and the aim is to find the number of components that explain 95% of the variance in the dataset (which in our case was 6). There is more complex theory regarding the correlation matrix, eigenvalues and eigenvectors which forms the basis of PCA, however for the purpose of this analysis, a brief explanation felt appropriate.
 
-### 4,2,6 Hyperparameter Tunig
 
+### 4,2,6 Hyperparameter Tuning
+
+For hyperparameter tuning, the reduced and transformed datasets were used. The hyperparameters were initialized and tuned as shown by the code, where Elastic Net, XGBoost, SVR, Gradient Boost and LGMB regressor were the methods used.
 
 
 ### 4.3. Model Training and Validation
