@@ -134,13 +134,14 @@ In a preliminary attempt of gathering information on covariate relationships wit
 In order to enable us to explore the data more effectively there are measures that can be taken such as subsetting the data, given the large size of the data set.
 Via the summary tables we also see that site EUI is right skewed, so a cube root transformation for the sole purpose of investigating relationship will be more effective.
 
-### 3.3.3 Building charactersitics vs site eui
+### 3.3.3 Building Charactersitics
+From the histograms of building characteristics, we saw state factor classes were very imbalanced for Stat 10 with only 15 datapoints, while stat 6 has much more than the others with 50840, indicating we could undersample for this specific state factor, while combining stat 10 with another state factor level.  We also see the disparity in frequency of facility types, where "multifamily (un-categorized)" facilities vastly outnumbered all other facility types. We saw that the building classes were majority residential, with the others classified as commercial. 
 
 Building characteristics are of particular interest in context of the data, and so we investigated relationships between Site EUI and building variables. The most noteworthy relationships was with energy star rating, which was as expected from the Spearman correlations, and found a clearer and more linear relationship with the response than almost all other variables.
 
 For elevation we used binning for the classes based on the variables quantiles from summary statistics. We see a notable increase in site EUI initially as buildings add a floors requirement more total energy usage, before this plateaus, which is understandable in context as buildings aren't generally built above a certain height and number of floors.
 
-For state factor we see that the classes are very imbalanced for Stat 10 with only 15 datapoints, while stat 6 has much more than the others with 50840, indicating we could undersample for this specific state factor, while combining stat 10 with another state factor level.
+
 
 # 3.3.4 Investigating Relationships between explanatory variables (Pairwise Correlation)
 
@@ -170,7 +171,7 @@ Below in Fig. 6, we have a Proof-of-Concept pipeline that addresses all of the c
 ### 4.1 Data Pre-Processing
 
 As part of the data pre-processing pipeline, we start by dropping duplicate rows, and columns with a high percentage of missing values (over 50%). With the remaining missing values, we used the median imputation method (filling missing values of the column with the median). Furthermore, we dropped highly correlated features using pairwise correlation analysis as observed in the EDA.
-We also dealt with imbalanced categories, generating plots to study the relative frequency distribution of the categorical features. As observed in the EDA we saw imbalanced state factors, particularly with state 6, with the disparity suggesting we drop this altogether. We also note disparity between facility types, so we dealt with this by binning facility types into "Multifamily (un-categorized)" and "other" categories
+We also dealt with imbalanced categories, generating plots to study the relative frequency distribution of the categorical features. As observed in the EDA we saw imbalanced state factors, particularly with state 6, with the disparity suggesting we drop this altogether. We also noted disparity between size of classes for  facility types, so we dealt with this by binning facility types into "Multifamily (un-categorized)" and "other" categories
 Finally,w e removed rows with extreme Site EUI values using the IQR method and we used an ordinal encoding to encode all categorical columns.
 
 As part of the pre-processing we encoded categorical features using ordinal encoding, where each unique category was assigned an integer value, resulting in a column of integers; 0 to n_categories -1 (per features)
@@ -400,6 +401,38 @@ Kovan, I. (2021, September 10). Comprehensive guide for principal component anal
 
 
 ## 10. Appendix
+
+
+### 3.3.1 Spearman Correlation with Response
+``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Spearman Correlation with Response",fig.show='hold',fig.align='center'}
+
+knitr::include_graphics('~/images/response_corr.png')
+
+```
+
+### 3.3.2 Plots Investigating Relationships with Site EUI
+``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap=" Plots Investigating Relationships with Site EUI",fig.show='hold',fig.align='center'}
+
+```
+
+
+
+### 3.3.3 Building Characteristics Histograms
+``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Before and After Median Imputation",fig.show='hold',fig.align='center'}
+knitr::include_graphics('~/images/cat_dist.png')
+```
+
+
+### 3.3.4 Pairwise Correlation Analysis of Features
+``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Pairwise Correlation Analysis of Features",fig.show='hold',fig.align='center'}
+
+knitr::include_graphics('~/images/triangular_mat.png')
+
+```
+
+### 4.0.1 Pipeline
+
+### 4.1 Data Pre processing (Imputation plots)
 ``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Before and After Median Imputation",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('~/images/fill_msno.png')
@@ -407,14 +440,10 @@ knitr::include_graphics('~/images/fill_msno.png')
 knitr::include_graphics('~/images/nofill_msno.png')
 ```
 
-``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Before and After Median Imputation",fig.show='hold',fig.align='center'}
-knitr::include_graphics('~/images/response_corr.png')
 
-knitr::include_graphics('~/images/triangular_mat.png')
+### 4.1.1 Variaple Importance Plots using Random Forest
 
-
-knitr::include_graphics('~/images/cat_dist.png')
-
+```{r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
 knitr::include_graphics('~/images/feature_imp.png')
 ```
 
