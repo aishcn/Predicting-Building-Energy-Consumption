@@ -122,50 +122,35 @@ The data was collected in collaboration with Climate Change AI (CCAI) and Lawren
 
 In our Exploratory Data Analysis, we aimed to find how individual explanatory individuals relate and behave alongside the response variable Site EUI as well other explanatory variables. Through wrangling of the data aim to suggest potential transformations to the data in hopes of finding behaviors that will improve performances of future models.
 
-#Investigating Relationships with the Response
+### 3.3 Investigating Relationships with the Response
 
-#Spearman Correlation
+### 3.3.1 Spearman Correlation
 
 In a preliminary attempt of gathering information on covariate relationships with Site EUI, we used Spearman rank correlation coefficients to investigate potential linear relationships with the response. In particular we choose Spearman correlation which is invariant to monotone increasing effect of transforms. We find that energy star rating has by far the largest Spearman correlation with Site EUI in terms of magnitude with -0.654 [REPLACE WITH VALUE FROM SUBSET ??], suggesting a relatively strong decreasing relationship with the response. We also note relatively higher magnitudes for monthly min and average temperatures, in particular a decreasing relationship with colder months temperature measures, namely January and February, while there are increasing relationships with Summer months auch as June and July. In context this can be expected as there is a lesser requirement of energy for uses such as heating and lighting in building in the summer months when days last longer and are warmer.
 
 
-#Plots Investigating relationships with Site EUI
+### 3.3.2 Plots Investigating relationships with Site EUI
 
 In order to enable us to explore the data more effectively there are measures that can be taken such as subsetting the data, given the large size of the data set.
 Via the summary tables we also see that site EUI is right skewed, so a cube root transformation for the sole purpose of investigating relationship will be more effective.
 
-#Building charactersitics vs site eui
+### 3.3.3 Building Charactersitics
+From the histograms of building characteristics, we saw state factor classes were very imbalanced for Stat 10 with only 15 datapoints, while stat 6 has much more than the others with 50840, indicating we could undersample for this specific state factor, while combining stat 10 with another state factor level.  We also see the disparity in frequency of facility types, where "multifamily (un-categorized)" facilities vastly outnumbered all other facility types. We saw that the building classes were majority residential, with the others classified as commercial. 
 
 Building characteristics are of particular interest in context of the data, and so we investigated relationships between Site EUI and building variables. The most noteworthy relationships was with energy star rating, which was as expected from the Spearman correlations, and found a clearer and more linear relationship with the response than almost all other variables.
 
 For elevation we used binning for the classes based on the variables quantiles from summary statistics. We see a notable increase in site EUI initially as buildings add a floors requirement more total energy usage, before this plateaus, which is understandable in context as buildings aren't generally built above a certain height and number of floors.
 
-For state factor we see that the classes are very imbalanced for Stat 10 with only 15 datapoints, while stat 6 has much more than the others with 50840, indicating we could undersample for this specific state factor, while combining stat 10 with another state factor level.
-
-#Investigating Relationships between explanatory variables
-
-It is in our interest to explore potential relationships between covariates in the dataset, as these could potentially lead to issues namely multicollinearity.
-The monthly minimum, maximum, and avaerge temperatures for colder months display relatively strong relationships with other climatic variables relating to cooler weather including "days below...", "heating degree days" and "snowfall" covariates. We gather that the strong negative relationship in context shows as temperature increases in these cold months, the amount of snow fall and days below 0F and 20F decrease as expected. Tther noteworthy relationship
-
-```{r echo=FALSE, out.width='70%', fig.align="center"}
-#knitr::include_graphics('image/all_climate_var_scatterplots.png')
-```
-
-\begin{center}
-\textbf{Fig. 1}: Relationship between Climate Variables and Streamflow
-\end{center}
 
 
-```{=latex}
+# 3.3.4 Investigating Relationships between explanatory variables (Pairwise Correlation)
 
-```
+It is in our interest to explore potential relationships between covariates in the dataset, as these could potentially lead to issues namely multicollinearity. We did this before any transformations and again used spearman coefficient for the same reasons as before.
+The monthly minimum, maximum, and avaerge temperatures for colder months display relatively strong relationships with climatic variables relating to cooler weather including "days below...", "heating degree days" and "snowfall" covariates. We gather that the strong negative relationship in context shows as temperature increases in these cold months, the amount of snow fall and days below 0F and 20F decrease as expected. The relationship is the same for warmer months, where cooling degrees days increases with for example "august_average_temperature",
+
+The high correlation between months of the same seasons sucggest implementation of additional features for the 4 seasons in the place of seperate monthsm for example. the relationships observed between climatic features indicate  potential interactions or new replacement covariates in place of these terms
 
 
-```{=latex}
-
-```
-
-Looking more closely at various variables broken out by `gridcode` (*see Fig. 5 as an example*), some interesting results were seen. For many `gridcode`'s, there appears to be a much stronger linear relationship between climate variables and the stream flow and these relationships appear to have different intercept and slope values. This suggests that there may not be a one-size-fits-all approach to fitting a regression model based on annual climate variables alone and different slopes for different `gridcode`'s may need to be considered for further analysis in the future.
 
 ## 4. Methods
 
@@ -175,7 +160,7 @@ Below in Fig. 6, we have a Proof-of-Concept pipeline that addresses all of the c
 
 
 ```{r echo=FALSE, out.width='100%'}
-# knitr::include_graphics('image/new_pipeline.png')
+knitr::include_graphics('~/images/Pipeline.png')
 ```
 
 \begin{center}
@@ -185,45 +170,25 @@ Below in Fig. 6, we have a Proof-of-Concept pipeline that addresses all of the c
 
 ### 4.1 Data Pre-Processing
 
-As part of the data pre-processing pipeline, we start by dropping duplicate rows, and columns with a high percentage of missing values (over 50%). With the remaining missing values, we used the median imputation method (filling missing values of the column with the median). Furthermore, we dropped highly correlated features using pairwise correlation analysis, and binned the facility type column (due to unbalanced classes). Lastly, we removed rows with extreme Site EUI values using the IQR method and we used an ordinal encoding to encode all categorical columns.
+As part of the data pre-processing pipeline, we start by dropping duplicate rows, and columns with a high percentage of missing values (over 50%). With the remaining missing values, we used the median imputation method (filling missing values of the column with the median). Furthermore, we dropped highly correlated features using pairwise correlation analysis as observed in the EDA.
+We also dealt with imbalanced categories, generating plots to study the relative frequency distribution of the categorical features. As observed in the EDA we saw imbalanced state factors, particularly with state 6, with the disparity suggesting we drop this altogether. We also noted disparity between size of classes for  facility types, so we dealt with this by binning facility types into "Multifamily (un-categorized)" and "other" categories
+Finally,w e removed rows with extreme Site EUI values using the IQR method and we used an ordinal encoding to encode all categorical columns.
 
-
+As part of the pre-processing we encoded categorical features using ordinal encoding, where each unique category was assigned an integer value, resulting in a column of integers; 0 to n_categories -1 (per features)
 
 ### 4.2 Feature Selection
 
 One of the most important step in our pipeline was Feature Selection as it is one of the main objectives. We have used several different methods in order to achieve this objective:
 
-#### 4.2.1. Pairwise Correlation Analysis
-
-Before using any of the traditional feature selection techniques mentioned below, we investigated if any of the features were highly correlated. We see from the Correlation Matrix below that there is high correlation for monthly temperature averages particularly those around the sames seasons suggesting future implementation of new features in the place of seperate months. We also see high correlation for other climatic features such as days above and below variable, as well as high correlation for snowfall and precipitation inches, also indicating potential interactions or new replacement covariates in place of these terms
-
-```
-<!--  -->
-<!-- knitr::include_graphics('image/corr.png') -->
-<!-- # plt.figure(figsize=(16, 6)) -->
-<!-- # # define the mask to set the values in the upper triangle to True -->
-<!-- # mask = np.triu(np.ones_like(df.corr(), dtype=np.bool)) -->
-<!-- # heatmap = sns.heatmap(df.corr(), mask=mask, vmin=-1, vmax=1, annot=False, cmap='BrBG') -->
-<!-- # heatmap.set_title('Triangle Correlation Heatmap', fontdict={'fontsize':10}, pad=16) -->
-
-<!-- \begin{center} -->
-<!-- \textbf{Fig. 9}: Heatmap Presenting Correlation Between Variables -->
-<!-- \end{center} -->
-```
-
-
-#### 4.2.2. Variable Importance using Random Forest
+#### 4.2.1. Variable Importance using Random Forest
 
 
 This method is built on a random forest classifier. It ranks features based on their importance measure i.e. Mean Decrease Accuracy (MDA) where higher means more important. MDA measures how much accuracy the model losses by excluding each variable. The more the accuracy degrades, the more important the variable is. 
-From the variable importance plot we see the 3 most importance variables by far are energy star rating floor area and year built. We proposed the notion of  potential interactions with these terms. [NOT SURE EXACTLY ON REASONING FOR THE INTERACTION LATER ??]. We also note particular importance of Facility Type, Elevation, Days below 20F, Ferbruary average temperature, January average temperature, as well as building class, relative  to the other features in the dataset.
+From the variable importance plot we see the 3 most importance variables by far are energy star rating floor area and year built. We proposed the notion of  potential interactions with these terms later in feature engineering as these were all building characteristic features that could interact in describing the specific buildings. We also note particular importance of Facility Type, Elevation, Days below 20F, February average temperature, January average temperature, as well as building class, relative  to the remainder features in the dataset.
 
 
-\begin{center}
-\textbf{Fig 12}: Variable Importance (using 'boruta' package)
-\end{center}
 
-#### 4.2.3. Interactions and Additional features
+#### 4.2.2. Feature Engineering: Interactions and Additional features
 Based on the variable importance and pairwise correlations we decided on adding interaction terms for future models. We decided on including interactions of; 
 - floorarea and year built
 - floor area and energy star rating
@@ -241,15 +206,15 @@ We also introduced terms for "days below.." and "days above.." temperature varia
 Along with a feature covering both snowfall and precipitation:
 - Snow Rain inches: sum total inches of snowfall and precipitation
 
-In adding these features we removed the originals contained within these, in turn this would help leave us with more parsimonious models to interpret.
+In adding these features we dropped the originals contained within these, in turn this would help leave us with more parsimonious models to interpret.
 
-#### 4.2.4 Feature Transformations
+#### 4.2.3 Feature Transformations
 \
 \
-Table 3 shows all the transformations performed in order to achieve the desired results which are highlighted by Fig. 7 and Fig. 8.
+Table 4 shows all the transformations performed in order to achieve the desired results in reducing impacts of skewness of features.
 
 \begin{center}
-\textbf{Table 3}: Feature Transformations
+\textbf{Table 4}: Feature Transformations
 \end{center}
 | *Variable* | *Description* | *Transformation* | *Skewness* |
 |--|----|----|--|
@@ -270,17 +235,44 @@ Table 3 shows all the transformations performed in order to achieve the desired 
 | cold_days | Total days below 20 and 30 F | Square Root Transform | Slight Right Skewed |
 | warm_days | Total days above 80 90 F | Square Root Transform | Left Skewed |
 | hot_days | Total days above 100 110 F | Dropped | Too Few Data |
+| floor_areaxELEVATION | Interaction term of building floor area and elevation | Eigth Root Transform | Right Skewed|
+
+### 4.2.4 Correlation Analysis after initial Feature engineering
+
+Having added new features, dropped others, and transformed many, we then checked the correlations for a second time to see if we could deal with any remaining issues. We saw from the triangular correlation heat map that there were still highly correlated features, and dropped these. The dropped features were; 'floorxBuilt', 'floorxBuiltxEnergy', 'floorxHeatCool', 'floorxEnergy', and 'ELEVATION'.
+
+### 4.2.5 Feature Selection after Feature Engineering; Boruta package
+
+Furthermore, we proceded with further feature selection using the 'Boruta' package after feature engineering [https://pypi.org/project/Boruta/]. The method uses a "relevant feature selection wrapper algorithm" to find the most "relevant" features using random forest, ranking on imporatnce based on mean absolute standard deviation, allowing us to find and select these.
+From this final step of feature selection, the most important variabeles we were left with were:
+'building_class',
+'facility_type',
+'floor_area' ,
+'year_built',
+'energy_star_rating',
+'WinterTemp',
+'cold_days',
+'warm_days',
+'floor_areaxenergy_star_rating',
+'floor_areaxELEVATION',
+'snow_rain_inches'.
+
 
 ### 4.2.5 Principal Component Analysis
 
-To continue combatting issues caused  correlated features, we also performed principal compoment analysis. The interpretation of these principal components is based on finding which variables are most strongly correlated with each component; which of these have a large absolute relative importance that is furthest from zero in either direction. The importance of each features is reflected by the maginuted of the corresponding values in the eigen vectors.
 
-We see from the number of components needed to explain variance, the 95% cut off threshold is reached at 6 principal components.
+Principal Component Analysis is a very useful method based on mathematics and statistics, which reduces the dimensionality of the inputs in the dataset and solves the issue of collinearity (and by extension, multicollinearity).
 
-We
+Before conducting PCA we performed Min Max scaling because PCA is solved via SVD, and SVD approximates in the sum of squares sense, so if one variable is on a different scale than another it will dominate the PCA.
 
-### 4,2,6 Hyperparameter Tunig
+For a simplified understanding (Kovan, 2021) of how and why we implemented this, we have have a dataset with multiple explanatory variables where the x and y-axes can be thought of as two "components" (or dimensions) either of which the variables can be strongly correlated with. PCA is designed for continuous variables, and it tries to minimize the variance for each component. Instead of only two components, we can have many more.
 
+The variance of each component is taken into account and the aim is to find the number of components that explain 95% of the variance in the dataset (which in our case was 6). There is more complex theory regarding the correlation matrix, eigenvalues and eigenvectors which forms the basis of PCA, however for the purpose of this analysis, a brief explanation felt appropriate.
+
+
+### 4.2.5 Hyperparameter Tuning
+
+For hyperparameter tuning, the reduced and transformed datasets were used. The hyperparameters were initialized and tuned as shown by the code, using randomized search and 5 fold cross-validation.
 
 
 ### 4.3. Model Training and Validation
@@ -364,6 +356,10 @@ Fig. 10: Comparing In-sample Prediction Performance for Different Models without
 | XGB   | 0.8   | 54.165     | 89.306         | 0.799    |
 | Stack | 0.8   | 54.448     | 88.648         | 0.797    |
 
+Based on the 50% Prediction Intervals provided, the researchers believe that the best model is SVR, as it has the lowest Interval Score and Average Length, while having a coverage of just over 50%.
+
+For the 80% Prediction Intervals, the researchers found it more difficult to choose the best model; while XGBoost has a coverage rate closer to 80%, Stack Ensemble provides a lower Interval Score. The researchers took another factor that is more practical into account; time. While it took a few minutes to fit the XGBoost model, it took just over 5 hours to run Stack Ensemble, and therefore XGBoost is more practical as a model than Stack Ensemble.
+
 ## 6. Limitations
 
 
@@ -401,20 +397,61 @@ There are two areas of further research that would help address the limitations 
 - Statistical interaction: More than the sum of its parts. Statistics Solutions. (2021, June 22). Retrieved February 21, 2022, from https://www.statisticssolutions.com/statistical-interaction-more-than- the-sum-of-its-parts/
 
 
+Kovan, I. (2021, September 10). Comprehensive guide for principal component analysis. Medium. Retrieved April 3, 2022, from https://towardsdatascience.com/comprehensive-guide-for-principal-component-analysis-7bf2b4a048ae
+
 
 ## 10. Appendix
-``` {r }
+
+
+### 3.3.1 Spearman Correlation with Response
+``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Spearman Correlation with Response",fig.show='hold',fig.align='center'}
+
+knitr::include_graphics('~/images/response_corr.png')
+
+```
+
+### 3.3.2 Plots Investigating Relationships with Site EUI
+``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap=" Plots Investigating Relationships with Site EUI",fig.show='hold',fig.align='center'}
+
+```
+
+
+
+### 3.3.3 Building Characteristics Histograms
+``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Before and After Median Imputation",fig.show='hold',fig.align='center'}
+knitr::include_graphics('~/images/cat_dist.png')
+```
+
+
+### 3.3.4 Pairwise Correlation Analysis of Features
+``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Pairwise Correlation Analysis of Features",fig.show='hold',fig.align='center'}
+
+knitr::include_graphics('~/images/triangular_mat.png')
+
+Pipeline.png
+
+```
+
+### 4.0.1 Pipeline
+``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Pipeline of Workflow",fig.show='hold',fig.align='center'}
+
+knitr::include_graphics('~/images/Pipeline.png')
+
+```
+
+
+### 4.1 Data Pre processing (Imputation plots)
+``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Before and After Median Imputation",fig.show='hold',fig.align='center'}
+
 knitr::include_graphics('~/images/fill_msno.png')
+
 knitr::include_graphics('~/images/nofill_msno.png')
 ```
 
-``` {r feature selection p1}
-knitr::include_graphics('~/images/response_corr.png')
-knitr::include_graphics('~/images/triangular_mat.png')
 
+### 4.1.1 Variaple Importance Plots using Random Forest
 
-knitr::include_graphics('~/images/cat_dist.png')
-
+```{r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
 knitr::include_graphics('~/images/feature_imp.png')
 ```
 
@@ -480,5 +517,4 @@ knitr::include_graphics('~/images/rsq_boxplot.png')
 knitr::include_graphics('~/images/pred_vs_act.png')
 
 ```
-
 
