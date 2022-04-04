@@ -340,6 +340,10 @@ Fig. 10: Comparing In-sample Prediction Performance for Different Models without
 | XGB   | 0.8   | 54.165     | 89.306         | 0.799    |
 | Stack | 0.8   | 54.448     | 88.648         | 0.797    |
 
+Based on the 50% Prediction Intervals provided, the researchers believe that the best model is SVR, as it has the lowest Interval Score and Average Length, while having a coverage of just over 50%.
+
+For the 80% Prediction Intervals, the researchers found it more difficult to choose the best model; while XGBoost has a coverage rate closer to 80%, Stack Ensemble provides a lower Interval Score. The researchers took another factor that is more practical into account; time. While it took a few minutes to fit the XGBoost model, it took just over 5 hours to run Stack Ensemble, and therefore XGBoost is more practical as a model than Stack Ensemble.
+
 ## 6. Limitations
 
 
