@@ -160,7 +160,7 @@ Below in Fig. 6, we have a Proof-of-Concept pipeline that addresses all of the c
 
 
 ```{r echo=FALSE, out.width='100%'}
-# knitr::include_graphics('image/new_pipeline.png')
+knitr::include_graphics('~/images/Pipeline.png')
 ```
 
 \begin{center}
@@ -428,9 +428,17 @@ knitr::include_graphics('~/images/cat_dist.png')
 
 knitr::include_graphics('~/images/triangular_mat.png')
 
+Pipeline.png
+
 ```
 
 ### 4.0.1 Pipeline
+``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Pipeline of Workflow",fig.show='hold',fig.align='center'}
+
+knitr::include_graphics('~/images/Pipeline.png')
+
+```
+
 
 ### 4.1 Data Pre processing (Imputation plots)
 ``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Before and After Median Imputation",fig.show='hold',fig.align='center'}
