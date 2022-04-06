@@ -191,21 +191,21 @@ From the variable importance plot we see the 3 most importance variables by far 
 #### 4.2.2. Feature Engineering: Interactions and Additional features
 Based on the variable importance and pairwise correlations we decided on adding interaction terms for future models. We decided on including interactions of; 
 
-+ floorarea and year built
-+ floor area and energy star rating
-+ all 3; floor area, year built, and energy star rating
-+ floor area and sum of Cooling Heating degree Days
+- floorarea and year built
+- floor area and energy star rating
+- all 3; floor area, year built, and energy star rating
+- floor area and sum of Cooling Heating degree Days
 
 We also implemented new features containing other features that were otherwise correlated with one another, notably monthyl temperature variabels. Thus we decided to introduce seasonal terms, where Spring took the average of March April May temperatures, Summer took average of Juny July August, Fall took average of September October November, and Winter took December January and February.
 
 We also introduced terms for "days below.." and "days above.." temperature variables;
-+ Freezing days; total days below 0 10 F
-+ Cold days;  total days below 30 and 20 F
-+ Warm days; total days above 80 and 90 F
-+ Hot days; days above 100 and 110 F
+- Freezing days; total days below 0 10 F
+- Cold days;  total days below 30 and 20 F
+- Warm days; total days above 80 and 90 F
+- Hot days; days above 100 and 110 F
 
 Along with a feature covering both snowfall and precipitation:
-+ Snow Rain inches: sum total inches of snowfall and precipitation
+- Snow Rain inches: sum total inches of snowfall and precipitation
 
 In adding these features we dropped the originals contained within these, in turn this would help leave us with more parsimonious models to interpret.
 
@@ -218,9 +218,9 @@ Table 4 shows all the transformations performed in order to achieve the desired 
 \textbf{Table 4}: Feature Transformations
 \end{center}
 | *Variable* | *Description* | *Transformation* | *Skewness* |
-|--|----|----|--|
+|-----|-------|----|----|
 | floor_area | Floor Area | Sixth Root Transform | Right Skewed |
-| year_buily | Year Built | Shifted (2020 - year built) & Log Transform | Left Skewed |
+| year_built | Year Built | Shifted (2020 - year built) & Log Transform | Left Skewed |
 | energy_star_Rating | Energy Star Rating  | Squared Transform | Left Skewed |
 | ELEVATION | Building Elevation | Sixth Root Transform | Right Skewed |
 | avg_temp | Average Temperature | None | None Obvious |
@@ -247,6 +247,7 @@ Having added new features, dropped others, and transformed many, we then checked
 
 Furthermore, we proceded with further feature selection using the 'Boruta' package after feature engineering [https://pypi.org/project/Boruta/]. The method uses a "relevant feature selection wrapper algorithm" to find the most "relevant" features using random forest, ranking on imporatnce based on mean absolute standard deviation, allowing us to find and select these.
 From this final step of feature selection, the most important variabeles we were left with were:
+
 + 'building_class'
 + 'facility_type'
 + 'floor_area'
@@ -260,7 +261,9 @@ From this final step of feature selection, the most important variabeles we were
 + 'snow_rain_inches'
 
 
-### 4.2.6 Principal Component Analysis
+
+
+### 4.2.6 Dimensionality Reduction: Principal Component Analysis
 
 
 Principal Component Analysis is a very useful method based on mathematics and statistics, which reduces the dimensionality of the inputs in the dataset and solves the issue of collinearity (and by extension, multicollinearity).
@@ -272,43 +275,68 @@ For a simplified understanding (Kovan, 2021) of how and why we implemented this,
 The variance of each component is taken into account and the aim is to find the number of components that explain 95% of the variance in the dataset (which in our case was 6). There is more complex theory regarding the correlation matrix, eigenvalues and eigenvectors which forms the basis of PCA, however for the purpose of this analysis, a brief explanation felt appropriate.
 
 
+<!-- Below is Anjalis summary from the presentation notes.
+
+<!-- Anjali -->
+
+<!-- Then since after feature selection, we still had a high dimensional dataset and to further deal with multicollinearity, we decided to perform PCA to achieve 95% of the variance in the data. And that gave us 6 Principal components. The figure on the right shows a 4d plot. This is not entirely representative of the Principal component space since we have 6 principal components but you can get an idea from this. PCA is based on svd (singular value decomposition) and linear and matrix algebra with eigenvalues and eigenvectors. I will not be covering the mathematical basis of PCA but to give you an idea, the plot basically shows clusters of samples based on their similarity. PCA does not discard any samples or characteristics (variables). Instead, it reduces the overwhelming number of dimensions by constructing principal components (PCs). PCs describe variation and account for the varied influences of the original characteristics. Such influences, or loadings, can be traced back from the PCA plot to find out what produces the differences among clusters. -->
+
+<!-- Anjali -->
+
+<!-- The first plot here shows that majority of the variance explained in our data is being captured by the principal component 1. And to each how each feature is playing a role in that..we look at the second plot. You have variable name on the y axis and relative importance on the x axis. The importance of each feature here is reflected by the magnitude of the corresponding values in the eigenvectors. The larger they are these absolute values, the more a specific feature contributes to that principal component. For the first PC, the most important features are seen with the ones having the highest absolute magnitude from the plot. -->
+
+
 ### 4.2.5 Hyperparameter Tuning
 
-For hyperparameter tuning, the reduced and transformed datasets were used. The hyperparameters were initialized and tuned as shown by the code, using randomized search and 5 fold cross-validation.
+For hyperparameter tuning, the reduced and transformed datasets were used.
+We used random search method with 10-fold repeated cross validation where we defined a search space or parameter space as a bounded domain of hyperparameter values and the random search randomly sample points in that domain to give an optimized value that performs the best out of all combinations. 
+For example for ElasticNet, we are tuning it based on 24000 combinations of parameters. We have the definition provided here for all the hyperparameters we used, if you need more information on this, you can check the sklearn documentation on each of these models or each out to me and i can direct you to the right resources.
 
 
-### 4.3. Model Training and Validation
 
-A good variety of models were implemented as a part of our analysis for extensive results. A set of models were trained to capture the effect of interaction terms on the predictive performance of the model. These models were cross-validated (5-fold CV, Repeated 3 times) and their hyperparameters were fine tuned using Random Search. Please refer to Table 3 and Table 4 for results that denote the predictive performance of the models. 
+## 4.3. Model Training and Validation
 
-#### 4.3.1. Linear Models\
+### 4.3.1 Methodology
+A good variety of models were implemented as a part of our analysis for extensive results. A set of models were trained to capture the effect of interaction terms on the predictive performance of the model. These models were cross-validated (10-fold CV, Repeated 3 times) and their hyperparameters were fine tuned using Random Search. Please refer to Table 5 and Table 6 for results that denote the predictive performance of the models. 
+
+
+#### 4.3.2. ElasticNet\
 \
-After feature selection, we trained a Linear Regression model with a 5-fold cross validation to test the model performance on the interaction terms as features.
+The Elastic Net is a regularized regression method that linearly combines the penalties of the Lasso and Ridge regression methods. In Elastic Net regression the alpha term is a ratio of penalties λ₁:λ₂ where lamba1 is  alpha value of lasso and lamda2 is for ridge. When setting the ratio = 0 it acts as a Ridge regression, and when the ratio = 1 it acts as a Lasso regression. Any value between 0 and 1 is a combination of Ridge and Lasso regressionTables 5 and 6 show the results for this method.
 
-#### 4.3.2. Support Vector Machines\
-\
-To add further complexities to the previous models, we trained Support Vector Machines that expanded our feature space using different kernels. We have a radial kernel to compare performance of models without the complexities relating to Linearity respectively. In the radial  kernel, only the neighboring behaviour of data is taken into account which means only those data points influence the modelling compared to the Linear SVM whose performance is similar to a Linear model.
 
-#### 4.3.3. ElasticNet\
+#### 4.3.3. Support Vector Machines\
 \
-The Elastic Net is a regularized regression method that linearly combines the penalties of the Lasso and Ridge regression methods. Tables 3 and 4 show the results for this method.
+To add further complexities to the previous models, we trained Support Vector Machines that expanded our feature space using different kernels. Radial kernel support vector machine is a good approach when the data is not linearly separable. We have a radial kernel to compare performance of models without the complexities relating to Linearity respectively. In the radial  kernel, only the neighboring behaviour of data is taken into account which means only those data points influence the modelling compared to the Linear SVM whose performance is similar to a Linear model. The idea behind generating non-linear decision boundaries is that we need to do some nonlinear transformations on the features Xi which transforms them into a higher dimensional space.
+
+
 
 #### 4.3.4. Tree Models\
 \
-We used three tree-based models, XGBoost, Gradient Boosting and Light Gradient Boosting to improve the performance of our model. From Table 3 and Table 4, we see that out of all tree-based models, XGBoost performs the best, with the lowest RMSE of 23.8852 and and better indicators (Interval Score, Average Length and Coverage of Prediction Intervals).
+We used three tree-based models, XGBoost, Gradient Boosting and Light Gradient Boosting to improve the performance of our model. 
+Boosting slowly learns unique patterns in the data by sequentially combining individual, shallow trees.
+LightGBM is a much more optimized version of the gradient boosting algorithm. It produces much more complex trees by following leaf wise split approach rather than a level-wise approach which is the main factor in achieving higher accuracy. LightGBM uses a novel technique of Gradient-based One-Side Sampling (GOSS) to filter out the data instances for finding a split value while XGBoost uses pre-sorted algorithm & Histogram-based algorithm for computing the best split. Here instances are observations/samples.
+From Table 5 and Table 6, we see that out of all tree-based models, XGBoost performs the best, with the lowest RMSE of 23.8852 and and better indicators (Interval Score, Average Length and Coverage of Prediction Intervals).
 
 \
 \
 
 #### 4.3.5. Ensemble Models\
 \
-We trained an Ensemble model with interaction terms which combines all the models above to produce improved results. Combining these models will generally tend to produce more accurate predictions than a single model.
+We trained an Ensemble model with interaction terms which combines all the models above to produce improved results. Combining these models will generally tend to produce more accurate predictions than a single model. We used stackimng which looks at the weighted RMSE of all the individual models to give a better prediction because it is designed to ensemble a diverse group of strong learners.
 
-<!---
-Fig. 10: Comparing In-sample Prediction Performance for Different Models without Interaction Terms   |  Fig. 11: Comparing In-sample Prediction Performance for Different Models with Interaction Terms 
-:-------------------------:|:-------------------------:
-![](image/compare_no_int.png)  |  ![](image/compare.png)
---->
+
+### 4.3.6 In-Sample Model Metrics Comparison 
+ Based on the boxplot for R squared values attained from the models we have mentioned, as we  expected the Stack Ensemble model has the highest, followed by XGboost, but the most noteworthy takeaway is that we see ElasticNet by far performs the worst possibility to the linear nature of the method. As for the RMSE, we see that Ensemble yet again performs the best with the lowest values, and once again followed by XGBoost. Unsurprisingly ElasticNet performs the worst out of the models. 
+Another metric we considered was how long it took for the models to run and produce output from the training data; "fit time". we see that the Stack ensemble takes generally 800 minutes to 1000, while similarly performing model XGBoost only takes a fraction of the time, and so based on practicality of the method in turning around results, XGBoost would be more preferrable of all methods based on its relatively strong performance and faster run time.
+
+\begin{center}
+\textbf{Fig. 17}: Comparing Insample Model Perfomance Metrics for Different Models
+\end{center}
+
+<!-- knitr::include_graphics('~/images/fit_time_boxplot.png') -->
+<!-- knitr::include_graphics('~/images/rmse_boxplot.png') -->
+<!-- knitr::include_graphics('~/images/rsq_boxplot.png') -->
 
 ```{=latex}
 
@@ -323,19 +351,12 @@ Fig. 10: Comparing In-sample Prediction Performance for Different Models without
 \textbf{Fig. 17}: Comparing Prediction Performance for Different Models Without and With Interaction Terms
 \end{center}
 
-\
-\
-\
-\
-\
-\
-\
-\
+\pagebreak
 
 ## 5. Model Results
 
 \begin{center}
-\textbf{Table 3}: 50 % Prediction Intervals
+\textbf{Table 3}: "50 $\%$ Prediction Intervals"
 \end{center}
 
 
@@ -350,7 +371,7 @@ Fig. 10: Comparing In-sample Prediction Performance for Different Models without
 
 
 \begin{center}
-\textbf{Table 3}: 80 % Prediction Intervals
+\textbf{Table 4}: "80 $\%$ Prediction Intervals"
 \end{center}
 
 | Model | Level | Avg Length | Interval Score | Coverage |
@@ -364,7 +385,7 @@ Fig. 10: Comparing In-sample Prediction Performance for Different Models without
 
 Based on the 50% Prediction Intervals provided, the researchers believe that the best model is SVR, as it has the lowest Interval Score and Average Length, while having a coverage of just over 50%.
 
-For the 80% Prediction Intervals, the researchers found it more difficult to choose the best model; while XGBoost has a coverage rate closer to 80%, Stack Ensemble provides a lower Interval Score. The researchers took another factor that is more practical into account; time. While it took a few minutes to fit the XGBoost model, it took just over 5 hours to run Stack Ensemble, and therefore XGBoost is more practical as a model than Stack Ensemble.
+For the 80% Prediction Intervals, the researchers found it more difficult to choose the best model; while XGBoost has a coverage rate closer to 80%, Stack Ensemble provides a lower Interval Score. The researchers took another factor that is more practical into account; time. While it took a few minutes to fit the XGBoost model, it took just over 5 hours to run Stack Ensemble, and therefore XGBoost is more practical as a model than Stack Ensemble. Thus based on the in-sample metrics we examined and the prediction intervals, we would prefer XGBoost out of all the methods. Although this is subjective to an extent, it is safe to say yhat ElasticNet, linear method, performed the worst, indicating the usefullness of tree methods for this dataset.
 
 ## 6. Limitations
 
@@ -411,30 +432,33 @@ Kovan, I. (2021, September 10). Comprehensive guide for principal component anal
 # 10. Appendix
 
 # 0.0 Python / R Libraries Used:
-Python Livrary Used:
-  + os
-  + numpy as np 
-  + pandas as pd 
-  + matplotlib.pyplot as plt
-  + seaborn as sns
-  + sklearn import preprocessing
-  + sklearn.ensemble import RandomForestRegressor
-  + lightgbm import LGBMRegressor
-  + catboost import CatBoostRegressor
-  + sklearn.ensemble import StackingRegressor
-  + sklearn.linear_model import LinearRegression
-  + xgboost import XGBRegressor
-  + sklearn.pipeline import Pipeline
-  + sklearn.model_selection import KFold
-  + sklearn.svm import SVR
-  + sklearn.model_selection import cross_val_score
-  + sklearn.ensemble import GradientBoostingRegressor
-  + sklearn import model_selection
-  + sklearn.metrics import mean_squared_error
-  + re
-  + sklearn.linear_model import ElasticNet
-  + pickle
-  + warnings
+
+
+## Python Livrary Used:
+- os
+- numpy as np 
+- pandas as pd 
+- matplotlib.pyplot as plt
+- seaborn as sns
+- sklearn import preprocessing
+- sklearn.ensemble import RandomForestRegressor
+- lightgbm import LGBMRegressor
+- catboost import CatBoostRegressor
+- sklearn.ensemble import StackingRegressor
+- sklearn.linear_model import LinearRegression
+- xgboost import XGBRegressor
+- sklearn.pipeline import Pipeline
+- sklearn.model_selection import KFold
+- sklearn.svm import SVR
+- sklearn.model_selection import cross_val_score
+- sklearn.ensemble import GradientBoostingRegressor
+- sklearn import model_selection
+- sklearn.metrics import mean_squared_error
+- re
+- sklearn.linear_model import ElasticNet
+- pickle
+- warnings
+
 
 \pagebreak
 
@@ -701,7 +725,7 @@ knitr::include_graphics('~/images/pca_4d.png')
 \pagebreak
 
 
-## 5 Model Results 1/2
+## 4.3.6 Model Results 1/2
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Model Results 1/2",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('~/images/fit_time_boxplot.png')
@@ -711,10 +735,45 @@ knitr::include_graphics('~/images/rmse_boxplot.png')
 ```
 
 \pagebreak
-## 5 Model Results 2/2
+## 4.3.6 Insample Model Metric Comparison Results 2/2
 ```{r, echo=FALSE ,out.width="70%", out.height="65%",fig.cap="Model Results 2/2",fig.show='hold',fig.align='center'}
+
 knitr::include_graphics('~/images/rsq_boxplot.png')
 knitr::include_graphics('~/images/pred_vs_act.png')
 
 ```
 
+\pagebreak
+## 5.0 Model Results: Prediction intervals
+
+
+
+\pagebreak
+
+\begin{center}
+\textbf{Table 3}: "50 $\%$ Prediction Intervals"
+\end{center}
+
+
+| Model | Level | Avg Length | Interval Score | Coverage |
+|-------|-------|------------|----------------|----------|
+| LGBM  | 0.5   | 23.675     | 58.053         | 0.494    |
+| SVR   | 0.5   | 23.266     | 57.622         | 0.502    |
+| GBR   | 0.5   | 24.705     | 58.114         | 0.506    |
+| Elnet | 0.5   | 29.156     | 65.155         | 0.501    |
+| XGB   | 0.5   | 23.856     | 57.693         | 0.505    |
+| Stack | 0.5   | 24.338     | 57.656         | 0.505    |
+
+
+\begin{center}
+\textbf{Table 4}: "80 $\%$ Prediction Intervals"
+\end{center}
+
+| Model | Level | Avg Length | Interval Score | Coverage |
+|-------|-------|------------|----------------|----------|
+| LGBM  | 0.8   | 54.604     | 89.740         | 0.798    |
+| SVR   | 0.8   | 53.120     | 90.000         | 0.793    |
+| GBR   | 0.8   | 54.755     | 89.175         | 0.795    |
+| Elnet | 0.8   | 64.465     | 96.675         | 0.799    |
+| XGB   | 0.8   | 54.165     | 89.306         | 0.799    |
+| Stack | 0.8   | 54.448     | 88.648         | 0.797    |
