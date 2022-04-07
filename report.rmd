@@ -21,7 +21,7 @@ library(gridExtra)
 
 ## 1. Summary
 
-In this analysis, we sought to develop a model that predicts a site's energy consumption by studying the effects of climate variables and building characteristics on the Site EUI (Energy Usage Intensit)y to provide crucial information for potential optimized energy retrofitting. This helps in improving a building's asset performance (utilities). Retrofitting offers a potential upside in the overall performance of the building through improved energy efficiency, increased staff productivity, reduced maintenance costs, and better thermal comfort. By training an ensemble of prediction models like XGBoost, Gradient Boosting Machine, Light GBM, and Support Vector Machine with important variables selected through variable importance method using Random Forest Regressor and Correlation Analysis and predicting the Site EUI, we achieved a high prediction performance with the lowest Root Mean Square Error (RMSE) of 0.1878 along with Interval Score of -, Average Interval Length of __ and a covergae of __ for the ____ Model. 
+In this analysis, we sought to develop a model that predicts a site's energy consumption by studying the effects of climate variables and building characteristics on the Site EUI (Energy Usage Intensity) to provide crucial information for potential optimized energy retrofitting. This helps in improving a building's asset performance (utilities). Retrofitting offers a potential upside in the overall performance of the building through improved energy efficiency, increased staff productivity, reduced maintenance costs, and better thermal comfort. By training an ensemble of prediction models like XGBoost, Gradient Boosting Machine, Light GBM, and Support Vector Machine with important variables selected via variable importance method using a Random Forest Regressor and Correlation Analysis, we aim to make accurate Site EUI predictions. We achieved a high prediction performance, with the lowest Root Mean Square Error (RMSE) of 18.50 along with a 50% Interval Score of 44.03, Average Interval Length of 17.29 and a coverage rate of 0.493 for the Light GBM method.
 
 ## 2. Introduction
 
@@ -29,25 +29,25 @@ Climate change is an urgent, and multi-faceted issue heavily impacted by infrast
 
 The analysis aims to address the following questions:	
 
-- Does the effect of building characteristics outweighs the effect of climate variables on Site EUI and vice-versa?
- 						
+- Do the effects of building characteristics outweigh the effect of climate variables on Site EUI and vice-versa?
+
 - Is there a need to build separate models for different Facility types or Building classes?
 
-More specifically, the analysis has the following objectives to answer the above questions:
+More specifically, the analysis has the following objectives to answer the questions above:
 
-- To find important climate variable(s) and/or building characteristics variable(s) and determine the effect of said variable(s) on the site EUI
+- To find important climate variable(s) and/or building characteristics variable(s) and determine the effects of said variable(s) on the site EUI
 
-- To translate the relationship between the response and multiple predictors into insightful visualizations
- 						
+- To translate the relationship between the response and multiple covariates into insightful visualizations
+
 - To model and predict the site EUI values
 
-This report summarizes all of the primary statistical modelling and analysis results associated with the study. The remainder of this report is organised as follows: Section 3 describes the data collection, provides measurement of the variables and summarizes the data. Section 4 presents the data preprocessing and statistical modelling techniques used to answer the aforementioned research questions. Section 5 summarizes and interprets the results of the statistical analysis conducted. Appendices are provided for further exploratory data analysis along with the code used for the statistical modelling. Lastly, Section 7 presents the limitations and challenges in conducting this analysis.
+This report summarizes all of the primary statistical modelling and analysis results associated with the study. The remainder of the report is organized as follows: Section 3 describes the data collection, provides measurement of the variables and summarizes the data. Section 4 presents the data pre-processing and statistical modelling techniques used to answer the aforementioned research questions. Section 5 summarizes and interprets the results of the statistical analysis conducted. Appendices are provided for further exploratory data analysis along with the code used for the statistical modelling. Lastly, Section 7 presents the limitations and challenges in conducting this analysis.
 
 ## 3. Data
 
 ### 3.1 Description
 
-The data was collected in collaboration with Climate Change AI (CCAI) and Lawrence Berkeley National Laboratory (Berkeley Lab). Data contains roughly 100,000 observations of building energy usage records collected over 7 years and from a number of states within the United States. The dataset consists of building characteristics (e.g. floor area, facility type, etc), and weather data for the building location (e.g. annual average temperature, annual total precipitation, etc), as well as the energy usage for the building (Site EUI). Each row in the data corresponds to the a single building observed in a given year. There are 75757 rows and 64 columns with 64448 rows containing null values.
+The data was collected in collaboration with Climate Change AI (CCAI) and Lawrence Berkeley National Laboratory (Berkeley Lab). Data contains roughly 100,000 observations of building energy usage records collected over 7 years, from a number of states within the United States. The dataset consists of building characteristics (e.g. floor area, facility type, etc), and weather data for the building location (e.g. annual average temperature, annual total precipitation, etc), as well as the energy usage for the building (Site EUI). Each row in the data corresponds to the a single building observed in a given year. There are 75757 rows and 64 columns with 64448 rows containing at least one column of null values.
 
 \begin{center}
 \textbf{Table 1}: Description of Building Characteristics Variables Used for Analysis
@@ -100,7 +100,7 @@ The data was collected in collaboration with Climate Change AI (CCAI) and Lawren
 | **75%** | 97.28	|85.00|	166000|	1977.00	|42.70|	6.00|
 | **Max** | 997.87|	100.00|	6385382|	2015.00	|1924.50|	6.00|
 
-*Due to a large number climate variables, summary statistics hasn't been provided in the report. Please refer to the code.*
+*Due to the large number climate variables, summary statistics hasn't been provided in the report. Please refer to the code.*
 
 ### 3.2 Exploratory Data Analysis
 
@@ -117,27 +117,32 @@ The data was collected in collaboration with Climate Change AI (CCAI) and Lawren
 ```
 
 \begin{center}
-\textbf{Fig. 1}: Relationship between Building Variables and Site_EUI
+\textbf{Fig. 2}: Relationship between Building Variables and Site_EUI
 \end{center}
 
 In our Exploratory Data Analysis, we aimed to find how individual explanatory individuals relate and behave alongside the response variable Site EUI as well other explanatory variables. Through wrangling of the data aim to suggest potential transformations to the data in hopes of finding behaviors that will improve performances of future models.
+
+```{r echo=FALSE, out.width='70%', fig.align="center"}
+#knitr::include_graphics('image/all_building_var_scatterplots.png')
+```
 
 ### 3.3 Investigating Relationships with the Response
 
 ### 3.3.1 Spearman Correlation
 
-In a preliminary attempt of gathering information on covariate relationships with Site EUI, we used Spearman rank correlation coefficients to investigate potential linear relationships with the response. In particular we choose Spearman correlation which is invariant to monotone increasing effect of transforms. We find that energy star rating has by far the largest Spearman correlation with Site EUI in terms of magnitude with -0.654 [REPLACE WITH VALUE FROM SUBSET ??], suggesting a relatively strong decreasing relationship with the response. We also note relatively higher magnitudes for monthly min and average temperatures, in particular a decreasing relationship with colder months temperature measures, namely January and February, while there are increasing relationships with Summer months auch as June and July. In context this can be expected as there is a lesser requirement of energy for uses such as heating and lighting in building in the summer months when days last longer and are warmer.
-
+In a preliminary attempt of gathering information on covariate relationships with Site EUI, the researchers used Spearman rank correlation coefficients to investigate potential linear relationships with the response. Specifically, the researchers chose Spearman correlation, as it is invariant to the monotone increasing effect of transformations. We find that energy star rating has by far the largest Spearman correlation with Site EUI in terms of magnitude (-0.66), suggesting a relatively strong decreasing relationship with the response. We also note the relatively higher magnitudes for monthly min and average temperatures, particularly a decreasing relationship with colder months (namely January and February), and an increasing relationship with summer months such as June and July. Intuitively this could be explained; during colder and darker months there is a requirement for heating and lighting, which is not the case for summer months (less energy required).
 
 ### 3.3.2 Plots Investigating relationships with Site EUI
 
-In order to enable us to explore the data more effectively there are measures that can be taken such as subsetting the data, given the large size of the data set.
+In order for the researchers to explore the data more effectively there are measures that can be taken such as subsetting the data, given the large size of the data set.
+
 Via the summary tables we also see that site EUI is right skewed, so a cube root transformation for the sole purpose of investigating relationship will be more effective.
 
 ### 3.3.3 Building Charactersitics
-From the histograms of building characteristics, we saw state factor classes were very imbalanced for Stat 10 with only 15 datapoints, while stat 6 has much more than the others with 50840, indicating we could undersample for this specific state factor, while combining stat 10 with another state factor level.  We also see the disparity in frequency of facility types, where "multifamily (un-categorized)" facilities vastly outnumbered all other facility types. We saw that the building classes were majority residential, with the others classified as commercial. 
 
-Building characteristics are of particular interest in context of the data, and so we investigated relationships between Site EUI and building variables. The most noteworthy relationships was with energy star rating, which was as expected from the Spearman correlations, and found a clearer and more linear relationship with the response than almost all other variables.
+From the histograms of building characteristics, we saw state factor classes were very imbalanced for State 10 with only 15 datapoints, while State 6 has much more than the others with 50840, indicating that we could undersample for this specific state factor, while combining stat 10 with another state factor level. We also see the disparity in frequency of facility types, where "multifamily (un-categorized)" facilities vastly outnumbered all other facility types. We saw that the building classes were majority residential (57%), with the others classified as commercial (43%). 
+
+Building characteristics are of particular interest in context of the data, and so the researchers investigated relationships between Site EUI and building variables. The most noteworthy of relationships was with energy star rating, which was as expected from the Spearman correlation analysis, and found a clear, more linear relationship with the response than almost all other variables.
 
 For elevation we used binning for the classes based on the variables quantiles from summary statistics. We see a notable increase in site EUI initially as buildings add a floors requirement more total energy usage, before this plateaus, which is understandable in context as buildings aren't generally built above a certain height and number of floors.
 
@@ -146,9 +151,9 @@ For elevation we used binning for the classes based on the variables quantiles f
 # 3.3.4 Investigating Relationships between explanatory variables (Pairwise Correlation)
 
 It is in our interest to explore potential relationships between covariates in the dataset, as these could potentially lead to issues namely multicollinearity. We did this before any transformations and again used spearman coefficient for the same reasons as before.
-The monthly minimum, maximum, and avaerge temperatures for colder months display relatively strong relationships with climatic variables relating to cooler weather including "days below...", "heating degree days" and "snowfall" covariates. We gather that the strong negative relationship in context shows as temperature increases in these cold months, the amount of snow fall and days below 0F and 20F decrease as expected. The relationship is the same for warmer months, where cooling degrees days increases with for example "august_average_temperature",
+The monthly minimum, maximum, and average temperatures for colder months display relatively strong relationships with climatic variables relating to cooler weather including "days below...", "heating degree days" and "snowfall" covariates. We gather that the strong negative relationship in context shows as temperature increases in these cold months, the amount of snow fall and days below 0F and 20F decrease as expected. The relationship is the same for warmer months, where cooling degrees days increases with for example "august_average_temperature",
 
-The high correlation between months of the same seasons sucggest implementation of additional features for the 4 seasons in the place of seperate monthsm for example. the relationships observed between climatic features indicate  potential interactions or new replacement covariates in place of these terms
+The high correlation between months of the same seasons suggest implementation of additional features for the 4 seasons in the place of separate months for example. the relationships observed between climatic features indicate  potential interactions or new replacement covariates in place of these terms
 
 
 
