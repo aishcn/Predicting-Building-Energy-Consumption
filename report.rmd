@@ -105,7 +105,7 @@ The data was collected in collaboration with Climate Change AI (CCAI) and Lawren
 ### 3.2 Exploratory Data Analysis
 
 ```{r echo=FALSE, out.width='70%', fig.align="center"}
-#knitr::include_graphics('image/all_climate_var_scatterplots.png')
+#knitr::include_graphics('Main_Code/images/all_climate_var_scatterplots.png')
 ```
 
 \begin{center}
@@ -113,7 +113,7 @@ The data was collected in collaboration with Climate Change AI (CCAI) and Lawren
 \end{center}
 
 ```{r echo=FALSE, out.width='70%', fig.align="center"}
-#knitr::include_graphics('image/all_climate_var_scatterplots.png')
+#knitr::include_graphics('Main_Code/images/all_climate_var_scatterplots.png')
 ```
 
 \begin{center}
@@ -123,7 +123,7 @@ The data was collected in collaboration with Climate Change AI (CCAI) and Lawren
 In our Exploratory Data Analysis, we aimed to find how individual explanatory individuals relate and behave alongside the response variable Site EUI as well other explanatory variables. Through wrangling of the data aim to suggest potential transformations to the data in hopes of finding behaviors that will improve performances of future models.
 
 ```{r echo=FALSE, out.width='70%', fig.align="center"}
-#knitr::include_graphics('image/all_building_var_scatterplots.png')
+#knitr::include_graphics('Main_Code/images/all_building_var_scatterplots.png')
 ```
 
 ### 3.3 Investigating Relationships with the Response
@@ -165,7 +165,7 @@ Below in Fig. 6, we have a Proof-of-Concept pipeline that addresses all of the c
 
 
 ```{r echo=FALSE, out.width='100%'}
-knitr::include_graphics('~/images/Pipeline.png')
+knitr::include_graphics('Main_Code/images/Pipeline.png')
 ```
 
 \begin{center}
@@ -339,16 +339,16 @@ Another metric we considered was how long it took for the models to run and prod
 \textbf{Fig. 17}: Comparing Insample Model Perfomance Metrics for Different Models
 \end{center}
 
-<!-- knitr::include_graphics('~/images/fit_time_boxplot.png') -->
-<!-- knitr::include_graphics('~/images/rmse_boxplot.png') -->
-<!-- knitr::include_graphics('~/images/rsq_boxplot.png') -->
+<!-- knitr::include_graphics('Main_Code/images/fit_time_boxplot.png') -->
+<!-- knitr::include_graphics('Main_Code/images/rmse_boxplot.png') -->
+<!-- knitr::include_graphics('Main_Code/images/rsq_boxplot.png') -->
 
 ```{=latex}
 
 ```
 
 ```{r echo=FALSE, out.width='60%', fig.align="center"}
-# knitr::include_graphics('image/new_train_result.png')
+# knitr::include_graphics('Main_Code/images/new_train_result.png')
 ```
 
 \begin{center}
@@ -439,7 +439,7 @@ Kovan, I. (2021, September 10). Comprehensive guide for principal component anal
 # 0.0 Python / R Libraries Used:
 
 
-## Python Livrary Used:
+## Python Library Used:
 - os
 - numpy as np 
 - pandas as pd 
@@ -471,7 +471,7 @@ Kovan, I. (2021, September 10). Comprehensive guide for principal component anal
 ## 3.3.1 Spearman Correlation with Response
 ``` {r, echo=FALSE,fig.cap="Spearman Correlation with Response",out.height="70%",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/response_corr.png')
+knitr::include_graphics('Main_Code/images/response_corr.png')
 
 ```
 
@@ -490,7 +490,7 @@ knitr::include_graphics('~/images/response_corr.png')
 
 ## 3.3.3 Building Characteristics Histograms
 ``` {r, echo=FALSE ,out.width="100%", out.height="90%",fig.cap="Building Characteristics Histograms",fig.show='hold',fig.align='center'}
-knitr::include_graphics('~/images/cat_dist.png')
+knitr::include_graphics('Main_Code/images/cat_dist.png')
 ```
 
 \pagebreak
@@ -499,7 +499,7 @@ knitr::include_graphics('~/images/cat_dist.png')
 ## 3.3.4 Pairwise Correlation Analysis of Features
 ``` {r, echo=FALSE ,out.width="100%", out.height="100%",fig.cap="Pairwise Correlation Analysis of Features",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/triangular_mat.png')
+knitr::include_graphics('Main_Code/images/triangular_mat.png')
 
 
 ```
@@ -509,7 +509,7 @@ knitr::include_graphics('~/images/triangular_mat.png')
 
 ``` {r, echo=FALSE ,out.width="100%", out.height="75%",fig.cap="Pipeline of Workflow",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/Pipeline.png')
+knitr::include_graphics('Main_Code/images/Pipeline.png')
 
 ```
 
@@ -522,14 +522,14 @@ knitr::include_graphics('~/images/Pipeline.png')
 
 ``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="Before and After Median Imputation",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/fill_msno.png')
+knitr::include_graphics('Main_Code/images/fill_msno.png')
 
-knitr::include_graphics('~/images/nofill_msno.png')
+knitr::include_graphics('Main_Code/images/nofill_msno.png')
 ```
 ## 4.1 Data Pre processing: Outlier Removal
 ``` {r, echo=FALSE ,out.width="49%", out.height="20%",fig.cap="After Extreme Value Removal with IQR Method",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/site_eui_outliers_after.png')
+knitr::include_graphics('Main_Code/images/site_eui_outliers_after.png')
 ```
 
 \pagebreak
@@ -537,7 +537,7 @@ knitr::include_graphics('~/images/site_eui_outliers_after.png')
 ## 4.1.1 Variaple Importance Plots using Random Forest
 
 ```{r, echo=FALSE ,out.width="100%", out.height="100%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
-knitr::include_graphics('~/images/feature_imp.png')
+knitr::include_graphics('Main_Code/images/feature_imp.png')
 ```
 \pagebreak
 
@@ -550,7 +550,7 @@ knitr::include_graphics('~/images/feature_imp.png')
 ### 4.2.3 Feautre Transformations: Site EUI (no transform needed)
 
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap=" Site EUI (no transform needed)",fig.show='hold',fig.align='center'}
-knitr::include_graphics('~/images/site_eui_dist.png')
+knitr::include_graphics('Main_Code/images/site_eui_dist.png')
 
 ```
 \pagebreak
@@ -558,8 +558,8 @@ knitr::include_graphics('~/images/site_eui_dist.png')
 
 ### 4.2.3 Feautre Transformations:  Floor Area Before and After
 ```{r, echo=FALSE ,out.width="70%", out.height="65%",fig.cap="Floor Area Before and After Transformt",fig.show='hold',fig.align='center'}
-knitr::include_graphics('~/images/floor_area_before_scaling.png')
-knitr::include_graphics('~/images/floor_area_after.png')
+knitr::include_graphics('Main_Code/images/floor_area_before_scaling.png')
+knitr::include_graphics('Main_Code/images/floor_area_after.png')
 
 ```
 \pagebreak
@@ -568,8 +568,8 @@ knitr::include_graphics('~/images/floor_area_after.png')
 ### 4.2.3 Feautre Transformations:  Year Built Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Year Built Before and After Transform",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/year_built_before.png')
-knitr::include_graphics('~/images/year_built_after.png')
+knitr::include_graphics('Main_Code/images/year_built_before.png')
+knitr::include_graphics('Main_Code/images/year_built_after.png')
 
 ```
 \pagebreak
@@ -578,8 +578,8 @@ knitr::include_graphics('~/images/year_built_after.png')
 ### 4.2.3 Feautre Transformations:  Energy Star Rating Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Energy Star Rating Before and After Transform",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/esrating_before.png')
-knitr::include_graphics('~/images/esrating_after.png')
+knitr::include_graphics('Main_Code/images/esrating_before.png')
+knitr::include_graphics('Main_Code/images/esrating_after.png')
 
 ```
 \pagebreak
@@ -589,8 +589,8 @@ knitr::include_graphics('~/images/esrating_after.png')
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Elevation transform Before and After",fig.show='hold',fig.align='center'}
 
 
-knitr::include_graphics('~/images/elevation_before.png')
-knitr::include_graphics('~/images/elevation_after.png')
+knitr::include_graphics('Main_Code/images/elevation_before.png')
+knitr::include_graphics('Main_Code/images/elevation_after.png')
 ```
 \pagebreak
 
@@ -598,8 +598,8 @@ knitr::include_graphics('~/images/elevation_after.png')
 ### 4.2.3 Feautre Transformations:  Floor_areaxElevation Before and After
 ```{r, echo=FALSE ,out.width="70%", out.height="70%",fig.cap="Floor_areaxElevation Before and After Transform",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/floorareaxELEVATION_before.png')
-knitr::include_graphics('~/images/floorareaxELEVATION_after.png')
+knitr::include_graphics('Main_Code/images/floorareaxELEVATION_before.png')
+knitr::include_graphics('Main_Code/images/floorareaxELEVATION_after.png')
 
 ```
 \pagebreak
@@ -608,8 +608,8 @@ knitr::include_graphics('~/images/floorareaxELEVATION_after.png')
 ### 4.2.3 Feautre Transformations:  FloorxBuilt Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="FloorxBuilt Before and After Transform",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/floorxbuilt_before.png')
-knitr::include_graphics('~/images/floorxbuilt_after.png')
+knitr::include_graphics('Main_Code/images/floorxbuilt_before.png')
+knitr::include_graphics('Main_Code/images/floorxbuilt_after.png')
 ```
 
 \pagebreak
@@ -618,8 +618,8 @@ knitr::include_graphics('~/images/floorxbuilt_after.png')
 ### 4.2.3 Feautre Transformations:  FloorxEnergy Before and After
 ```{r, echo=FALSE ,out.width="70%", out.height="70%",fig.cap="FloorxEnergy Before and After Transform",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/floorxenergy_before.png')
-knitr::include_graphics('~/images/floorxenergy_after.png')
+knitr::include_graphics('Main_Code/images/floorxenergy_before.png')
+knitr::include_graphics('Main_Code/images/floorxenergy_after.png')
 
 ```
 \pagebreak
@@ -630,8 +630,8 @@ knitr::include_graphics('~/images/floorxenergy_after.png')
 
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Transforming Interaction of Floor area Year built and Energy star rating, Before and After",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/floorxBuiltxEnergy_before.png')
-knitr::include_graphics('~/images/floorxBuiltxEnergy_after.png')
+knitr::include_graphics('Main_Code/images/floorxBuiltxEnergy_before.png')
+knitr::include_graphics('Main_Code/images/floorxBuiltxEnergy_after.png')
 ```
 \pagebreak
 
@@ -639,8 +639,8 @@ knitr::include_graphics('~/images/floorxBuiltxEnergy_after.png')
 ### 4.2.3 Feautre Transformations:  FloorxHeatCool Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="VFloorxHeatCool Before and After Transform",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/floorxHeatCool_before.png')
-knitr::include_graphics('~/images/floorxHeatCool_after.png')
+knitr::include_graphics('Main_Code/images/floorxHeatCool_before.png')
+knitr::include_graphics('Main_Code/images/floorxHeatCool_after.png')
 ```
 
 \pagebreak
@@ -648,7 +648,7 @@ knitr::include_graphics('~/images/floorxHeatCool_after.png')
 
 ### 4.2.3 Feautre Transformations:  Freezing_days Before (no transform needed)
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Freezing_days Before (no transform needed)t",fig.show='hold',fig.align='center'}
-knitr::include_graphics('~/images/freezing_days_before.png')
+knitr::include_graphics('Main_Code/images/freezing_days_before.png')
 
 ```
 \pagebreak
@@ -657,8 +657,8 @@ knitr::include_graphics('~/images/freezing_days_before.png')
 ### 4.2.3 Feautre Transformations:  Cold_days Before and After
 ```{r, echo=FALSE ,out.width="70%", out.height="70%",fig.cap="Cold_days Before and After Transform",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/cold_days_before.png')
-knitr::include_graphics('~/images/cold_days_after.png')
+knitr::include_graphics('Main_Code/images/cold_days_before.png')
+knitr::include_graphics('Main_Code/images/cold_days_after.png')
 
 
 ```
@@ -669,8 +669,8 @@ knitr::include_graphics('~/images/cold_days_after.png')
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Warm_days Before and After Transform",fig.show='hold',fig.align='center'}
 
 
-knitr::include_graphics('~/images/warm_days_before.png')
-knitr::include_graphics('~/images/warm_days_after.png')
+knitr::include_graphics('Main_Code/images/warm_days_before.png')
+knitr::include_graphics('Main_Code/images/warm_days_after.png')
 ```
 
 \pagebreak
@@ -678,7 +678,7 @@ knitr::include_graphics('~/images/warm_days_after.png')
 
 ### 4.2.3 Feautre Transformations: Hot_days Before (no transform needed)
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Hot_days Before (no transform needed)",fig.show='hold',fig.align='center'}
-knitr::include_graphics('~/images/hot_days_dist.png')
+knitr::include_graphics('Main_Code/images/hot_days_dist.png')
 
 ```
 
@@ -690,7 +690,7 @@ knitr::include_graphics('~/images/hot_days_dist.png')
 
 ```{r, echo=FALSE ,out.width="100%", out.height="70%",fig.cap="Pairwise Correlation Analysis After intial Feature Engineering",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/second_tri_mat.png')
+knitr::include_graphics('Main_Code/images/second_tri_mat.png')
 
 
 ```
@@ -702,7 +702,7 @@ knitr::include_graphics('~/images/second_tri_mat.png')
 ```{r, echo=FALSE ,out.width="75%", out.height="70%",fig.cap="Feature Selectoin After Feature Engineering using Boruta Package Output",fig.show='hold',fig.align='center'}
 
 
-knitr::include_graphics('~/images/boruta.png')
+knitr::include_graphics('Main_Code/images/boruta.png')
 
 ```
 
@@ -712,8 +712,8 @@ knitr::include_graphics('~/images/boruta.png')
 
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Principal Component Analysis 1/2",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/pca_threshold.png')
-knitr::include_graphics('~/images/pca_1st.png')
+knitr::include_graphics('Main_Code/images/pca_threshold.png')
+knitr::include_graphics('Main_Code/images/pca_1st.png')
 
 
 ```
@@ -723,8 +723,8 @@ knitr::include_graphics('~/images/pca_1st.png')
 
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Principal Component Analysis 2/2",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/pca_curve.png')
-knitr::include_graphics('~/images/pca_4d.png')
+knitr::include_graphics('Main_Code/images/pca_curve.png')
+knitr::include_graphics('Main_Code/images/pca_4d.png')
 
 ```
 \pagebreak
@@ -733,18 +733,18 @@ knitr::include_graphics('~/images/pca_4d.png')
 ## 4.3.6 Model Results 1/2
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Model Results 1/2",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/fit_time_boxplot.png')
+knitr::include_graphics('Main_Code/images/fit_time_boxplot.png')
 
 
-knitr::include_graphics('~/images/rmse_boxplot.png')
+knitr::include_graphics('Main_Code/images/rmse_boxplot.png')
 ```
 
 \pagebreak
 ## 4.3.6 Insample Model Metric Comparison Results 2/2
 ```{r, echo=FALSE ,out.width="70%", out.height="65%",fig.cap="Model Results 2/2",fig.show='hold',fig.align='center'}
 
-knitr::include_graphics('~/images/rsq_boxplot.png')
-knitr::include_graphics('~/images/pred_vs_act.png')
+knitr::include_graphics('Main_Code/images/rsq_boxplot.png')
+knitr::include_graphics('Main_Code/images/pred_vs_act.png')
 
 ```
 
