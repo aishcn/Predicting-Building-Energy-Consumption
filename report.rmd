@@ -47,7 +47,7 @@ This report summarizes all of the primary statistical modelling and analysis res
 
 ### 3.1. Description
 
-The data was collected in collaboration with Climate Change AI (CCAI) and Lawrence Berkeley National Laboratory (Berkeley Lab). Data contains roughly 100,000 observations of building energy usage records collected over 7 years, from a number of states within the United States. The dataset consists of building characteristics (e.g. floor area, facility type, etc), and weather data for the building location (e.g. annual average temperature, annual total precipitation, etc), as well as the energy usage for the building (Site EUI). Each row in the data corresponds to the a single building observed in a given year. The building class is residential (57%), with the others classified as commercial. There are 75757 rows and 64 columns with 3845 extreme values and 64448 rows containing at least one column with missing value.
+The data was collected in collaboration with Climate Change AI (CCAI) and Lawrence Berkeley National Laboratory (Berkeley Lab) as part of the Women in Data Science Datathon (WiDS, 2022). Data contains roughly 100,000 observations of building energy usage records collected over 7 years, from a number of states within the United States. The dataset consists of building characteristics (e.g. floor area, facility type, etc), and weather data for the building location (e.g. annual average temperature, annual total precipitation, etc), as well as the energy usage for the building (Site EUI). Each row in the data corresponds to the a single building observed in a given year. The building class is residential (57%), with the others classified as commercial. There are 75757 rows and 64 columns with 3845 extreme values and 64448 rows containing at least one column with missing value.
 
 \begin{center}
 \textbf{Table 1}: Description of Building Characteristics Variables Used for Analysis
@@ -257,7 +257,7 @@ knitr::include_graphics('Main_Code/images/second_tri_mat.png')
 
 ### 4.5 Further Refinements in Feature Selection using `boruta` package
 
-We performed with further feature selection using the 'Boruta' package after feature engineering. The method uses a "relevant feature selection wrapper algorithm" to find the most "relevant" features using random forest, ranking on importance based on mean absolute deviation (MAD), allowing us to find and select the most important variables namely, `building_class`, `facility_type`, `floor_area`, `year_built`, `energy_star_rating`, `cold_days`, `warm_days`, `FallTemp`, `snow_rain_inches`, and `freezing_days`.
+We performed with further feature selection using the 'Boruta' package (Kursa, 2010) after feature engineering. The method uses a "relevant feature selection wrapper algorithm" to find the most "relevant" features using random forest, ranking on importance based on mean absolute deviation (MAD), allowing us to find and select the most important variables namely, `building_class`, `facility_type`, `floor_area`, `year_built`, `energy_star_rating`, `cold_days`, `warm_days`, `FallTemp`, `snow_rain_inches`, and `freezing_days`.
 
 ```{r, echo=FALSE ,out.width="45%", out.height="45%",fig.cap="Feature Selection After Feature Engineering using Boruta Package Output",fig.show='hold',fig.align='center'}
 knitr::include_graphics('Main_Code/images/boruta.png')
@@ -305,20 +305,20 @@ A good variety of models were implemented as a part of our analysis for extensiv
 
 #### 4.8.1. ElasticNet\
 \
-The Elastic Net is a regularized regression method that linearly combines the penalties of the Lasso and Ridge regression methods. In Elastic Net regression the alpha term is a ratio of penalties $\lambda_1:\lambda_2$ where $\lambda_1$ is  alpha value of lasso and $\lambda_2$ is for ridge. When setting the ratio $=0$ it acts as a Ridge regression, and when the ratio $=1$ it acts as a Lasso regression. Any value between 0 and 1 is a combination of Ridge and Lasso regression Tables 5 and 6 show the results for this method.
+The Elastic Net (Karg, 2021) is a regularized regression method that linearly combines the penalties of the Lasso and Ridge regression methods. In Elastic Net regression the alpha term is a ratio of penalties $\lambda_1:\lambda_2$ where $\lambda_1$ is  alpha value of lasso and $\lambda_2$ is for ridge. When setting the ratio $=0$ it acts as a Ridge regression, and when the ratio $=1$ it acts as a Lasso regression. Any value between 0 and 1 is a combination of Ridge and Lasso regression Tables 5 and 6 show the results for this method.
 
 
 #### 4.8.2. Support Vector Machines\
 \
-To add further complexities to the previous models, we trained Support Vector Machines that expanded our feature space using different kernels. Radial kernel support vector machine is a good approach when the data is not linearly separable. We have a radial kernel to compare performance of models without the complexities relating to Linearity respectively. In the radial  kernel, only the neighboring behaviour of data is taken into account which means only those data points influence the modelling compared to the Linear SVM whose performance is similar to a Linear model. The idea behind generating non-linear decision boundaries is that we need to do some nonlinear transformations on the features $X_i$ which transforms them into a higher dimensional space.
+To add further complexities to the previous models, we trained Support Vector Machines (Gunn,1998) that expanded our feature space using different kernels. Radial kernel support vector machine is a good approach when the data is not linearly separable. We have a radial kernel to compare performance of models without the complexities relating to Linearity respectively. In the radial  kernel, only the neighboring behaviour of data is taken into account which means only those data points influence the modelling compared to the Linear SVM whose performance is similar to a Linear model. The idea behind generating non-linear decision boundaries is that we need to do some nonlinear transformations on the features $X_i$ which transforms them into a higher dimensional space.
 
 
 
 #### 4.8.3. Tree Models\
 \
-We used three tree-based models, XGBoost, Gradient Boosting and Light Gradient Boosting to improve the performance of our model. 
+We used three tree-based models, XGBoost (Chen, 2016), Gradient Boosting (Li, 2016) and Light Gradient Boosting (Guolin, 2017) to improve the performance of our model. 
 Boosting slowly learns unique patterns in the data by sequentially combining individual, shallow trees.
-LightGBM is a much more optimized version of the gradient boosting algorithm. It produces much more complex trees by following leaf wise split approach rather than a level-wise approach which is the main factor in achieving higher accuracy. LightGBM uses a novel technique of Gradient-based One-Side Sampling (GOSS) to filter out the data instances for finding a split value while XGBoost uses pre-sorted algorithm & Histogram-based algorithm for computing the best split. Here instances are observations/samples.
+LightGBM (Guolin, 2017) is a much more optimized version of the gradient boosting algorithm. It produces much more complex trees by following leaf wise split approach rather than a level-wise approach which is the main factor in achieving higher accuracy. LightGBM uses a novel technique of Gradient-based One-Side Sampling (GOSS) to filter out the data instances for finding a split value while XGBoost uses pre-sorted algorithm & Histogram-based algorithm for computing the best split. Here instances are observations/samples.
 From Table 5 and Table 6, we see that out of all tree-based models, XGBoost performs the best, with the lowest RMSE of $23.8852$ and better indicators (Interval Score, Average Length and Coverage of Prediction Intervals).
 
 \
@@ -326,7 +326,7 @@ From Table 5 and Table 6, we see that out of all tree-based models, XGBoost perf
 
 #### 4.8.4. Ensemble Models\
 \
-We trained an Ensemble model with interaction terms which combines all the models above to produce improved results. Combining these models will generally tend to produce more accurate predictions than a single model. We used stacking which looks at the weighted RMSE of all the individual models to give a better prediction because it is designed to ensemble a diverse group of strong learners.
+We trained an Ensemble model (Pajankar, 2022) with interaction terms which combines all the models above to produce improved results. Combining these models will generally tend to produce more accurate predictions than a single model. We used stacking which looks at the weighted RMSE of all the individual models to give a better prediction because it is designed to ensemble a diverse group of strong learners.
 
 
 \pagebreak
@@ -419,13 +419,12 @@ The main objective of the research paper is to be able to predict site EUI in or
 ## 9. Contributions
 
 - **Anjali** - EDA & Preprocessing, Feature Selection, Transformations, Hyperparameter Tuning, Model Validation and Results, Editing final document
-- **Idris** - EDA & Preprocessing, Literature REading, Tables and Plots, Report Section 2, 3, 6, 7 Editing final document, Citations
+- **Idris** - EDA & Preprocessing, Literature Reading, Tables and Plots, Report Section 2, 3, 6, 7, Editing final document, Citations
 - **Sameer** - EDA & Preprocessing, Literature Reading, Report Section 1, 2, 4, 5, Editing final document
 - **Sumit** - EDA & Preprocessing, Literature Reading, OLS model, Editing final document
 
 ## 10. References
-
-- Fabian Pedregosa,  Gael Varoquaux, Alexandre Gramfort, et al. (2011) Scikit-learn: Machine learning in python. Journal of Machine Learning Research Volume 12, (JMLR 12 2011):2825–2830
+-  Chen, T and Guestrin, C. (2016). XGBoost: A Scalable Tree Boosting System. In Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD '16). Association for Computing Machinery, New York, NY, USA, 785–794. DOI: https://doi.org/10.1145/2939672.2939785
 
 - Gunn, S. R. (1998). Support vector machines for classification and regression. ISIS technical report, 14(1), 5-16.
 
@@ -442,7 +441,7 @@ https://see.xidian.edu.cn/faculty/chzheng/bishe/indexfiles/new_folder/svm.pdf
 
 - Park, Junghoon, & Lim, Changwon. (2021). Predicting movie audience with stacked generalization by combining machine learning algorithms. Communications for Statistical Applications and Methods, 28(3), 217-232. https://doi.org/10.29220/CSAM.2021.28.3.217
 
-- Tianqi Chen and Carlos Guestrin. 2016. XGBoost: A Scalable Tree Boosting System. In Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD '16). Association for Computing Machinery, New York, NY, USA, 785–794. DOI: https://doi.org/10.1145/2939672.2939785
+- Pedregosa F., Varoquaux, G., Gramfort, A et al. (2011) Scikit-learn: Machine learning in python. Journal of Machine Learning Research Volume 12, (JMLR 12 2011):2825–2830
 
 - Ugarte, M. J. (2021, March 11). Nonconformist: An easy way to estimate prediction intervals. Medium. Retrieved April 8, 2022, from https://medium.com/spikelab/nonconformist-an-easy-way-to-estimate-prediction-intervals-b0ded1eb066f
 
