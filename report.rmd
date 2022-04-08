@@ -500,6 +500,8 @@ knitr::include_graphics('Main_Code/images/response_corr.png')
 
 ## 3.3.2 Plots Investigating Relationships with Site EUI
 ``` {r, echo=FALSE,out.width="100%",out.height="100%",fig.cap=" Plots Investigating Relationships with Site EUI",fig.show='hold',fig.align='center'}
+knitr::include_graphics('Main_Code/images/scatterplot_1.png')
+knitr::include_graphics('Main_Code/images/scatterplot_2.png')
 
 ```
 
