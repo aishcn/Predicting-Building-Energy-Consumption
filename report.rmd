@@ -419,8 +419,8 @@ The main objective of the research paper is to be able to predict site EUI in or
 ## 9. Contributions
 
 - **Anjali** - EDA & Preprocessing, Feature Selection, Transformations, Hyperparameter Tuning, Model Validation and Results, Editing final document
-- **Idris** - EDA & Preprocessing, Tables and Plots, Report Section 2, 3, 6, 7 Editing final document
-- **Sameer** - EDA & Preprocessing, Literature Reading, Report Section 1, 2, 4, 5, Citations, Editing final document
+- **Idris** - EDA & Preprocessing, Literature REading, Tables and Plots, Report Section 2, 3, 6, 7 Editing final document, Citations
+- **Sameer** - EDA & Preprocessing, Literature Reading, Report Section 1, 2, 4, 5, Editing final document
 - **Sumit** - EDA & Preprocessing, Literature Reading, OLS model, Editing final document
 
 ## 10. References
