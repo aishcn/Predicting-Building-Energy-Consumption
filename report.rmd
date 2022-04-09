@@ -342,7 +342,7 @@ We trained an Ensemble model (Pajankar, 2022) with interaction terms which combi
 ## 5. Model Results
 
 ### 5.1. Linear Regression results and Feature Interpretations
-We gather from the residential regression table that the most influential variables are floor area and average temperature. We infer that for a one unit increase in each, there is a -2.16% and-2.59% effect on Site EUI. For commercial buildings however there is an adverse effect, in that there is a  7.6% and 1.95% increase on site EUI with floor area and average temperature respectively. The third most influential variable for both regression was Energy star rating, which for residential buildings resulted in a -0.99% effect on site EUI for a one unit increase in ESR, compared to -1.38% in commercials. These findings are expected because for floor area large residential floor areas are likely to be halls or open space that don't require energy usage, and as for average temperature, a rise in average temperature would require less energy usage in homes because there is no need heating, but more in commercial facilities such as "warehouses_refrigerated" would need more energy to maintain cooler temperatures. And the negative relationship of ESR and Site EUI in context relates to more energy efficient buildings reducing energy waste and expenditure. 
+We gather from the residential and commercial regression summary in appendix 11.2.1 and 11.2.2 respectively that the most influential variables are floor area and average temperature. We infer that for a one unit increase in each, there is a -2.16% and-2.59% effect on Site EUI. For commercial buildings however there is an adverse effect, in that there is a  7.6% and 1.95% increase on site EUI with floor area and average temperature respectively. The third most influential variable for both regression was Energy star rating, which for residential buildings resulted in a -0.99% effect on site EUI for a one unit increase in ESR, compared to -1.38% in commercials. These findings are expected because for floor area large residential floor areas are likely to be halls or open space that don't require energy usage, and as for average temperature, a rise in average temperature would require less energy usage in homes because there is no need heating, but more in commercial facilities such as "warehouses_refrigerated" would need more energy to maintain cooler temperatures. And the negative relationship of ESR and Site EUI in context relates to more energy efficient buildings reducing energy waste and expenditure. 
 
 ### 5.2. In-Sample Model Metrics Comparison 
 Based on the boxplot for R-squared values attained from the models we have mentioned, we see that the LGBM model has the highest, followed by XGboost and Ensemble, but the most noteworthy takeaway is that we see ElasticNet by far performs the worst possibly due to the linear nature of the method. As for the RMSE, we see that LGBM yet again performs the best with the lowest values, and once again followed by XGBoost. Unsurprisingly, ElasticNet performs the worst out of the models. 
@@ -359,7 +359,7 @@ knitr::include_graphics('Main_Code/images/rsq_boxplot.png')
 ### 5.3. Prediction Interval Comparison 
 
 \begin{center}
-\textbf{Table 3}: "50 $\%$ Prediction Intervals"
+\textbf{Table 5}: "50 $\%$ Prediction Intervals"
 \end{center}
 
 
@@ -374,7 +374,7 @@ knitr::include_graphics('Main_Code/images/rsq_boxplot.png')
 
 
 \begin{center}
-\textbf{Table 4}: "80 $\%$ Prediction Intervals"
+\textbf{Table 6}: "80 $\%$ Prediction Intervals"
 \end{center}
 
 | Model | Level | Avg Length | Interval Score | Coverage |
