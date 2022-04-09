@@ -25,7 +25,7 @@ In this analysis, we sought to develop a model that predicts a site's energy con
 
 ## 2. Introduction
 
-Climate change is an urgent, and multi-faceted issue heavily impacted by infrastructure. Addressing climate change involves mitigation of Greenhouse Gas (GHG) emissions via changes to electricity systems, transportation, buildings, industry, and land use. According to a report issued by the International Energy Agency, the life cycle of buildings from construction to demolition were responsible for 37% of global energy-related $CO_2$ emissions in 2020. Yet it is possible to drastically reduce the energy consumption of buildings. For example, retrofitted buildings can reduce heating and cooling energy requirements by 50-90%. Therefore, it is important to optimize energy retrofitting by accurately predicting Site EUI of these buildings. The study aims to investigate and understand the effect of climate variables and building characteristics on the building’s EUI (Energy Usage Intensity).					
+Climate change is an urgent, and multi-faceted issue heavily impacted by infrastructure. Addressing climate change involves mitigation of Greenhouse Gas (GHG) emissions via changes to electricity systems, transportation, buildings, industry, and land use. According to a report issued by the International Energy Agency, the life cycle of buildings from construction to demolition were responsible for 37% of global energy-related $CO_2$ emissions in 2020 (Abergel, 2021). Yet it is possible to drastically reduce the energy consumption of buildings. For example, retrofitted buildings can reduce heating and cooling energy requirements by 50-90%. Therefore, it is important to optimize energy retrofitting by accurately predicting Site EUI of these buildings. The study aims to investigate and understand the effect of climate variables and building characteristics on the building’s EUI (Energy Usage Intensity).					
 
 The analysis aims to address the following questions:	
 
@@ -424,6 +424,8 @@ The main objective of the research paper is to be able to predict site EUI in or
 - **Sumit** - EDA & Preprocessing, Literature Reading, OLS model, Editing final document
 
 ## 10. References
+- Abergel T., Chiara D. (November 01 2021) .Tracking Buildings 2021 - Analysis. International Energy Agency. Acquired from: https://www.iea.org/reports/tracking-buildings-2021
+
 -  Chen, T and Guestrin, C. (2016). XGBoost: A Scalable Tree Boosting System. In Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining (KDD '16). Association for Computing Machinery, New York, NY, USA, 785–794. DOI: https://doi.org/10.1145/2939672.2939785
 
 - Gunn, S. R. (1998). Support vector machines for classification and regression. ISIS technical report, 14(1), 5-16. Acquired from: https://see.xidian.edu.cn/faculty/chzheng/bishe/indexfiles/new_folder/svm.pdf
