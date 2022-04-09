@@ -5,4 +5,7 @@ The code presented in LinearModel.R requires functions.R for its dependencies.
 
 Requires data/2_df_transform.csv from python data cleaning and wrangling.
 
-Note: All the Machine Learning models are saved (.sav folder) in the models folder to save the training time. Please load the model directly from the models folder
+Note: All the Machine Learning models are saved (.sav format) in the models folder to save the training time. Please load the model directly from the models folder.
+
+Run the notebooks in increasing number. Example: 1. EDA _and_Preprocessing.ipynb first then 
+2. Feature_Selection_and_Transformations.ipynb and so on
