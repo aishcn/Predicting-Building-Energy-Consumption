@@ -341,7 +341,7 @@ We trained an Ensemble model (Pajankar, 2022) with interaction terms which combi
 
 ## 5. Model Results
 
-### 5.1. OLS results and Feature Interpretations
+### 5.1. Linear Regression results and Feature Interpretations
 We gather from the residential regression table that the most influential variables are floor area and average temperature. We infer that for a one unit increase in each, there is a -2.16% and-2.59% effect on Site EUI. For commercial buildings however there is an adverse effect, in that there is a  7.6% and 1.95% increase on site EUI with floor area and average temperature respectively. The third most influential variable for both regression was Energy star rating, which for residential buildings resulted in a -0.99% effect on site EUI for a one unit increase in ESR, compared to -1.38% in commercials. These findings are expected because for floor area large residential floor areas are likely to be halls or open space that don't require energy usage, and as for average temperature, a rise in average temperature would require less energy usage in homes because there is no need heating, but more in commercial facilities such as "warehouses_refrigerated" would need more energy to maintain cooler temperatures. And the negative relationship of ESR and Site EUI in context relates to more energy efficient buildings reducing energy waste and expenditure. 
 
 ### 5.2. In-Sample Model Metrics Comparison 
@@ -421,7 +421,7 @@ Following the model iterations and improvements, we were able to achieve good re
 
 To answer the first of our two questions, "Do the effects of building characteristics outweigh the effects of climate variables on Site EUI and vice-versa?", we engineered features based on both building characteristics and climate variables. Based on indicators that determine the influence of covariate on the site EUI (Spearman correlation, individual plots of covariates with the response, and pairwise correlation), it became evident that building characteristics far outweigh the effects of climate variables on site EUI.
 
-Next, to address the other question, "Is there a need to build separate models for different facility types or building classes?", for the OLS model, we split the data based on building class (residential and commercial). The results obtained suggest that separating by facility types or building classes does not make a huge difference. According to analysis on OLS, residential facility types have positive correlation with site EUI, which is not the same for commercial data (some commercial buildings are positively related to site EUI, such as laboratories, while others are negatively related, such as worship places).
+Next, to address the other question, "Is there a need to build separate models for different facility types or building classes?", for the linear regression model, we split the data based on building class (residential and commercial). The results obtained suggest that separating by facility types or building classes does not make a huge difference. According to analysis on lienar regression model, residential facility types have positive correlation with site EUI, which is not the same for commercial data (some commercial buildings are positively related to site EUI, such as laboratories, while others are negatively related, such as worship places).
 
 Overall, the analysis was able to find the important variables that have the biggest affect on site EUI. The report provided insightful visualizations that accompanied the complex models, and most importantly, the report provided appropriate Machine Learning models that predicted site EUI fairly well.
 
@@ -431,7 +431,7 @@ Overall, the analysis was able to find the important variables that have the big
 - **Anjali** - EDA & Preprocessing, Feature Selection, Transformations, Hyperparameter Tuning, Model Validation and Results, Editing final document
 - **Idris** - EDA & Preprocessing, Literature Reading, Tables and Plots, Report Section 2, 3, 6, 7, Editing final document, Citations
 - **Sameer** - EDA & Preprocessing, Literature Reading, Report Section 1, 2, 4, 5, Editing final document
-- **Sumit** - EDA & Preprocessing, Literature Reading, OLS model, Editing final document
+- **Sumit** - EDA & Preprocessing, Literature Reading, Linear Regression model, Editing final document
 
 
 \pagebreak
