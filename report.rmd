@@ -2,7 +2,7 @@
 title: "STAT 447B Group Report"
 author:
   - By Anjali Chauhan, Sumit Meghlani, Idris Hedayat, Sameer Shankar
-date: "March 31, 2022"
+date: "April 8, 2022"
 output:
   pdf_document: 
     latex_engine: xelatex
@@ -133,7 +133,7 @@ knitr::include_graphics('Main_Code/images/triangular_mat.png')
 
 ## 4. Methods
 
-### Pipeline
+### 4.0 Pipeline
 
 Below in Fig. 6, we have a Proof-of-Concept pipeline that addresses all of our research questions. A breakdown of each of the steps shown in the end-to-end workflow diagram is covered below. 
 
@@ -146,9 +146,9 @@ knitr::include_graphics('Main_Code/images/Pipeline.png')
 \end{center}
 
 
-### 4.0. Data Pre-Processing
+### 4.1 Data Pre-Processing
 
-#### 4.0.1. Dealing with Imbalanced Categories
+#### 4.1.1. Dealing with Imbalanced Categories
 
 To deal with imbalanced categories in `facility_type`, we generated plots to study the relative frequency distribution. We saw the disparity in frequency of different facility types, where 'Multifamily (un-categorized)' facilities vastly outnumbered all other facility types so we kept the top 6 categories and binned the rest into a new value called 'Others'.
 
@@ -159,7 +159,7 @@ As observed in the EDA we saw imbalanced State Factors, particularly with state 
 knitr::include_graphics('Main_Code/images/cat_dist.png')
 ```
 
-#### 4.0.2. Dealing with Missing Values
+#### 4.1.2. Dealing with Missing Values
 
 As part of the data pre-processing pipeline, we start by dropping duplicate rows, and columns with a high % of missing values (over 50%). With the remaining missing values, we used the KNN imputation method. The idea in kNN methods is to identify 'k' samples in the dataset that are similar or close in the space. Then we use these 'k' samples to estimate the value of the missing data points. Each sample's missing values are imputed using the mean value of the k-neighbors found in the dataset.Furthermore, we dropped highly correlated features using pairwise correlation analysis as observed in the EDA. The white lines in the figure below represent missing values.
 
@@ -169,7 +169,7 @@ knitr::include_graphics('Main_Code/images/fill_msno.png')
 knitr::include_graphics('Main_Code/images/nofill_msno.png')
 ```
 
-#### 4.0.3. Dealing with Extreme Values
+#### 4.1.3. Dealing with Extreme Values
 
 ``` {r, echo=FALSE ,out.width="25%", out.height="25%",fig.cap="After Extreme Value Removal with IQR Method",fig.show='hold',fig.align='center'}
 knitr::include_graphics('Main_Code/images/site_eui_outliers_before.png')
@@ -179,16 +179,16 @@ knitr::include_graphics('Main_Code/images/site_eui_outliers_after.png')
 We removed 3845 rows with extreme Site EUI values using the Inter Quartile Range (IQR) method. For the purpose of this project we assume the population with EUI values between 0 and 165. For future research, we plan on checking some variables to understand if the extreme cases should be considered as a different "population" or not.
 
 
-#### 4.0.4. Encoding Categorical Variables
+#### 4.1.4. Encoding Categorical Variables
 
 We encoded categorical features using ordinal encoding, where each unique category was assigned an integer value, resulting in a column of integers; 0 to `n_categories-1` (per features). We selected ordinal encoding over one-hot encoding because it creates multiple columns for each unique category and some of our categorical variables have high cardinality and will therefore increasing the dimensionality of an already high dimensional dataset. For future research we plan on exploring other encoding methods as well because ordinal encoding might impose an ordinal relationship where no such relationship may exist. 
 
 
-### 4.1 Feature Selection
+### 4.2 Feature Selection
 
 One of the most important step in our pipeline was Feature Selection as it is one of the main objectives. We have used several different methods in order to achieve this objective:
 
-#### 4.1.1. Variable Importance using Random Forest & Correlation Analysis
+#### 4.2.1. Variable Importance using Random Forest & Correlation Analysis
 
 This method is built on a random forest classifier. It ranks features based on their importance measure i.e. Mean Decrease Accuracy (MDA) where higher means more important. MDA measures how much accuracy the model losses by excluding each variable. The more the accuracy degrades, the more important the variable is. 
 
@@ -202,7 +202,7 @@ knitr::include_graphics('Main_Code/images/triangular_mat.png')
 \pagebreak
 
 
-#### 4.1.2. Feature Engineering: Interactions and Additional features
+#### 4.2.2. Feature Engineering: Interactions and Additional features
 
 Based on the variable importance and pairwise correlations we decided on adding interaction terms. We decided on including interactions of:
 
@@ -227,7 +227,7 @@ We also implemented new features containing other features that were otherwise c
 
 In adding these features we dropped the original features contained within these, in turn this would help leave us with more parsimonious models to interpret.
 
-#### 4.2 Feature Transformations
+#### 4.3 Feature Transformations
 
 Table 4 shows all the transformations performed in order to achieve the desired results in reducing impacts of skewness of features.
 
@@ -252,7 +252,7 @@ Table 4 shows all the transformations performed in order to achieve the desired 
 | `hot_days` | Total days above 100 110 F | Dropped | contains mostly 0 |
 
 
-### 4.3 Further Correlation Analysis
+### 4.4 Further Correlation Analysis
 
 After the feature engineering and transformations, we investigated the correlations further to deal collinearity caused by the interaction terms. We see from the triangular correlation heat map below that there were still some highly correlated features. We dropped the following features:`floorxBuilt`, `floorxBuiltxEnergy`, `floorxHeatCool`, `floorxEnergy`, and `ELEVATION`.
 
@@ -261,7 +261,7 @@ After the feature engineering and transformations, we investigated the correlati
 knitr::include_graphics('Main_Code/images/second_tri_mat.png')
 ```
 
-### 4.4 Further Refinements in Feature Selection using `boruta` package
+### 4.5 Further Refinements in Feature Selection using `boruta` package
 
 We performed with further feature selection using the 'Boruta' package (Kursa, 2010) after feature engineering. The method uses a "relevant feature selection wrapper algorithm" to find the most "relevant" features using random forest, ranking on importance based on mean absolute deviation (MAD), allowing us to find and select the most important variables namely, `building_class`, `facility_type`, `floor_area`, `year_built`, `energy_star_rating`, `cold_days`, `warm_days`, `FallTemp`, `snow_rain_inches`, and `freezing_days`.
 
@@ -270,7 +270,7 @@ knitr::include_graphics('Main_Code/images/boruta.png')
 ```
 
 
-### 4.5 Principal Component Analysis
+### 4.6 Principal Component Analysis
 
 Principal Component Analysis (PCA) is a very useful method to deal with multi-collinearity based on Singular Value Decomposition (SVD), which reduces the dimensionality of the dataset as well (Kovan, 2021).Before conducting PCA we performed MinMax scaling because since PCA is solved via SVD, and SVD approximates in the sum of squares, so if one variable is on a different scale than another it will dominate the PCA. PCs describe variation and account for the varied influences of the original features.
 
@@ -286,7 +286,7 @@ knitr::include_graphics('Main_Code/images/pca_4d.png')
 
 The figure on the right shows a 4D plot. This is not entirely representative of the Principal component space since we have 6 principal components. The plot shows clusters of samples based on their similarity. PCA does not discard any samples or characteristics (variables). Instead, it reduces the overwhelming number of dimensions by constructing PCs.
 
-```{r, echo=FALSE ,out.width="40%", out.height="40%",fig.cap="Principal Component Analysis",fig.show='hold'}
+```{r, echo=FALSE ,out.width="40%", out.height="40%",fig.cap="Principal Component Analysis",fig.show='hold', fig.align='center'}
 knitr::include_graphics('Main_Code/images/var_explained.png')
 knitr::include_graphics('Main_Code/images/pca_indi.png')
 
@@ -294,7 +294,7 @@ knitr::include_graphics('Main_Code/images/pca_indi.png')
 
 The first plot here shows that majority of the variance explained in our data is being captured by the principal component 1. And to each how each feature is playing a role in that, wee look at the plot on the right. The importance of each feature here is reflected by the magnitude of the corresponding values in the eigenvectors. The larger these absolute values are, the more a specific feature contributes to that principal component. 
 
-### 4.6 Hyperparameter Tuning
+### 4.7 Hyperparameter Tuning
 
 For hyperparameter tuning, the reduced and transformed datasets were used. We used Random Search method with 10-fold repeated (3 times) cross validation where we defined a search space or parameter space as a bounded domain of hyperparameter values and the random search randomly sample points in that domain to give an optimized value that performs the best out of all combinations. For example for ElasticNet, we are tuning it based on 24000 combinations of parameters. We have the definition provided here for all the hyperparameters we used, if you need more information on this, you can check the sklearn documentation on each of these models or each out to me and i can direct you to the right resources.
 
@@ -302,21 +302,26 @@ For hyperparameter tuning, the reduced and transformed datasets were used. We us
 knitr::include_graphics('Main_Code/images/hyp.png')
 
 ```
-## 4.7. Statistical Models
 
-### 4.7.1. Fixed Effects Model - Residential
 
-As we can observe all site EUIS are positive, the Year fixed effects suggests over the years the site eui has increased for residential units. Most likely due to increased use of home electronic appliances. The Climate Factor, which includes states binned as Hot,Mild and Cold climate temperatures, suggest that residential units in hot and cold states tend to have higher energy use intensities. This is intuitive as people tend to use AC's and heaters to bring the temperature back to room temperature for their comfort levels. *For plots please refer to Appendix 11.2.1*.
 
-### 4.7.2. Fixed Effects Model - Commercial
-
-The commercial regression, suggests that facility types have a greater effect on site EUI.Some key things we observed is that facility types such as industrial plants or data centers tend to have a greater site eui than the baseline commercial property whereas the religious worship areas and self-storage warehouses tend to have a lower site eui.The year fixed effects suggests that over the years the site EUI has decreased. This means that more efficient machinery/appliances have been installed in commercial properties over time.
-
-The state factor indicates that the cold states tend to have a greater site eui than other temperaments, this is likely due to larger amount of observations in cold states and given the dataset is originated from US. It is a known fact most industrial plants are located in the cold states hence as observed by the analysis on facility types. The industrial plants located in cold states tend to have a greater energy use but this is being decreased over time. *For plots please refer to Appendix 11.2.2*.
-
-## 4.8. ML Model Training and Validation
+## 4.8. Model Training and Validation
 
 A good variety of models were implemented as a part of our analysis for extensive results. A set of models were trained to capture the effect of interaction terms on the predictive performance of the model. These models were cross-validated (10-fold CV, Repeated 3 times) and their hyperparameters were fine tuned using Random Search. Please refer to Table 5 and Table 6 for results that denote the predictive performance of the models. 
+
+
+### 4.8.0. Linear Regression Model (Baseline Model)
+
+We decided to begin with a baseline linear regression model for simpler interpretation and later model comparison.
+The  model is of the form:  
+$$y_{J} = \alpha_{J} + \sum_{i=1}^{14}\beta_{i,J} X_{i,J}+\beta_2 avgtemp_{J}+ \epsilon_{t,J}$$
+
+Where X is the vector containing the 14 features along the auxiliary regression term (Sailor, 2001) for average temperature is in the form: 
+$$avgtemp_{J} = \alpha_{J} + \beta_1 freezingdays{J} + \beta_2 (warmdays{J}*colddays_{t,J} +\beta_4 snowraininches_{J}+ \epsilon_{J}$$
+We can interpret the most impactful covariates in terms of magnitude, obtained from the regression model summary.
+We found that a one unit increase in floor area correlates to a $6.388^{1/6} kBtu ft^{-2}$ predicted increase in Site EUI, with all other variables held constant. Furthermore, a one unit increase in Year Factor 5 correlates to 9.826 $kBtu ft^{-2}$ predicted decrease in Site EUI, relative to  Year Factor 1 (baseline for Year Factor categorical variable) with all other variables held constant. Another significant covariate in the model was Average Temperature, a variable based on an auxiliary regression as aforementioned. We found that a one unit in the average temperature correlates to a 2.499 $kBtu ft^{-2}$ predicted decrease in Site EUI, with all other variables held constant.
+
+
 
 #### 4.8.1. ElasticNet\
 \
@@ -341,10 +346,25 @@ We trained an Ensemble model (Pajankar, 2022) with interaction terms which combi
 
 ## 5. Model Results
 
-### 5.1. Linear Regression results and Feature Interpretations
-We gather from the residential and commercial regression summary in appendix 11.2.1 and 11.2.2 respectively that the most influential variables are floor area and average temperature. We infer that for a one unit increase in each, there is a -2.16% and-2.59% effect on Site EUI. For commercial buildings however there is an adverse effect, in that there is a  7.6% and 1.95% increase on site EUI with floor area and average temperature respectively. The third most influential variable for both regression was Energy star rating, which for residential buildings resulted in a -0.99% effect on site EUI for a one unit increase in ESR, compared to -1.38% in commercials. These findings are expected because for floor area large residential floor areas are likely to be halls or open space that don't require energy usage, and as for average temperature, a rise in average temperature would require less energy usage in homes because there is no need heating, but more in commercial facilities such as "warehouses_refrigerated" would need more energy to maintain cooler temperatures. And the negative relationship of ESR and Site EUI in context relates to more energy efficient buildings reducing energy waste and expenditure. 
+### 5.0 Interpretation for Important Variables (ML Models)
 
-### 5.2. In-Sample Model Metrics Comparison 
+\begin{center}
+\textbf{Table 5}: Interpretation of Important Features in ML Methods 
+\end{center}
+
+| *Important Features* | *Correlation Strength against Site EUI* | *Correlation Direction against Site EUI* |
+|:---:|:---:|:---:|
+| building_class | Weak (0.15) | Positive |
+| facility_type | Weak (-0.12) | Negative |
+| floor_area | Weak (0.1) | Positive |
+| year_built | Very Weak (0.024) | Negative |
+| energy_star_rating | Moderately Strong (-0.65) | Negative |
+| FallTemp | Very Weak (0.081) | Positive |
+| freezing_days | Weak (0.18) | Positive |
+| warm_days | Weak (0.1) | Positive |
+| snow_rain_inches | Moderately Weak (0.28) | Positive |
+
+### 5.1. In-Sample Model Metrics Comparison 
 Based on the boxplot for R-squared values attained from the models we have mentioned, we see that the LGBM model has the highest, followed by XGboost and Ensemble, but the most noteworthy takeaway is that we see ElasticNet by far performs the worst possibly due to the linear nature of the method. As for the RMSE, we see that LGBM yet again performs the best with the lowest values, and once again followed by XGBoost. Unsurprisingly, ElasticNet performs the worst out of the models. 
 
 Another metric we considered was how long it took for the models to run and produce output from the training data; "fit time". We see that the Stack ensemble takes generally 800 to 1000 minutes, while a slightly better performing model LGBM only takes a fraction of the time, and so based on practicality of the method in obtaining results, LGBM would be more preferable of all methods based on its relatively strong performance and faster run time.
@@ -356,40 +376,50 @@ knitr::include_graphics('Main_Code/images/rsq_boxplot.png')
 ```
 
 
-### 5.3. Prediction Interval Comparison 
+### 5.2. Prediction Interval Comparison 
+
+
+For the linear regression model we split the data into two subgroups based on building classes (43% commercial, 57% residential), and so we computed the prediction interval score, average length, and coverage rate for the two subgroups and then calculated the weighted sums (as shown in the code).
+We noted in the output that model performed better in the residential split based on the interval score average length and coverage rate, relative to the commercial data.  
+To generate prediction intervals for the other methods, we used the nonconformist python package which provides us a conformal prediction framework. We start by defining a nonconformity measure of our models using nonconformist's NcFactory module then we initialize a ICP (Invariant Causal Prediction) regressor and fit it to the sub training set which was obtained by further splitting our training set by 80%:20% ratio to sub training set and a calibration set. We fit the ICP Regressor on the sub training set and then calibrate the conformal predictor on the calibration set based on underlying nonconformity scorer. Then we just predict on the test set by specifying the significance. For example, a significance of 0.2 would give us the upper and lower bounds of 80% prediction intervals.
 
 \begin{center}
-\textbf{Table 5}: "50 $\%$ Prediction Intervals"
+\textbf{Table 6}: "50 $\%$ Prediction Intervals"
 \end{center}
 
 
 | Model | Level | Avg Length | Interval Score | Coverage |
 |-------|-------|------------|----------------|----------|
-| LGBM  | 0.5   | 17.292     | 44.033       | 0.493    |
+| LR    | 0.5   | 33.982     | 62.839         | 0.579    |
+| LGBM  | 0.5   | 17.292     | 44.033         | 0.493    |
 | SVR   | 0.5   | 18.524     | 46.231         | 0.495    |
 | GBR   | 0.5   | 18.859     | 45.450         | 0.489    |
-| Elnet | 0.5   | 26.719     | 56.047        | 0.499    |
+| Elnet | 0.5   | 26.719     | 56.047         | 0.499    |
 | XGB   | 0.5   | 17.461     | 44.206         | 0.491    |
-| Ensemble | 0.5   | 18.197     | 44.446         | 0.497    |
+| Stack | 0.5   | 18.197     | 44.446         | 0.497    |
 
 
 \begin{center}
-\textbf{Table 6}: "80 $\%$ Prediction Intervals"
+\textbf{Table 7}: "80 $\%$ Prediction Intervals"
 \end{center}
 
 | Model | Level | Avg Length | Interval Score | Coverage |
 |-------|-------|------------|----------------|----------|
+| LR    | 0.8   | 64.027     | 92.396         | 0.820    |
 | LGBM  | 0.8   | 40.015     | 68.963         | 0.790    |
 | SVR   | 0.8   | 42.463     | 72.444         | 0.799    |
-| GBR   | 0.8   | 41.873     | 70.157        | 0.800    |
+| GBR   | 0.8   | 41.873     | 70.157         | 0.800    |
 | Elnet | 0.8   | 55.012     | 82.333         | 0.806    |
 | XGB   | 0.8   | 39.901     | 69.034         | 0.788    |
 | Stack | 0.8   | 40.691     | 69.124         | 0.794    |
 
 Based on the 50% Prediction Intervals provided, we believe that the best model relative to others is LGBM, as it has the lowest Interval Score and Average Length, while having a coverage of just over ~0.5 and ~0.8 for 50% and 80% prediction intervals respectively.
-However, it is difficult to pick a best model as the performance of most of the models is almost comparable and hence it is inconclusive to pick one best model. But we can say that the worst performing model is the Elastic Net due to the highest Interval score and the Avergae Length.
+However, it is difficult to pick a best model as the performance of most of the models is almost comparable and hence it is inconclusive to pick one best model. We notice the worst performing model is the Linear Regression model followed by the ElasticNet due to the highest Interval score and the Average Length.
 
-If we were to look at RMSE and fit time in addition to prediction intervals, we can say LGBM is relatively the better performing model. Thus based on the in-sample metrics we examined and the prediction intervals, we would prefer LGBM out of all the methods. Although this is subjective to an extent, it is safe to say ElasticNet, which is a linear method, performed the worst, indicating the usefulness of tree-based methods for this data.
+If we were to look at RMSE and fit time in addition to prediction intervals, we can say LGBM is relatively the better performing model. Thus based on the in-sample metrics we examined and the prediction intervals, we would prefer LGBM out of all the methods. Although this is subjective to an extent, it is safe to say ElasticNet and linear regression, which are linear methods, performed the worst, indicating the usefulness of tree-based methods for this data.
+
+The tree based, ElasticNet, and stack ensemble methods provide better prediction intervals however there is a tradeoff as the linear regression model is more intepretable.
+
 
 ## 6. Limitations
 
@@ -460,6 +490,8 @@ https://see.xidian.edu.cn/faculty/chzheng/bishe/indexfiles/new_folder/svm.pdf
 - Pedregosa F., Varoquaux, G., Gramfort, A et al. (2011) Scikit-learn: Machine learning in python. Journal of Machine Learning Research Volume 12, (JMLR 12 2011):2825–2830. Acquired from:
 https://www.jmlr.org/papers/volume12/pedregosa11a/pedregosa11a.pdf?ref=https://githubhelp.com
 
+- Sailor, D. J. (2001). Relating residential and commercial sector electricity loads to climate—evaluating state level sensitivities and vulnerabilities. Energy, 26(7), 645-657. Acquired from: https://www.sciencedirect.com/science/article/pii/S0360544201000238
+
 - Ugarte, M. J. (2021, March 11). Nonconformist: An easy way to estimate prediction intervals. Medium. Retrieved April 8, 2022, from https://medium.com/spikelab/nonconformist-an-easy-way-to-estimate-prediction-intervals-b0ded1eb066f
 
 - WiDS (Women in Data Science)  Datathon 2022. WiDS Datathon Committee., Stanford University, Harvard University IACS . (February 26 2022) . Retrieved January 2022. From [https://www.kaggle.com/competitions/widsdatathon2022/data].
@@ -470,42 +502,89 @@ https://www.jmlr.org/papers/volume12/pedregosa11a/pedregosa11a.pdf?ref=https://g
 ## 11. Appendix
 
 
-### 11.0. Python libraries and packages used:
+### 11.0. Libraries and packages used:
+
+Python:
+
 - os
+
 - numpy as np 
+
 - pandas as pd 
+
 - matplotlib.pyplot as plt
+
 - seaborn as sns
+
 - sklearn import preprocessing
+
 - sklearn.ensemble import RandomForestRegressor
+
 - lightgbm import LGBMRegressor
+
 - sklearn.ensemble import StackingRegressor
+
 - sklearn.linear_model import LinearRegression
+
 - xgboost import XGBRegressor
+
 - sklearn.pipeline import Pipeline
+
 - sklearn.model_selection import KFold
+
 - sklearn.svm import SVR
+
 - sklearn.model_selection import cross_val_score
+
 - sklearn.ensemble import GradientBoostingRegressor
+
 - sklearn import model_selection
+
 - sklearn.metrics import mean_squared_error
+
 - re
+
 - sklearn.linear_model import ElasticNet
+
 - pickle
+
 - sklearn.preprocessing import MinMaxScaler
+
 - warnings
+
 - sklearn.preprocessing import OrdinalEncoder
+
 - sklearn.impute import KNNImputer
+
 - missingno as msno
+
 - matplotlib.ticker import StrMethodFormatter
+
 - boruta import BorutaPy
+
 - sklearn.decomposition import PCA
+
 - pickle
+
 - mpl_toolkits.mplot3d import Axes3D
+
 - bioinfokit.visuz import cluster
+
 - sklearn.model_selection import RandomizedSearchCV, GridSearchCV
+
 - nonconformist.cp import IcpRegressor 
+
 - nonconformist.nc import NcFactory
+
+R:
+
+- dplyr
+
+- caret
+
+- png
+
+- gridExtra
 
 \pagebreak
  
@@ -519,33 +598,7 @@ knitr::include_graphics('Main_Code/images/response_corr.png')
 
 \newpage
 
-### 11.2.1 Residential Buildings Fixed Effects Model
-
-``` {r, echo=FALSE,fig.cap="Residential Fixed Effect Model Summary",out.height="30%",out.width="60%",fig.show='hold',fig.align='center'}
-
-knitr::include_graphics('Main_Code/images/res_ols.png')
-
-knitr::include_graphics('Main_Code/images/effect_res.png')
-knitr::include_graphics('Main_Code/images/factor_res.png')
-
-```
-
-\newpage
-
-### 11.2.2 Commercial Buildings Fixed Effects Model
-
-``` {r, echo=FALSE,fig.cap="Commerical Fixed Effect Model Summary",out.height="30%",out.width="60%",fig.show='hold',fig.align='center'}
-
-knitr::include_graphics('Main_Code/images/comm_ols.png')
-knitr::include_graphics('Main_Code/images/effect_comm.png')
-knitr::include_graphics('Main_Code/images/factor_comm.png')
-
-```
-
-
-\newpage
-
-### 11.3.1. Feature Transformations: Site EUI (no transform needed)
+### 11.2.1. Feature Transformations: Site EUI (no transform needed)
 
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap=" Site EUI (no transform needed)",fig.show='hold',fig.align='center'}
 knitr::include_graphics('Main_Code/images/site_eui_dist.png')
@@ -554,7 +607,7 @@ knitr::include_graphics('Main_Code/images/site_eui_dist.png')
 
 \newpage
 
-### 11.3.2. Feature Transformations:  Floor Area Before and After
+### 11.2.2. Feature Transformations:  Floor Area Before and After
 ```{r, echo=FALSE ,out.width="70%", out.height="65%",fig.cap="Floor Area Before and After Transform",fig.show='hold',fig.align='center'}
 knitr::include_graphics('Main_Code/images/floor_area_before_scaling.png')
 knitr::include_graphics('Main_Code/images/floor_area_after.png')
@@ -563,7 +616,7 @@ knitr::include_graphics('Main_Code/images/floor_area_after.png')
 
 \newpage
 
-### 11.3.3. Feature Transformations:  Year Built Before and After
+### 11.2.3. Feature Transformations:  Year Built Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Year Built Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/year_built_before.png')
@@ -573,7 +626,7 @@ knitr::include_graphics('Main_Code/images/year_built_after.png')
 
 \newpage
 
-### 11.3.4. Feature Transformations:  Energy Star Rating Before and After
+### 11.2.4. Feature Transformations:  Energy Star Rating Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Energy Star Rating Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/esrating_before.png')
@@ -583,7 +636,7 @@ knitr::include_graphics('Main_Code/images/esrating_after.png')
 \newpage
 
 
-### 11.3.5. Feature Transformations:  Elevation Before and After
+### 11.2.5. Feature Transformations:  Elevation Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Elevation transform Before and After",fig.show='hold',fig.align='center'}
 
 
@@ -592,7 +645,7 @@ knitr::include_graphics('Main_Code/images/elevation_after.png')
 ```
 \newpage
 
-### 11.3.6. FeatureTransformations:  FloorareaxElevation Before and After
+### 11.2.6. FeatureTransformations:  FloorareaxElevation Before and After
 ```{r, echo=FALSE ,out.width="70%", out.height="70%",fig.cap="FloorareaxElevation Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/floorareaxELEVATION_before.png')
@@ -601,7 +654,7 @@ knitr::include_graphics('Main_Code/images/floorareaxELEVATION_after.png')
 ```
 \newpage
 
-### 11.3.7. Feature Transformations:  FloorxBuilt Before and After
+### 11.2.7. Feature Transformations:  FloorxBuilt Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="FloorxBuilt Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/floorxbuilt_before.png')
@@ -610,7 +663,7 @@ knitr::include_graphics('Main_Code/images/floorxbuilt_after.png')
 \newpage
 
 
-### 11.3.8. Feature Transformations:  FloorAreaxEnergy Before and After
+### 11.2.8. Feature Transformations:  FloorAreaxEnergy Before and After
 ```{r, echo=FALSE ,out.width="70%", out.height="70%",fig.cap="FloorAreaxEnergy Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/floorxenergy_before.png')
@@ -622,7 +675,7 @@ knitr::include_graphics('Main_Code/images/floorxenergy_after.png')
 
 
 
-### 11.3.9. Feature Transformations:  FloorxBuiltXEnergy Before and After
+### 11.2.9. Feature Transformations:  FloorxBuiltXEnergy Before and After
 
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Transforming Interaction of Floor area Year built and Energy star rating, Before and After",fig.show='hold',fig.align='center'}
 
@@ -633,7 +686,7 @@ knitr::include_graphics('Main_Code/images/floorxBuiltxEnergy_after.png')
 \newpage
 
 
-### 11.3.10. Feature Transformations:  FloorxHeatCool Before and After
+### 11.2.10. Feature Transformations:  FloorxHeatCool Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="VFloorxHeatCool Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/floorxHeatCool_before.png')
@@ -643,7 +696,7 @@ knitr::include_graphics('Main_Code/images/floorxHeatCool_after.png')
 \newpage
 
 
-### 11.3.11. Feature Transformations:  Freezing days Before (no transform needed)
+### 11.2.11. Feature Transformations:  Freezing days Before (no transform needed)
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Freezingdays Before (no transform needed)t",fig.show='hold',fig.align='center'}
 knitr::include_graphics('Main_Code/images/freezing_days_before.png')
 
@@ -651,7 +704,7 @@ knitr::include_graphics('Main_Code/images/freezing_days_before.png')
 
 \newpage
 
-### 11.3.12. Feature Transformations:  Cold days Before and After
+### 11.2.12. Feature Transformations:  Cold days Before and After
 ```{r, echo=FALSE ,out.width="70%", out.height="70%",fig.cap="Colddays Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/cold_days_before.png')
@@ -662,7 +715,7 @@ knitr::include_graphics('Main_Code/images/cold_days_after.png')
 \newpage
 
 
-### 11.3.13. Feature Transformations:  Warm days Before and After
+### 11.2.13. Feature Transformations:  Warm days Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Warmdays Before and After Transform",fig.show='hold',fig.align='center'}
 
 
@@ -672,7 +725,7 @@ knitr::include_graphics('Main_Code/images/warm_days_after.png')
 
 \newpage
 
-### 11.3.14. Feature Transformations: Hot days Before (no transform needed)
+### 11.2.14. Feature Transformations: Hot days Before (no transform needed)
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Hotdays Before (no transform needed)",fig.show='hold',fig.align='center'}
 knitr::include_graphics('Main_Code/images/hot_days_dist.png')
 
