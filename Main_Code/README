@@ -3,6 +3,6 @@ Fri Apr  8 22:11:59 PDT 2022
 
 The code presented in LinearModel.R requires functions.R for its dependencies.
 
-Requires data_transform3 from python data cleaning and wrangling.
+Requires data/2_df_transform.csv from python data cleaning and wrangling.
 
 Note: All the Machine Learning models are saved (.sav folder) in the models folder to save the training time. Please load the model directly from the models folder
