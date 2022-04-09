@@ -194,10 +194,12 @@ This method is built on a random forest classifier. It ranks features based on t
 
 From the variable importance plot we see the 3 most importance variables by far are energy star rating, floor area and year built. We proposed the notion of  potential interactions with these terms later in feature engineering as these were all building characteristic features that could interact in describing the specific buildings. We also note particular importance of Facility Type, Elevation, as well as building class, relative to the other features in the dataset.
 
-```{r, echo=FALSE ,out.width="50%", out.height="50%",fig.cap="Feature selection using Random Forest and Correlation Analysis",fig.align='center', fig.show='hold'}
+```{r, echo=FALSE ,out.width="49%", out.height="49%",fig.cap="Feature selection using Random Forest and Correlation Analysis",fig.align='center', fig.show='hold'}
 knitr::include_graphics('Main_Code/images/feature_imp.png')
 knitr::include_graphics('Main_Code/images/triangular_mat.png')
 ```
+
+\pagebreak
 
 
 #### 4.1.2. Feature Engineering: Interactions and Additional features
@@ -274,7 +276,7 @@ Principal Component Analysis (PCA) is a very useful method to deal with multi-co
 
 There is more complex theory regarding the correlation matrix, eigenvalues and eigenvectors which forms the basis of PCA, however for the purpose of this analysis, a brief explanation felt appropriate.
 
-```{r, echo=FALSE ,out.width="50%", out.height="50%",fig.cap="Principal Component Analysis",fig.show='hold', fig.align='center'}
+```{r, echo=FALSE ,out.width="49%", out.height="49%",fig.cap="Principal Component Analysis",fig.show='hold', fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/pca_threshold.png')
 knitr::include_graphics('Main_Code/images/pca_4d.png')
@@ -340,7 +342,7 @@ We trained an Ensemble model (Pajankar, 2022) with interaction terms which combi
 ## 5. Model Results
 
 ### 5.1. OLS results and Feature Interpretations
-We gather from the residential regression table that the most influential variables are floor area and average temperature. We infer that for a one unit increase in each, there is a -2.16% and-2.59% effect on Site EUI. For commercial buildings however there is an adverse effect, in that there is a  7.6% and 1.95% increase on site EUI with floor area and average temperature respectively. The third most influential variable for both regression was Energy star rating, which for residential buildings resulted in a -0.99% effect on site EUI for a one unit increase in ESR, compared to -1.38% in commercials.
+We gather from the residential regression table that the most influential variables are floor area and average temperature. We infer that for a one unit increase in each, there is a -2.16% and-2.59% effect on Site EUI. For commercial buildings however there is an adverse effect, in that there is a  7.6% and 1.95% increase on site EUI with floor area and average temperature respectively. The third most influential variable for both regression was Energy star rating, which for residential buildings resulted in a -0.99% effect on site EUI for a one unit increase in ESR, compared to -1.38% in commercials. These findings are expected because for floor area large residential floor areas are likely to be halls or open space that don't require energy usage, and as for average temperature, a rise in average temperature would require less energy usage in homes because there is no need heating, but more in commercial facilities such as "warehouses_refrigerated" would need more energy to maintain cooler temperatures. And the negative relationship of ESR and Site EUI in context relates to more energy efficient buildings reducing energy waste and expenditure. 
 
 ### 5.2. In-Sample Model Metrics Comparison 
 Based on the boxplot for R-squared values attained from the models we have mentioned, we see that the LGBM model has the highest, followed by XGboost and Ensemble, but the most noteworthy takeaway is that we see ElasticNet by far performs the worst possibly due to the linear nature of the method. As for the RMSE, we see that LGBM yet again performs the best with the lowest values, and once again followed by XGBoost. Unsurprisingly, ElasticNet performs the worst out of the models. 
@@ -431,6 +433,10 @@ Overall, the analysis was able to find the important variables that have the big
 - **Sameer** - EDA & Preprocessing, Literature Reading, Report Section 1, 2, 4, 5, Editing final document
 - **Sumit** - EDA & Preprocessing, Literature Reading, OLS model, Editing final document
 
+
+\pagebreak
+
+
 ## 10. References
 - Abergel T., Chiara D. (November 01 2021) .Tracking Buildings 2021 - Analysis. International Energy Agency. Acquired from: https://www.iea.org/reports/tracking-buildings-2021
 
@@ -459,6 +465,7 @@ https://www.jmlr.org/papers/volume12/pedregosa11a/pedregosa11a.pdf?ref=https://g
 - WiDS (Women in Data Science)  Datathon 2022. WiDS Datathon Committee., Stanford University, Harvard University IACS . (February 26 2022) . Retrieved January 2022. From [https://www.kaggle.com/competitions/widsdatathon2022/data].
 
 
+\pagebreak
 
 ## 11. Appendix
 
@@ -500,7 +507,9 @@ https://www.jmlr.org/papers/volume12/pedregosa11a/pedregosa11a.pdf?ref=https://g
 - nonconformist.cp import IcpRegressor 
 - nonconformist.nc import NcFactory
 
-
+\pagebreak
+ 
+ 
 ### 11.1. Spearman Correlation with Response
 ``` {r, echo=FALSE,fig.cap="Spearman Correlation with Response",out.height="70%",fig.show='hold',fig.align='center'}
 
@@ -508,21 +517,24 @@ knitr::include_graphics('Main_Code/images/response_corr.png')
 
 ```
 
-### 11.2. Fixed Effects Model
+\newpage
 
-#### 11.2.1 Residential Buildings
+### 11.2.1 Residential Buildings Fixed Effects Model
 
-``` {r, echo=FALSE,fig.cap="Spearman Correlation with Response",out.height="70%",fig.show='hold',fig.align='center'}
+``` {r, echo=FALSE,fig.cap="Residential Fixed Effect Model Summary",out.height="30%",out.width="60%",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/res_ols.png')
+
 knitr::include_graphics('Main_Code/images/effect_res.png')
 knitr::include_graphics('Main_Code/images/factor_res.png')
 
 ```
 
-#### 11.2.2 Commercial Buildings
+\newpage
 
-``` {r, echo=FALSE,fig.cap="Spearman Correlation with Response",out.height="70%",fig.show='hold',fig.align='center'}
+### 11.2.2 Commercial Buildings Fixed Effects Model
+
+``` {r, echo=FALSE,fig.cap="Commerical Fixed Effect Model Summary",out.height="30%",out.width="60%",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/comm_ols.png')
 knitr::include_graphics('Main_Code/images/effect_comm.png')
@@ -531,24 +543,27 @@ knitr::include_graphics('Main_Code/images/factor_comm.png')
 ```
 
 
-### 11.3. Feature Transformations
+\newpage
 
-#### 11.3.1. Feature Transformations: Site EUI (no transform needed)
+### 11.3.1. Feature Transformations: Site EUI (no transform needed)
 
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap=" Site EUI (no transform needed)",fig.show='hold',fig.align='center'}
 knitr::include_graphics('Main_Code/images/site_eui_dist.png')
 
 ```
 
-#### 11.3.2. Feature Transformations:  Floor Area Before and After
+\newpage
+
+### 11.3.2. Feature Transformations:  Floor Area Before and After
 ```{r, echo=FALSE ,out.width="70%", out.height="65%",fig.cap="Floor Area Before and After Transform",fig.show='hold',fig.align='center'}
 knitr::include_graphics('Main_Code/images/floor_area_before_scaling.png')
 knitr::include_graphics('Main_Code/images/floor_area_after.png')
 
 ```
 
+\newpage
 
-#### 11.3.3. Feature Transformations:  Year Built Before and After
+### 11.3.3. Feature Transformations:  Year Built Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Year Built Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/year_built_before.png')
@@ -556,51 +571,58 @@ knitr::include_graphics('Main_Code/images/year_built_after.png')
 
 ```
 
+\newpage
 
-#### 11.3.4. Feature Transformations:  Energy Star Rating Before and After
+### 11.3.4. Feature Transformations:  Energy Star Rating Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Energy Star Rating Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/esrating_before.png')
 knitr::include_graphics('Main_Code/images/esrating_after.png')
 
 ```
+\newpage
 
-#### 11.3.5. Feature Transformations:  Elevation Before and After
+
+### 11.3.5. Feature Transformations:  Elevation Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Elevation transform Before and After",fig.show='hold',fig.align='center'}
 
 
 knitr::include_graphics('Main_Code/images/elevation_before.png')
 knitr::include_graphics('Main_Code/images/elevation_after.png')
 ```
+\newpage
 
-#### 11.3.6. FeatureTransformations:  FloorareaxElevation Before and After
+### 11.3.6. FeatureTransformations:  FloorareaxElevation Before and After
 ```{r, echo=FALSE ,out.width="70%", out.height="70%",fig.cap="FloorareaxElevation Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/floorareaxELEVATION_before.png')
 knitr::include_graphics('Main_Code/images/floorareaxELEVATION_after.png')
 
 ```
+\newpage
 
-
-#### 11.3.7. Feature Transformations:  FloorxBuilt Before and After
+### 11.3.7. Feature Transformations:  FloorxBuilt Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="FloorxBuilt Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/floorxbuilt_before.png')
 knitr::include_graphics('Main_Code/images/floorxbuilt_after.png')
 ```
+\newpage
 
 
-#### 11.3.8. Feature Transformations:  FloorxEnergy Before and After
-```{r, echo=FALSE ,out.width="70%", out.height="70%",fig.cap="FloorxEnergy Before and After Transform",fig.show='hold',fig.align='center'}
+### 11.3.8. Feature Transformations:  FloorAreaxEnergy Before and After
+```{r, echo=FALSE ,out.width="70%", out.height="70%",fig.cap="FloorAreaxEnergy Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/floorxenergy_before.png')
 knitr::include_graphics('Main_Code/images/floorxenergy_after.png')
 
 ```
 
+\newpage
 
 
-#### 11.3.9. Feature Transformations:  FloorxBuiltXEnergy Before and After
+
+### 11.3.9. Feature Transformations:  FloorxBuiltXEnergy Before and After
 
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Transforming Interaction of Floor area Year built and Energy star rating, Before and After",fig.show='hold',fig.align='center'}
 
@@ -608,32 +630,39 @@ knitr::include_graphics('Main_Code/images/floorxBuiltxEnergy_before.png')
 knitr::include_graphics('Main_Code/images/floorxBuiltxEnergy_after.png')
 ```
 
+\newpage
 
-#### 11.3.10. Feature Transformations:  FloorxHeatCool Before and After
+
+### 11.3.10. Feature Transformations:  FloorxHeatCool Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="VFloorxHeatCool Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/floorxHeatCool_before.png')
 knitr::include_graphics('Main_Code/images/floorxHeatCool_after.png')
 ```
 
+\newpage
 
-#### 11.3.11. Feature Transformations:  Freezing days Before (no transform needed)
+
+### 11.3.11. Feature Transformations:  Freezing days Before (no transform needed)
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Freezingdays Before (no transform needed)t",fig.show='hold',fig.align='center'}
 knitr::include_graphics('Main_Code/images/freezing_days_before.png')
 
 ```
 
-#### 11.3.12. Feature Transformations:  Cold days Before and After
+\newpage
+
+### 11.3.12. Feature Transformations:  Cold days Before and After
 ```{r, echo=FALSE ,out.width="70%", out.height="70%",fig.cap="Colddays Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/cold_days_before.png')
 knitr::include_graphics('Main_Code/images/cold_days_after.png')
 
-
 ```
 
+\newpage
 
-#### 11.3.13. Feature Transformations:  Warm days Before and After
+
+### 11.3.13. Feature Transformations:  Warm days Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Warmdays Before and After Transform",fig.show='hold',fig.align='center'}
 
 
@@ -641,9 +670,9 @@ knitr::include_graphics('Main_Code/images/warm_days_before.png')
 knitr::include_graphics('Main_Code/images/warm_days_after.png')
 ```
 
+\newpage
 
-
-#### 11.3.14. Feature Transformations: Hot days Before (no transform needed)
+### 11.3.14. Feature Transformations: Hot days Before (no transform needed)
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Hotdays Before (no transform needed)",fig.show='hold',fig.align='center'}
 knitr::include_graphics('Main_Code/images/hot_days_dist.png')
 
