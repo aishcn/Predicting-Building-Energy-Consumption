@@ -25,7 +25,7 @@ In this analysis, we sought to develop a model that predicts a site's energy con
 
 ## 2. Introduction
 
-Climate change is an urgent, and multi-faceted issue heavily impacted by infrastructure. Addressing climate change involves mitigation of Greenhouse Gas (GHG) emissions via changes to electricity systems, transportation, buildings, industry, and land use. According to a report issued by the International Energy Agency, the life cycle of buildings from construction to demolition were responsible for 37% of global energy-related $CO_2$ emissions in 2020. Yet it is possible to drastically reduce the energy consumption of buildings. For example, retrofitted buildings can reduce heating and cooling energy requirements by 50-90%. Therefore, it is important to optimize energy retrofitting by accurately predicting Site EUI of these buildings. The study aims to investigate and understand the effect of climate variables and building characteristics on the building’s EUI (Energy Usage Intensity).					
+Climate change is an urgent, and multi-faceted issue heavily impacted by infrastructure. Addressing climate change involves mitigation of Greenhouse Gas (GHG) emissions via changes to electricity systems, transportation, buildings, industry, and land use. According to a report issued by the International Energy Agency, the life cycle of buildings from construction to demolition were responsible for 37% of global energy-related $CO_2$ emissions in 2020 (Abergel, 2021). Yet it is possible to drastically reduce the energy consumption of buildings. For example, retrofitted buildings can reduce heating and cooling energy requirements by 50-90%. Therefore, it is important to optimize energy retrofitting by accurately predicting Site EUI of these buildings. The study aims to investigate and understand the effect of climate variables and building characteristics on the building’s EUI (Energy Usage Intensity).					
 
 The analysis aims to address the following questions:	
 
@@ -126,10 +126,14 @@ In a preliminary attempt of gathering information on covariate relationships wit
 
 The high correlation between months of the same seasons suggest implementation of additional features for the 4 seasons in the place of separate months for example. the relationships observed between climatic features indicate  potential interactions or new replacement covariates in place of these terms
 
+```{r echo=FALSE, out.width='80%', fig.align='center'}
+knitr::include_graphics('Main_Code/images/triangular_mat.png')
+```
+
 
 ## 4. Methods
 
-### 4.0. Pipeline
+### Pipeline
 
 Below in Fig. 6, we have a Proof-of-Concept pipeline that addresses all of our research questions. A breakdown of each of the steps shown in the end-to-end workflow diagram is covered below. 
 
@@ -142,9 +146,9 @@ knitr::include_graphics('Main_Code/images/Pipeline.png')
 \end{center}
 
 
-### 4.1. Data Pre-Processing
+### 4.0. Data Pre-Processing
 
-#### 4.1.1. Dealing with Imbalanced Categories
+#### 4.0.1. Dealing with Imbalanced Categories
 
 To deal with imbalanced categories in `facility_type`, we generated plots to study the relative frequency distribution. We saw the disparity in frequency of different facility types, where 'Multifamily (un-categorized)' facilities vastly outnumbered all other facility types so we kept the top 6 categories and binned the rest into a new value called 'Others'.
 
@@ -155,9 +159,9 @@ As observed in the EDA we saw imbalanced State Factors, particularly with state 
 knitr::include_graphics('Main_Code/images/cat_dist.png')
 ```
 
-#### 4.1.2. Dealing with Missing Values
+#### 4.0.2. Dealing with Missing Values
 
-As part of the data pre-processing pipeline, we start by dropping duplicate rows, and columns with a high % of missing values (over 50%). With the remaining missing values, we used the KNN imputation method. The idea in kNN methods is to identify 'k' samples in the dataset that are similar or close in the space. Then we use these 'k' samples to estimate the value of the missing data points. Each sample's missing values are imputed using the mean value of the k-neighbors found in the dataset.Furthermore, we dropped highly correlated features using pairwise correlation analysis as observed in the EDA.
+As part of the data pre-processing pipeline, we start by dropping duplicate rows, and columns with a high % of missing values (over 50%). With the remaining missing values, we used the KNN imputation method. The idea in kNN methods is to identify 'k' samples in the dataset that are similar or close in the space. Then we use these 'k' samples to estimate the value of the missing data points. Each sample's missing values are imputed using the mean value of the k-neighbors found in the dataset.Furthermore, we dropped highly correlated features using pairwise correlation analysis as observed in the EDA. The white lines in the figure below represent missing values.
 
 ``` {r, echo=FALSE ,out.width="25%", out.height="25%",fig.cap="Before and After Median Imputation",fig.show='hold',fig.align='center'}
 
@@ -165,7 +169,7 @@ knitr::include_graphics('Main_Code/images/fill_msno.png')
 knitr::include_graphics('Main_Code/images/nofill_msno.png')
 ```
 
-#### 4.1.3. Dealing with Extreme Values
+#### 4.0.3. Dealing with Extreme Values
 
 ``` {r, echo=FALSE ,out.width="25%", out.height="25%",fig.cap="After Extreme Value Removal with IQR Method",fig.show='hold',fig.align='center'}
 knitr::include_graphics('Main_Code/images/site_eui_outliers_before.png')
@@ -175,28 +179,28 @@ knitr::include_graphics('Main_Code/images/site_eui_outliers_after.png')
 We removed 3845 rows with extreme Site EUI values using the Inter Quartile Range (IQR) method. For the purpose of this project we assume the population with EUI values between 0 and 165. For future research, we plan on checking some variables to understand if the extreme cases should be considered as a different "population" or not.
 
 
-#### 4.1.4. Encoding Categorical Variables
+#### 4.0.4. Encoding Categorical Variables
 
 We encoded categorical features using ordinal encoding, where each unique category was assigned an integer value, resulting in a column of integers; 0 to `n_categories-1` (per features). We selected ordinal encoding over one-hot encoding because it creates multiple columns for each unique category and some of our categorical variables have high cardinality and will therefore increasing the dimensionality of an already high dimensional dataset. For future research we plan on exploring other encoding methods as well because ordinal encoding might impose an ordinal relationship where no such relationship may exist. 
 
 
-### 4.2 Feature Selection
+### 4.1 Feature Selection
 
 One of the most important step in our pipeline was Feature Selection as it is one of the main objectives. We have used several different methods in order to achieve this objective:
 
-#### 4.2.1. Variable Importance using Random Forest & Correlation Analysis
+#### 4.1.1. Variable Importance using Random Forest & Correlation Analysis
 
 This method is built on a random forest classifier. It ranks features based on their importance measure i.e. Mean Decrease Accuracy (MDA) where higher means more important. MDA measures how much accuracy the model losses by excluding each variable. The more the accuracy degrades, the more important the variable is. 
 
 From the variable importance plot we see the 3 most importance variables by far are energy star rating, floor area and year built. We proposed the notion of  potential interactions with these terms later in feature engineering as these were all building characteristic features that could interact in describing the specific buildings. We also note particular importance of Facility Type, Elevation, as well as building class, relative to the other features in the dataset.
 
-```{r, echo=FALSE ,out.width="50%", out.height="50%",fig.cap="Feature selection using Random Forest and Correlation Analysis",fig.align='center'}
+```{r, echo=FALSE ,out.width="50%", out.height="50%",fig.cap="Feature selection using Random Forest and Correlation Analysis",fig.align='center', fig.show='hold'}
 knitr::include_graphics('Main_Code/images/feature_imp.png')
 knitr::include_graphics('Main_Code/images/triangular_mat.png')
 ```
 
 
-#### 4.2.2. Feature Engineering: Interactions and Additional features
+#### 4.1.2. Feature Engineering: Interactions and Additional features
 
 Based on the variable importance and pairwise correlations we decided on adding interaction terms. We decided on including interactions of:
 
@@ -221,7 +225,7 @@ We also implemented new features containing other features that were otherwise c
 
 In adding these features we dropped the original features contained within these, in turn this would help leave us with more parsimonious models to interpret.
 
-#### 4.3 Feature Transformations
+#### 4.2 Feature Transformations
 
 Table 4 shows all the transformations performed in order to achieve the desired results in reducing impacts of skewness of features.
 
@@ -246,7 +250,7 @@ Table 4 shows all the transformations performed in order to achieve the desired 
 | `hot_days` | Total days above 100 110 F | Dropped | contains mostly 0 |
 
 
-### 4.4 Further Correlation Analysis
+### 4.3 Further Correlation Analysis
 
 After the feature engineering and transformations, we investigated the correlations further to deal collinearity caused by the interaction terms. We see from the triangular correlation heat map below that there were still some highly correlated features. We dropped the following features:`floorxBuilt`, `floorxBuiltxEnergy`, `floorxHeatCool`, `floorxEnergy`, and `ELEVATION`.
 
@@ -255,7 +259,7 @@ After the feature engineering and transformations, we investigated the correlati
 knitr::include_graphics('Main_Code/images/second_tri_mat.png')
 ```
 
-### 4.5 Further Refinements in Feature Selection using `boruta` package
+### 4.4 Further Refinements in Feature Selection using `boruta` package
 
 We performed with further feature selection using the 'Boruta' package (Kursa, 2010) after feature engineering. The method uses a "relevant feature selection wrapper algorithm" to find the most "relevant" features using random forest, ranking on importance based on mean absolute deviation (MAD), allowing us to find and select the most important variables namely, `building_class`, `facility_type`, `floor_area`, `year_built`, `energy_star_rating`, `cold_days`, `warm_days`, `FallTemp`, `snow_rain_inches`, and `freezing_days`.
 
@@ -264,13 +268,13 @@ knitr::include_graphics('Main_Code/images/boruta.png')
 ```
 
 
-### 4.6 Principal Component Analysis
+### 4.5 Principal Component Analysis
 
 Principal Component Analysis (PCA) is a very useful method to deal with multi-collinearity based on Singular Value Decomposition (SVD), which reduces the dimensionality of the dataset as well (Kovan, 2021).Before conducting PCA we performed MinMax scaling because since PCA is solved via SVD, and SVD approximates in the sum of squares, so if one variable is on a different scale than another it will dominate the PCA. PCs describe variation and account for the varied influences of the original features.
 
 There is more complex theory regarding the correlation matrix, eigenvalues and eigenvectors which forms the basis of PCA, however for the purpose of this analysis, a brief explanation felt appropriate.
 
-```{r, echo=FALSE ,out.width="50%", out.height="50%",fig.cap="Principal Component Analysis",fig.show='hold'}
+```{r, echo=FALSE ,out.width="50%", out.height="50%",fig.cap="Principal Component Analysis",fig.show='hold', fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/pca_threshold.png')
 knitr::include_graphics('Main_Code/images/pca_4d.png')
@@ -288,7 +292,7 @@ knitr::include_graphics('Main_Code/images/pca_indi.png')
 
 The first plot here shows that majority of the variance explained in our data is being captured by the principal component 1. And to each how each feature is playing a role in that, wee look at the plot on the right. The importance of each feature here is reflected by the magnitude of the corresponding values in the eigenvectors. The larger these absolute values are, the more a specific feature contributes to that principal component. 
 
-### 4.7 Hyperparameter Tuning
+### 4.6 Hyperparameter Tuning
 
 For hyperparameter tuning, the reduced and transformed datasets were used. We used Random Search method with 10-fold repeated (3 times) cross validation where we defined a search space or parameter space as a bounded domain of hyperparameter values and the random search randomly sample points in that domain to give an optimized value that performs the best out of all combinations. For example for ElasticNet, we are tuning it based on 24000 combinations of parameters. We have the definition provided here for all the hyperparameters we used, if you need more information on this, you can check the sklearn documentation on each of these models or each out to me and i can direct you to the right resources.
 
@@ -296,12 +300,21 @@ For hyperparameter tuning, the reduced and transformed datasets were used. We us
 knitr::include_graphics('Main_Code/images/hyp.png')
 
 ```
+## 4.7. Statistical Models
 
+### 4.7.1. Fixed Effects Model - Residential
 
-## 4.8. Model Training and Validation
+As we can observe all site EUIS are positive, the Year fixed effects suggests over the years the site eui has increased for residential units. Most likely due to increased use of home electronic appliances. The Climate Factor, which includes states binned as Hot,Mild and Cold climate temperatures, suggest that residential units in hot and cold states tend to have higher energy use intensities. This is intuitive as people tend to use AC's and heaters to bring the temperature back to room temperature for their comfort levels. *For plots please refer to Appendix 11.2.1*.
+
+### 4.7.2. Fixed Effects Model - Commercial
+
+The commercial regression, suggests that facility types have a greater effect on site EUI.Some key things we observed is that facility types such as industrial plants or data centers tend to have a greater site eui than the baseline commercial property whereas the religious worship areas and self-storage warehouses tend to have a lower site eui.The year fixed effects suggests that over the years the site EUI has decreased. This means that more efficient machinery/appliances have been installed in commercial properties over time.
+
+The state factor indicates that the cold states tend to have a greater site eui than other temperaments, this is likely due to larger amount of observations in cold states and given the dataset is originated from US. It is a known fact most industrial plants are located in the cold states hence as observed by the analysis on facility types. The industrial plants located in cold states tend to have a greater energy use but this is being decreased over time. *For plots please refer to Appendix 11.2.2*.
+
+## 4.8. ML Model Training and Validation
 
 A good variety of models were implemented as a part of our analysis for extensive results. A set of models were trained to capture the effect of interaction terms on the predictive performance of the model. These models were cross-validated (10-fold CV, Repeated 3 times) and their hyperparameters were fine tuned using Random Search. Please refer to Table 5 and Table 6 for results that denote the predictive performance of the models. 
-
 
 #### 4.8.1. ElasticNet\
 \
@@ -316,50 +329,32 @@ To add further complexities to the previous models, we trained Support Vector Ma
 
 #### 4.8.3. Tree Models\
 \
-We used three tree-based models, XGBoost (Chen, 2016), Gradient Boosting (Li, 2016) and Light Gradient Boosting (Guolin, 2017) to improve the performance of our model. 
-Boosting slowly learns unique patterns in the data by sequentially combining individual, shallow trees.
-LightGBM (Guolin, 2017) is a much more optimized version of the gradient boosting algorithm. It produces much more complex trees by following leaf wise split approach rather than a level-wise approach which is the main factor in achieving higher accuracy. LightGBM uses a novel technique of Gradient-based One-Side Sampling (GOSS) to filter out the data instances for finding a split value while XGBoost uses pre-sorted algorithm & Histogram-based algorithm for computing the best split. Here instances are observations/samples.
-From Table 5 and Table 6, we see that out of all tree-based models, XGBoost performs the best, with the lowest RMSE of $23.8852$ and better indicators (Interval Score, Average Length and Coverage of Prediction Intervals).
+We used three tree-based models, XGBoost (Chen, 2016), Gradient Boosting (Li, 2016) and Light Gradient Boosting (Guolin, 2017) to improve the performance of our model. Boosting slowly learns unique patterns in the data by sequentially combining individual, shallow trees. LightGBM (Guolin, 2017) is a much more optimized version of the gradient boosting algorithm. It produces much more complex trees by following leaf wise split approach rather than a level-wise approach which is the main factor in achieving higher accuracy. LightGBM uses a novel technique of Gradient-based One-Side Sampling (GOSS) to filter out the data instances for finding a split value while XGBoost uses pre-sorted algorithm & Histogram-based algorithm for computing the best split. From Table 5 and Table 6, we see that out of all tree-based models, LGBM performs the best, with the lowest RMSE of $18.501$ with relatively better 50% Interval Score, Average Length and Coverage of Prediction Intervals.
 
-\
-\
 
 #### 4.8.4. Ensemble Models\
 \
 We trained an Ensemble model (Pajankar, 2022) with interaction terms which combines all the models above to produce improved results. Combining these models will generally tend to produce more accurate predictions than a single model. We used stacking which looks at the weighted RMSE of all the individual models to give a better prediction because it is designed to ensemble a diverse group of strong learners.
 
 
-\pagebreak
-
 ## 5. Model Results
 
+### 5.1. OLS results and Feature Interpretations
+We gather from the residential regression table that the most influential variables are floor area and average temperature. We infer that for a one unit increase in each, there is a -2.16% and-2.59% effect on Site EUI. For commercial buildings however there is an adverse effect, in that there is a  7.6% and 1.95% increase on site EUI with floor area and average temperature respectively. The third most influential variable for both regression was Energy star rating, which for residential buildings resulted in a -0.99% effect on site EUI for a one unit increase in ESR, compared to -1.38% in commercials.
 
-### 5.1. In-Sample Model Metrics Comparison 
-Based on the boxplot for R squared values attained from the models we have mentioned, as we  expected the Stack Ensemble model has the highest, followed by XGboost, but the most noteworthy takeaway is that we see ElasticNet by far performs the worst possibility to the linear nature of the method. As for the RMSE, we see that Ensemble yet again performs the best with the lowest values, and once again followed by XGBoost. Unsurprisingly ElasticNet performs the worst out of the models. 
-Another metric we considered was how long it took for the models to run and produce output from the training data; "fit time". we see that the Stack ensemble takes generally 800 minutes to 1000, while similarly performing model XGBoost only takes a fraction of the time, and so based on practicality of the method in turning around results, XGBoost would be more preferrable of all methods based on its relatively strong performance and faster run time.
+### 5.2. In-Sample Model Metrics Comparison 
+Based on the boxplot for R-squared values attained from the models we have mentioned, we see that the LGBM model has the highest, followed by XGboost and Ensemble, but the most noteworthy takeaway is that we see ElasticNet by far performs the worst possibly due to the linear nature of the method. As for the RMSE, we see that LGBM yet again performs the best with the lowest values, and once again followed by XGBoost. Unsurprisingly, ElasticNet performs the worst out of the models. 
 
-\begin{center}
-\textbf{Fig. 17}: Comparing In-sample Model Perfomance Metrics for Different Models
-\end{center}
+Another metric we considered was how long it took for the models to run and produce output from the training data; "fit time". We see that the Stack ensemble takes generally 800 to 1000 minutes, while a slightly better performing model LGBM only takes a fraction of the time, and so based on practicality of the method in obtaining results, LGBM would be more preferable of all methods based on its relatively strong performance and faster run time.
 
-<!-- knitr::include_graphics('Main_Code/images/fit_time_boxplot.png') -->
-<!-- knitr::include_graphics('Main_Code/images/rmse_boxplot.png') -->
-<!-- knitr::include_graphics('Main_Code/images/rsq_boxplot.png') -->
-
-```{=latex}
-
+```{r echo=FALSE, out.height='40%', out.width='40%',fig.show='hold',fig.align='center', fig.cap="Comparing In-sample Model Performance Metrics for Different Models",fig.show='hold', fig.align='center'}
+knitr::include_graphics('Main_Code/images/fit_time_boxplot.png')
+knitr::include_graphics('Main_Code/images/rmse_boxplot.png') 
+knitr::include_graphics('Main_Code/images/rsq_boxplot.png') 
 ```
 
-```{r echo=FALSE, out.width='60%', fig.align="center"}
-# knitr::include_graphics('Main_Code/images/new_train_result.png')
-```
 
-\begin{center}
-
-\textbf{Fig. 17}: Comparing Prediction Performance for Different Models Without and With Interaction Terms
-\end{center}
-
-### 5.2. Prediction Interval Comparison 
+### 5.3. Prediction Interval Comparison 
 
 \begin{center}
 \textbf{Table 3}: "50 $\%$ Prediction Intervals"
@@ -368,12 +363,12 @@ Another metric we considered was how long it took for the models to run and prod
 
 | Model | Level | Avg Length | Interval Score | Coverage |
 |-------|-------|------------|----------------|----------|
-| LGBM  | 0.5   | 23.675     | 58.053         | 0.494    |
-| SVR   | 0.5   | 23.266     | 57.622         | 0.502    |
-| GBR   | 0.5   | 24.705     | 58.114         | 0.506    |
-| Elnet | 0.5   | 29.156     | 65.155         | 0.501    |
-| XGB   | 0.5   | 23.856     | 57.693         | 0.505    |
-| Stack | 0.5   | 24.338     | 57.656         | 0.505    |
+| LGBM  | 0.5   | 17.292     | 44.033       | 0.493    |
+| SVR   | 0.5   | 18.524     | 46.231         | 0.495    |
+| GBR   | 0.5   | 18.859     | 45.450         | 0.489    |
+| Elnet | 0.5   | 26.719     | 56.047        | 0.499    |
+| XGB   | 0.5   | 17.461     | 44.206         | 0.491    |
+| Ensemble | 0.5   | 18.197     | 44.446         | 0.497    |
 
 
 \begin{center}
@@ -382,39 +377,52 @@ Another metric we considered was how long it took for the models to run and prod
 
 | Model | Level | Avg Length | Interval Score | Coverage |
 |-------|-------|------------|----------------|----------|
-| LGBM  | 0.8   | 54.604     | 89.740         | 0.798    |
-| SVR   | 0.8   | 53.120     | 90.000         | 0.793    |
-| GBR   | 0.8   | 54.755     | 89.175         | 0.795    |
-| Elnet | 0.8   | 64.465     | 96.675         | 0.799    |
-| XGB   | 0.8   | 54.165     | 89.306         | 0.799    |
-| Stack | 0.8   | 54.448     | 88.648         | 0.797    |
+| LGBM  | 0.8   | 40.015     | 68.963         | 0.790    |
+| SVR   | 0.8   | 42.463     | 72.444         | 0.799    |
+| GBR   | 0.8   | 41.873     | 70.157        | 0.800    |
+| Elnet | 0.8   | 55.012     | 82.333         | 0.806    |
+| XGB   | 0.8   | 39.901     | 69.034         | 0.788    |
+| Stack | 0.8   | 40.691     | 69.124         | 0.794    |
 
-Based on the 50$%$ Prediction Intervals provided, the researchers believe that the best model is SVR, as it has the lowest Interval Score and Average Length, while having a coverage of just over 50$%$.
+Based on the 50% Prediction Intervals provided, we believe that the best model relative to others is LGBM, as it has the lowest Interval Score and Average Length, while having a coverage of just over ~0.5 and ~0.8 for 50% and 80% prediction intervals respectively.
+However, it is difficult to pick a best model as the performance of most of the models is almost comparable and hence it is inconclusive to pick one best model. But we can say that the worst performing model is the Elastic Net due to the highest Interval score and the Avergae Length.
 
-For the 80$%$ Prediction Intervals, the researchers found it more difficult to choose the best model; while XGBoost has a coverage rate closer to 80$%$, Stack Ensemble provides a lower Interval Score. The researchers took another factor that is more practical into account; time. While it took a few minutes to fit the XGBoost model, it took just over 5 hours to run Stack Ensemble, and therefore XGBoost is more practical as a model than Stack Ensemble. Thus based on the in-sample metrics we examined and the prediction intervals, we would prefer XGBoost out of all the methods. Although this is subjective to an extent, it is safe to say yhat ElasticNet, linear method, performed the worst, indicating the usefullness of tree methods for this dataset.
+If we were to look at RMSE and fit time in addition to prediction intervals, we can say LGBM is relatively the better performing model. Thus based on the in-sample metrics we examined and the prediction intervals, we would prefer LGBM out of all the methods. Although this is subjective to an extent, it is safe to say ElasticNet, which is a linear method, performed the worst, indicating the usefulness of tree-based methods for this data.
 
 ## 6. Limitations
 
 
-- For data pre-processing, it was evident that there were quite a few extreme values (over 2000 cases) for site EUI (larger than 160 $kBtu$ $ft^{-2}$) that went up to 1000 $kBtu$ $ft^{-2}$. While removing these datapoints was necessary, it requires justification. Perhaps with more time a resources, the researchers could have contacted the Berkley lab and asked for specifics regarding these buildings (i.e. if these buildings were run by large corporations, which may explain the energy usage).
+- For data pre-processing, it was evident that there were quite a few extreme values (over 3000 cases) for site EUI (larger than 160 $kBtu$ $ft^{-2}$) that went up to 1000 $kBtu$ $ft^{-2}$. While removing these datapoints was necessary, it requires justification. 
 
-- With more time, the research team could have looked into finding   transformations for the site EUI. For right-skewed data such as Site EUI a square-root or logarithmic transformation could have yielded even better results.
+- We could have looked at more research papers exploring relationships between climate variables and building characteristics to engineer much more robust features.
 
+- The main objective of the research paper is to be able to predict site EUI in order to find those buildings that should be retrofitted (high site EUI buildings). However, the data provided is from the US, which would make the findings of the report useful to only 1 country. Researching into site EUI data for other countries of different socioeconomic standing could allow us to have results that are applicable world over.
 
-## 7. Conclusion
-
-Following the model iterations and improvements, the researchers were able to achieve good results in an impartial manner. The LGBM algorithm provides somewhat accurate predictions, and the results have large implications with regards to identifying buildings with a high site EUI, which may then be retrofitted.
-
-To answer the first of our two questions, "do the effects of building characteristics outweigh the effects of climate variables on Site EUI and vice-versa?" the researchers engineered features based on both building characteristics and climate variables. Based on indicators that determine the influence of covariate on the site EUI (Spearman correlation, individual plots of covariates with the response, and pairwise correlation), it became evident that building characteristics far outweigh the effects of climate variables on site EUI.
-
-Next, we address the other question, "is there a need to build separate models for different facility types or building classes?". For the OLS model, we split the data based on building class (residential and commercial). The results obtained suggest that separating by facility types or building classes does not make a huge difference. According to analysis on OLS, residential facility types have positive correlation with site EUI, which is not the same for commercial data (some commercial buildings are positively related to site EUI, such as laboratories, while others are negatively related, such as worship places).
-
-Overall, the report was able to find the important variables that have the biggest affect on site EUI. The report provided insightful vizualizations that accompanied the complex models, and most importantly, the report provided appropriate Machine Learning models that predicted site EUI fairly well.
+- Python doesn't provide any package to generate prediction intervals while performing cross validation. Since we had multiple complex machine learning models, creating a custom function to do 10 fold cross validation with 3 repeats on the tuned models and generate prediction intervals was simply not feasible due to time constraints and limited computational power.
 
 
-## 8. Future Research
+## 7. Future Research
 
-The main objective of the research paper is to be able to predict site EUI in order to find those buildings that should be retrofitted (high site EUI buildings). However, the data provided is from the US, which would make the findings of the report useful to only 1 country. Researching into site EUI data for other countries of different socioeconomic standing could allow us to have results that are applicable world over.
+
+- Perhaps with more time and resources,we could have done more literature review to find out if there are instances where a building can have a site EUI of 1000 $kBtu$ $ft^{-2}$ (i.e. if these buildings were run by large corporations, which may explain the energy usage).
+
+- Engineer more robust features and interactions by investigating the relationship between climate variables and building characteristics even further.
+
+- Finding more information on the distribution of climate and building variables  and site EUI for other countries of different socioeconomic standing could allow us to have results that are applicable world wide.
+
+- For future research we also plan on exploring other encoding methods as well because ordinal encoding might impose an ordinal relationship where no such relationship may exist. 
+
+
+## 8. Conclusion
+
+Following the model iterations and improvements, we were able to achieve good results in an impartial manner. The LGBM algorithm provides somewhat accurate predictions, and the results have large implications with regards to identifying buildings with a high site EUI, which may then be retrofitted.
+
+To answer the first of our two questions, "Do the effects of building characteristics outweigh the effects of climate variables on Site EUI and vice-versa?", we engineered features based on both building characteristics and climate variables. Based on indicators that determine the influence of covariate on the site EUI (Spearman correlation, individual plots of covariates with the response, and pairwise correlation), it became evident that building characteristics far outweigh the effects of climate variables on site EUI.
+
+Next, to address the other question, "Is there a need to build separate models for different facility types or building classes?", for the OLS model, we split the data based on building class (residential and commercial). The results obtained suggest that separating by facility types or building classes does not make a huge difference. According to analysis on OLS, residential facility types have positive correlation with site EUI, which is not the same for commercial data (some commercial buildings are positively related to site EUI, such as laboratories, while others are negatively related, such as worship places).
+
+Overall, the analysis was able to find the important variables that have the biggest affect on site EUI. The report provided insightful visualizations that accompanied the complex models, and most importantly, the report provided appropriate Machine Learning models that predicted site EUI fairly well.
+
 
 ## 9. Contributions
 
@@ -450,15 +458,10 @@ https://www.jmlr.org/papers/volume12/pedregosa11a/pedregosa11a.pdf?ref=https://g
 
 
 
-\pagebreak
+## 11. Appendix
 
 
-# 10. Appendix
-
-# 0.0 Python / R Libraries Used:
-
-
-## Python Library Used:
+### 11.0. Python libraries and packages used:
 - os
 - numpy as np 
 - pandas as pd 
@@ -467,7 +470,6 @@ https://www.jmlr.org/papers/volume12/pedregosa11a/pedregosa11a.pdf?ref=https://g
 - sklearn import preprocessing
 - sklearn.ensemble import RandomForestRegressor
 - lightgbm import LGBMRegressor
-- catboost import CatBoostRegressor
 - sklearn.ensemble import StackingRegressor
 - sklearn.linear_model import LinearRegression
 - xgboost import XGBRegressor
@@ -481,169 +483,145 @@ https://www.jmlr.org/papers/volume12/pedregosa11a/pedregosa11a.pdf?ref=https://g
 - re
 - sklearn.linear_model import ElasticNet
 - pickle
+- sklearn.preprocessing import MinMaxScaler
 - warnings
+- sklearn.preprocessing import OrdinalEncoder
+- sklearn.impute import KNNImputer
+- missingno as msno
+- matplotlib.ticker import StrMethodFormatter
+- boruta import BorutaPy
+- sklearn.decomposition import PCA
+- pickle
+- mpl_toolkits.mplot3d import Axes3D
+- bioinfokit.visuz import cluster
+- sklearn.model_selection import RandomizedSearchCV, GridSearchCV
+- nonconformist.cp import IcpRegressor 
+- nonconformist.nc import NcFactory
 
 
-\pagebreak
-
-
-## 3.3.1 Spearman Correlation with Response
+### 11.1. Spearman Correlation with Response
 ``` {r, echo=FALSE,fig.cap="Spearman Correlation with Response",out.height="70%",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/response_corr.png')
 
 ```
 
-\pagebreak
+### 11.2. Fixed Effects Model
 
+#### 11.2.1 Residential Buildings
 
+``` {r, echo=FALSE,fig.cap="Spearman Correlation with Response",out.height="70%",fig.show='hold',fig.align='center'}
 
-## 3.3.2 Plots Investigating Relationships with Site EUI
-``` {r, echo=FALSE,out.width="100%",out.height="100%",fig.cap=" Plots Investigating Relationships with Site EUI",fig.show='hold',fig.align='center'}
-knitr::include_graphics('Main_Code/images/scatterplot_1.png')
-knitr::include_graphics('Main_Code/images/scatterplot_2.png')
+knitr::include_graphics('Main_Code/images/res_ols.png')
+knitr::include_graphics('Main_Code/images/effect_res.png')
+knitr::include_graphics('Main_Code/images/factor_res.png')
 
 ```
 
-\pagebreak
+#### 11.2.2 Commercial Buildings
 
+``` {r, echo=FALSE,fig.cap="Spearman Correlation with Response",out.height="70%",fig.show='hold',fig.align='center'}
 
+knitr::include_graphics('Main_Code/images/comm_ols.png')
+knitr::include_graphics('Main_Code/images/effect_comm.png')
+knitr::include_graphics('Main_Code/images/factor_comm.png')
 
-## 3.3.4 Pairwise Correlation Analysis of Features
-``` {r, echo=FALSE ,out.width="100%", out.height="100%",fig.cap="Pairwise Correlation Analysis of Features",fig.show='hold',fig.align='center'}
-
-knitr::include_graphics('Main_Code/images/triangular_mat.png')
 ```
 
 
-\pagebreak
+### 11.3. Feature Transformations
 
-# 4.1 Data Pre processing
-
-
-\pagebreak
-
-## 4.1.1 Variaple Importance Plots using Random Forest
-
-```{r, echo=FALSE ,out.width="100%", out.height="100%",fig.cap="Variaple Importance Plots using Random Forest",fig.show='hold',fig.align='center'}
-knitr::include_graphics('Main_Code/images/feature_imp.png')
-```
-\pagebreak
-
-
-
-
-
-## 4.2.3 Feautre Transformations
-
-### 4.2.3 Feautre Transformations: Site EUI (no transform needed)
+#### 11.3.1. Feature Transformations: Site EUI (no transform needed)
 
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap=" Site EUI (no transform needed)",fig.show='hold',fig.align='center'}
 knitr::include_graphics('Main_Code/images/site_eui_dist.png')
 
 ```
-\pagebreak
 
-
-### 4.2.3 Feautre Transformations:  Floor Area Before and After
+#### 11.3.2. Feature Transformations:  Floor Area Before and After
 ```{r, echo=FALSE ,out.width="70%", out.height="65%",fig.cap="Floor Area Before and After Transform",fig.show='hold',fig.align='center'}
 knitr::include_graphics('Main_Code/images/floor_area_before_scaling.png')
 knitr::include_graphics('Main_Code/images/floor_area_after.png')
 
 ```
-\pagebreak
 
 
-### 4.2.3 Feautre Transformations:  Year Built Before and After
+#### 11.3.3. Feature Transformations:  Year Built Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Year Built Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/year_built_before.png')
 knitr::include_graphics('Main_Code/images/year_built_after.png')
 
 ```
-\pagebreak
 
 
-### 4.2.3 Feautre Transformations:  Energy Star Rating Before and After
+#### 11.3.4. Feature Transformations:  Energy Star Rating Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Energy Star Rating Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/esrating_before.png')
 knitr::include_graphics('Main_Code/images/esrating_after.png')
 
 ```
-\pagebreak
 
-
-### 4.2.3 Feautre Transformations:  Elevation Before and After
+#### 11.3.5. Feature Transformations:  Elevation Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Elevation transform Before and After",fig.show='hold',fig.align='center'}
 
 
 knitr::include_graphics('Main_Code/images/elevation_before.png')
 knitr::include_graphics('Main_Code/images/elevation_after.png')
 ```
-\pagebreak
 
-
-### 4.2.3 Feature Transformations:  FloorareaxElevation Before and After
+#### 11.3.6. FeatureTransformations:  FloorareaxElevation Before and After
 ```{r, echo=FALSE ,out.width="70%", out.height="70%",fig.cap="FloorareaxElevation Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/floorareaxELEVATION_before.png')
 knitr::include_graphics('Main_Code/images/floorareaxELEVATION_after.png')
 
 ```
-\pagebreak
 
 
-### 4.2.3 Feautre Transformations:  FloorxBuilt Before and After
+#### 11.3.7. Feature Transformations:  FloorxBuilt Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="FloorxBuilt Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/floorxbuilt_before.png')
 knitr::include_graphics('Main_Code/images/floorxbuilt_after.png')
 ```
 
-\pagebreak
 
-
-### 4.2.3 Feautre Transformations:  FloorxEnergy Before and After
+#### 11.3.8. Feature Transformations:  FloorxEnergy Before and After
 ```{r, echo=FALSE ,out.width="70%", out.height="70%",fig.cap="FloorxEnergy Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/floorxenergy_before.png')
 knitr::include_graphics('Main_Code/images/floorxenergy_after.png')
 
 ```
-\pagebreak
 
 
 
-### 4.2.3 Feautre Transformations:  FloorxBuiltXEnergy Before and After
+#### 11.3.9. Feature Transformations:  FloorxBuiltXEnergy Before and After
 
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Transforming Interaction of Floor area Year built and Energy star rating, Before and After",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/floorxBuiltxEnergy_before.png')
 knitr::include_graphics('Main_Code/images/floorxBuiltxEnergy_after.png')
 ```
-\pagebreak
 
 
-### 4.2.3 Feautre Transformations:  FloorxHeatCool Before and After
+#### 11.3.10. Feature Transformations:  FloorxHeatCool Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="VFloorxHeatCool Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/floorxHeatCool_before.png')
 knitr::include_graphics('Main_Code/images/floorxHeatCool_after.png')
 ```
 
-\pagebreak
 
-
-### 4.2.3 Feautre Transformations:  Freezing days Before (no transform needed)
+#### 11.3.11. Feature Transformations:  Freezing days Before (no transform needed)
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Freezingdays Before (no transform needed)t",fig.show='hold',fig.align='center'}
 knitr::include_graphics('Main_Code/images/freezing_days_before.png')
 
 ```
-\pagebreak
 
-
-### 4.2.3 Feautre Transformations:  Cold days Before and After
+#### 11.3.12. Feature Transformations:  Cold days Before and After
 ```{r, echo=FALSE ,out.width="70%", out.height="70%",fig.cap="Colddays Before and After Transform",fig.show='hold',fig.align='center'}
 
 knitr::include_graphics('Main_Code/images/cold_days_before.png')
@@ -651,10 +629,9 @@ knitr::include_graphics('Main_Code/images/cold_days_after.png')
 
 
 ```
-\pagebreak
 
 
-### 4.2.3 Feautre Transformations:  Warm days Before and After
+#### 11.3.13. Feature Transformations:  Warm days Before and After
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Warmdays Before and After Transform",fig.show='hold',fig.align='center'}
 
 
@@ -662,79 +639,10 @@ knitr::include_graphics('Main_Code/images/warm_days_before.png')
 knitr::include_graphics('Main_Code/images/warm_days_after.png')
 ```
 
-\pagebreak
 
 
-### 4.2.3 Feautre Transformations: Hot days Before (no transform needed)
+#### 11.3.14. Feature Transformations: Hot days Before (no transform needed)
 ```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Hotdays Before (no transform needed)",fig.show='hold',fig.align='center'}
 knitr::include_graphics('Main_Code/images/hot_days_dist.png')
 
 ```
-
-\pagebreak
-
-
-
-## 4.2.4: Pairwise Correlation Analysis After intial Feature Engineering
-
-```{r, echo=FALSE ,out.width="100%", out.height="70%",fig.cap="Pairwise Correlation Analysis After intial Feature Engineering",fig.show='hold',fig.align='center'}
-
-knitr::include_graphics('Main_Code/images/second_tri_mat.png')
-
-
-```
-
-
-
-
-## 4.3.6 Model Results 1/2
-```{r, echo=FALSE ,out.width="75%", out.height="75%",fig.cap="Model Results 1/2",fig.show='hold',fig.align='center'}
-
-knitr::include_graphics('Main_Code/images/fit_time_boxplot.png')
-
-
-knitr::include_graphics('Main_Code/images/rmse_boxplot.png')
-```
-
-\pagebreak
-## 4.3.6 Insample Model Metric Comparison Results 2/2
-```{r, echo=FALSE ,out.width="70%", out.height="65%",fig.cap="Model Results 2/2",fig.show='hold',fig.align='center'}
-
-knitr::include_graphics('Main_Code/images/rsq_boxplot.png')
-
-```
-
-\pagebreak
-## 5.0 Model Results: Prediction intervals
-
-
-
-\pagebreak
-
-\begin{center}
-\textbf{Table 3}: "50 $\%$ Prediction Intervals"
-\end{center}
-
-
-| Model | Level | Avg Length | Interval Score | Coverage |
-|-------|-------|------------|----------------|----------|
-| LGBM  | 0.5   | 23.675     | 58.053         | 0.494    |
-| SVR   | 0.5   | 23.266     | 57.622         | 0.502    |
-| GBR   | 0.5   | 24.705     | 58.114         | 0.506    |
-| Elnet | 0.5   | 29.156     | 65.155         | 0.501    |
-| XGB   | 0.5   | 23.856     | 57.693         | 0.505    |
-| Stack | 0.5   | 24.338     | 57.656         | 0.505    |
-
-
-\begin{center}
-\textbf{Table 4}: "80 $\%$ Prediction Intervals"
-\end{center}
-
-| Model | Level | Avg Length | Interval Score | Coverage |
-|-------|-------|------------|----------------|----------|
-| LGBM  | 0.8   | 54.604     | 89.740         | 0.798    |
-| SVR   | 0.8   | 53.120     | 90.000         | 0.793    |
-| GBR   | 0.8   | 54.755     | 89.175         | 0.795    |
-| Elnet | 0.8   | 64.465     | 96.675         | 0.799    |
-| XGB   | 0.8   | 54.165     | 89.306         | 0.799    |
-| Stack | 0.8   | 54.448     | 88.648         | 0.797    |
